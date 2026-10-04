@@ -83,7 +83,7 @@ def h_block(b, out):
             tag = '<video autoplay muted loop playsinline preload="metadata"' + (' poster="' + poster + '"' if poster else '') + ' aria-label="' + html.escape(b[2][:80]) + '"><source src="' + base + '.mp4" type="video/mp4"></video>'
         else:
             tag = '<img src="' + b[1] + '" alt="' + html.escape(b[2][:80]) + '">'
-        out.append('<figure>' + tag + '<figcaption>' + h_rich(b[2]) + '</figcaption></figure>')
+        out.append('<figure' + (' class="wide"' if 'loopback_loop' in b[1] else '') + '>' + tag + '<figcaption>' + h_rich(b[2]) + '</figcaption></figure>')
     elif k == 'table':
         out.append('<div class="tablewrap"><table><thead><tr>' + ''.join('<th>' + h_rich(c) + '</th>' for c in b[1]) + '</tr></thead><tbody>' + ''.join('<tr>' + ''.join('<td>' + h_rich(c) + '</td>' for c in r) + '</tr>' for r in b[2]) + '</tbody></table></div>')
     elif k == 'code': out.append('<pre><code>' + html.escape(b[2]) + '</code></pre>')
@@ -105,7 +105,7 @@ h2 { font-family:"Times New Roman", Times, serif; font-size:30px; margin:48px 0 
 p { margin:0 0 14px } a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline }
 ul { padding-left:1.3em; margin:0 0 14px } li { margin:4px 0 }
 .callout { display:flex; gap:14px; background:var(--callout); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:14px 0 18px; } .callout-icon { font-size:24px; line-height:1.3 } .callout-body { min-width:0; flex:1 } .callout-body p:last-child, .callout-body ul:last-child { margin-bottom:0 }
-figure { margin:22px 0 } figure img, figure video { width:100%; height:auto; border-radius:8px; border:1px solid var(--line); display:block; background:#fff } figcaption { color:var(--muted); font-size:14.5px; margin-top:8px; line-height:1.5 }
+figure { margin:22px 0 } figure.wide { width:min(1060px, calc(100vw - 32px)); margin-left:calc(50% - min(530px, 50vw - 16px)); } figure.wide figcaption { max-width:820px; margin-left:auto; margin-right:auto } figure img, figure video { width:100%; height:auto; border-radius:8px; border:1px solid var(--line); display:block; background:#fff } figcaption { color:var(--muted); font-size:14.5px; margin-top:8px; line-height:1.5 }
 .eq { overflow-x:auto; padding:6px 0; margin:6px 0 14px }
 .tablewrap { overflow-x:auto; margin:10px 0 18px } table { border-collapse:collapse; width:100%; font-size:15px; font-variant-numeric:tabular-nums } th, td { padding:8px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top } th { color:var(--muted); font-weight:600; font-size:13.5px; text-transform:uppercase; letter-spacing:.03em }
 pre { background:var(--callout); border:1px solid var(--line); border-radius:8px; padding:14px 16px; overflow-x:auto; font-size:13.5px; line-height:1.5 } code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:0.92em }

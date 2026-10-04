@@ -1,6 +1,7 @@
 """Create the blog as a Notion page from notion_blocks.json.
 
 Usage:  NOTION_TOKEN=ntn_... python3 notion_publish.py --parent <page id or URL> [--blocks notion_blocks.json]
+        (or put the token in ~/.notion_token, mode 600)
 The integration behind the token must have access to the parent page (page menu -> Connections). Images and the
 cover are uploaded with Notion's file-upload API, so nothing has to be hosted elsewhere.
 """
@@ -35,7 +36,9 @@ def page_id(s):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--parent', required=True); ap.add_argument('--blocks', default=os.path.join(HERE, 'notion_blocks.json'))
-    a = ap.parse_args(); token = os.environ.get('NOTION_TOKEN') or sys.exit('set NOTION_TOKEN')
+    a = ap.parse_args(); token = os.environ.get('NOTION_TOKEN')
+    if not token and os.path.exists(os.path.expanduser('~/.notion_token')): token = open(os.path.expanduser('~/.notion_token')).read().strip()
+    if not token: sys.exit('set NOTION_TOKEN or put the integration token in ~/.notion_token')
     spec = json.load(open(a.blocks)); children = spec['children']
     for b in children:   # upload local images
         if b['type'] == 'image' and b['image']['external']['url'].startswith('LOCAL:'):
