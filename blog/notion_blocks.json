@@ -1,0 +1,3062 @@
+{
+ "title": "Loopback Transformer: Towards a Unified View of Residual Looped Transformers",
+ "icon": "🔁",
+ "cover": "images/cover.png",
+ "children": [
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Authors"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ": Xuan Ouyang, Zefan Cai, Chenlong Zhang, Cheng Luo, Ke Wan, Junjie Hu"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Affiliations"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ": University of Wisconsin–Madison, UC Santa Barbara, Caltech, Microsoft"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Paper"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ": arXiv (link coming) · "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "Project page and interactive demo"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ": "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "yancyou.github.io/Loopback_page",
+       "link": {
+        "url": "https://yancyou.github.io/Loopback_page/"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " · "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "Code"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ": coming soon"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "callout",
+   "callout": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "We are excited to introduce the "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "Loopback Transformer"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", a looped Transformer that stores the "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "updates"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " its shared blocks compute, keeps the loop's input on its own path, and lets a geometric decay set how much of that history is used while attention decides where it goes."
+      }
+     }
+    ],
+    "icon": {
+     "type": "emoji",
+     "emoji": "📢"
+    },
+    "color": "gray_background",
+    "children": [
+     {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "Looped Transformers apply the same blocks several times, so a 20-block-deep model can be built from 4 shared blocks. But parameter sharing only says "
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": "which"
+         },
+         "annotations": {
+          "italic": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " computation is reused, not how the results of repeated visits are "
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": "stored, carried forward, and read"
+         },
+         "annotations": {
+          "bold": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": ". We show that this memory rule makes a large difference, and that one depth-memory view (write, carry, read) covers ordinary residual addition, Attention Residuals, Hyper-Connections, Hyperloop and recurrent-depth readers alike."
+         }
+        }
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "Trained on ClimbMix at matched tokens and matched depth, Loopback reaches "
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": "lower validation loss and higher zero-shot accuracy than dense Transformers"
+         },
+         "annotations": {
+          "bold": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " while using "
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": "40%, 58%, 67% and 68%"
+         },
+         "annotations": {
+          "bold": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " of their Transformer parameters at "
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": "191M, 374M, 778M and 1.4B"
+         },
+         "annotations": {
+          "bold": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": ", and it is the best of nine residual rules at the two scales where we ran the full comparison."
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Takeaways for looped Transformers"
+      },
+      "annotations": {
+       "bold": true
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "callout",
+   "callout": {
+    "rich_text": [],
+    "icon": {
+     "type": "emoji",
+     "emoji": "🔥"
+    },
+    "color": "gray_background",
+    "children": [
+     {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "Store updates, not outputs."
+         },
+         "annotations": {
+          "bold": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " A block's full output contains its input, so weighting that output also re-weights the history the input carries. Storing the update "
+         }
+        },
+        {
+         "type": "equation",
+         "equation": {
+          "expression": "\\boldsymbol{\\delta}_s=f_k(\\boldsymbol h_s)-\\boldsymbol h_s"
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " on its own gives every visit a coefficient of its own."
+         }
+        }
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "Keep the input on its own path."
+         },
+         "annotations": {
+          "bold": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " A joint softmax over the input and the stored updates makes them compete for one unit of weight, so the input fades as depth grows; plain addition keeps the input fixed but lets the total update weight grow with every block application. Loopback fixes the input coefficient at 1 and bounds the total."
+         }
+        }
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "Decay sets the total, attention allocates it."
+         },
+         "annotations": {
+          "bold": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " A geometric factor "
+         }
+        },
+        {
+         "type": "equation",
+         "equation": {
+          "expression": "\\lambda"
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " at each visit end gives a recency prior whose total is at most "
+         }
+        },
+        {
+         "type": "equation",
+         "equation": {
+          "expression": "K\\lambda/(1-\\lambda)"
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": "; a softmax over the stored updates redistributes that total. Decay alone recovers most of the gain over the plain loop (2.6802 → 2.6220 at 191M), and learned allocation adds the rest (2.6187)."
+         }
+        }
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "Reading updates beats reading states."
+         },
+         "annotations": {
+          "bold": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " Eleven linear-attention and recurrent readers (Gated DeltaNet, Mamba-2, RWKV-7, …) all do better when fed the stored updates than when fed loop states, and all of them stay behind Loopback."
+         }
+        }
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "It costs little."
+         },
+         "annotations": {
+          "bold": true
+         }
+        },
+        {
+         "type": "text",
+         "text": {
+          "content": " About +0.08% forward FLOPs, a fused Triton kernel that streams the stored updates once per read, and at 1.4B a model whose weights take 1.87 GiB instead of 2.64 GiB in bf16."
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "image",
+   "image": {
+    "type": "external",
+    "external": {
+     "url": "LOCAL:images/loopback_loop.gif"
+    },
+    "caption": [
+     {
+      "type": "text",
+      "text": {
+       "content": "The loop, one application at a time. The hidden state circles the shared blocks (blue and peach); every application appends its update to the history on the right, and the reader forms the next state from the input (fixed coefficient 1) and the stored updates. At each visit end every stored weight is multiplied by λ; attention then reallocates the total. The interactive version with sliders for K, R, λ and the attention query is on the project page."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "divider",
+   "divider": {}
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "🔁 Why a looped model needs a memory rule"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "A looped Transformer runs a prefix of ordinary blocks, then visits a shared stack of "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "K"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " blocks "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "R"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " times, then runs a coda. We write such a topology as "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "[P \\to K \\times R \\to C]"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "; the 191M model, for instance, is "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "[2 \\to 4 \\times 4 \\to 2]"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ": 20 block applications from 8 distinct blocks. Depth is cheap, parameters are shared, and the model can keep refining one hidden state."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Each visit applies the same transformation to a "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "different"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " hidden state and therefore produces a different update. That raises the question the paper is about: "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "how should the updates from repeated visits be stored, carried forward, and used?"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " Parameter sharing decides which transformation is reused; it says nothing about how the results accumulate."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Residual connections are the natural lens, because they turn depth into memory: every layer "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "writes"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " new computation into the residual stream, the stream "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "carries"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " it forward, and later layers "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "read"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " it. Seen this way, the familiar residual rules differ only in what they write and how they weight what they read:"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Addition"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " writes the update and reads everything with coefficient one, so the total update weight grows linearly with depth."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Attention Residuals"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " keep an explicit history of layer outputs and learn to weight them, but through one softmax shared by the input and the history."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Hyper-Connections, mHC and Hyperloop"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " carry several residual streams and learn the pathways between them."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Recurrent-depth readers"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " (Mamba-2, DeltaNet, RWKV-7, …) fold the history into a fixed-size state."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "image",
+   "image": {
+    "type": "external",
+    "external": {
+     "url": "LOCAL:images/fig1_unified_view.png"
+    },
+    "caption": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Figure 1. Three ways to carry depth as memory: (a) residual addition, (b) an explicit history of updates read by a learned reader, (c) multiple memory streams. All three fit one interface: write a value, carry the memory forward, read it to form the next hidden state."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "⚖️ Two couplings hidden in the usual choices"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Unrolling the interface gives every earlier update an explicit coefficient in the next hidden state, and that exposes two couplings that ordinary choices create without meaning to."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "1. Storing a full output also stores its input"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "A block's output is "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol y_s=\\boldsymbol h_s+\\boldsymbol{\\delta}_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ": the new update plus the input the block received. If the memory stores "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol y_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " and a reader later assigns it a weight "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "c"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", that weight lands on "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol h_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " too, which already contains the whole history up to step "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". Earlier information gets re-weighted as a side effect of weighting later outputs. Storing "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol{\\delta}_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " alone lets a reader address each visit's contribution directly."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "2. One softmax couples the input to the updates"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "With a joint softmax over the input and all stored updates, the coefficients sum to one, so after "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " applications the input is left with a weight of about "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "1/(s+2)"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " while the updates share the rest. Plain addition has the opposite problem: the input keeps coefficient one, but every update also gets coefficient one, so the total update weight is "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "s+1"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " and keeps growing with depth."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "equation",
+   "equation": {
+    "expression": "\\begin{aligned} \\text{addition:}&\\quad \\boldsymbol h_{s+1}=\\boldsymbol h_0+\\sum_{i\\le s}\\boldsymbol{\\delta}_i \\\\[2pt] \\text{joint softmax:}&\\quad \\boldsymbol h_{s+1}=c_{\\mathrm{in}}\\,\\boldsymbol h_0+\\sum_{i\\le s}c_i\\,\\boldsymbol{\\delta}_i,\\qquad c_{\\mathrm{in}}+\\sum_{i\\le s} c_i=1 \\end{aligned}"
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Neither rule gives independent control over three things that matter in a loop: "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "how strongly the input enters"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "how much total weight the updates get"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", and "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "how that weight is allocated"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " across visits. Loopback is built to control each one separately."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "🧭 The Loopback recipe"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "image",
+   "image": {
+    "type": "external",
+    "external": {
+     "url": "LOCAL:images/fig2_loopback.png"
+    },
+    "caption": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Figure 2. Loopback on a two-visit loop. (a) Each shared-block application appends its update δ and reads the history. (b) Visit-end decay sets the prior and the total weight. (c) Attention reallocates that total across the raw updates; the input enters with coefficient one and is never decayed."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Step 1. Store the update, keep the input on its own path"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Every application of a shared block writes only its update "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol{\\delta}_s=f_k(\\boldsymbol h_s)-\\boldsymbol h_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " into the history. The shared stack's input "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol h_0"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " never enters that history: it is added back directly, with coefficient one, in every read. The shared blocks themselves are untouched."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Step 2. Let decay set the prior and the total"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "At the end of each visit, every stored weight is multiplied by a fixed "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\lambda"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " (we use "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\lambda=1/4"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "). Counting the visit ends between a write at step "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "i"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " and a read at step "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " gives a prior "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "c^0_{s,i}"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " and its total "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "B_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ":"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "equation",
+   "equation": {
+    "expression": "c^0_{s,i}=\\lambda^{\\lfloor (s+1)/K\\rfloor-\\lfloor i/K\\rfloor},\\qquad B_s=\\sum_{i=0}^{s}c^0_{s,i}."
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "The prior favors recent visits, and the total handed to the coda is "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "B_{KR-1}=K\\sum_{j=1}^{R}\\lambda^j\\le K\\lambda/(1-\\lambda)"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " instead of "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "KR"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ": the update weight is bounded no matter how many visits the loop runs. With zero attention queries this is the whole rule, and it already has a closed form: the loop output is "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol h_0+\\lambda\\,(F(\\boldsymbol h)-\\boldsymbol h_0)"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " with "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "F"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " the shared stack, which is why we call the decay-only variant the "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "anchored"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " loop."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Step 3. Let attention allocate the total"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "A destination query scores the normalized stored updates and redistributes the decay-set total across them; the softmax is over updates only, so the input coefficient stays at one and the total "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "B_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " is conserved:"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "equation",
+   "equation": {
+    "expression": "\\begin{aligned} \\boldsymbol k_i&=\\frac{\\boldsymbol{\\delta}_i}{\\sqrt{d^{-1}\\|\\boldsymbol{\\delta}_i\\|^2+\\varepsilon}},\\qquad z_{s,i}=\\boldsymbol q_s^{\\top}\\boldsymbol k_i/\\sqrt d, \\\\[2pt] c_{s,i}&=B_s\\,\\operatorname{softmax}_i\\bigl(z_{s,i}+\\log c^0_{s,i}\\bigr),\\qquad \\boldsymbol h_{s+1}=\\boldsymbol h_0+\\sum_{i=0}^{s}c_{s,i}\\,\\boldsymbol{\\delta}_i . \\end{aligned}"
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Two sanity checks fall out of the formula. Zero queries recover the decay-only loop exactly; "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\lambda=1"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " with zero queries recovers ordinary addition. Everything Loopback adds is in the read, so a fused Triton kernel that streams the stored updates once per read is all the extra machinery it needs."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "divider",
+   "divider": {}
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "📈 Results"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "All comparisons share the training-token budget and the computational depth (number of block applications) within a scale; parameter counts are Transformer-only, excluding embeddings and the vocabulary head, with shared weights counted once. Models are trained from scratch on ClimbMix with a WSD schedule at 20 tokens per parameter of the dense control."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Dense-model quality from a fraction of the parameters"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "image",
+   "image": {
+    "type": "external",
+    "external": {
+     "url": "LOCAL:images/fig_scaling.png"
+    },
+    "caption": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Figure 3. Transformer parameters with validation loss (left) and 13-task mean accuracy (right) at 778M and 1.4B. Loopback (blue) beats the matched-depth dense control (grey) with 67% and 68% of its Transformer parameters; the 191M and 374M rows of the table below show the same picture at 40% and 58%."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "table",
+   "table": {
+    "table_width": 5,
+    "has_column_header": true,
+    "has_row_header": false,
+    "children": [
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Scale"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Topology"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Transformer params (Dense → Loopback)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "ClimbMix loss (Dense → Loopback)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "7-task mean (Dense → Loopback)"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "191M"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "[2 → 4 × 4 → 2]"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "141.6M → 56.7M (40%)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6234 → "
+          }
+         },
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6187"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "39.81 → "
+          }
+         },
+         {
+          "type": "text",
+          "text": {
+           "content": "40.16"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "374M"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "[2 → 10 × 2 → 2]"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "308.3M → 179.9M (58%)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4198 → "
+          }
+         },
+         {
+          "type": "text",
+          "text": {
+           "content": "2.3971"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "43.28 → "
+          }
+         },
+         {
+          "type": "text",
+          "text": {
+           "content": "44.27"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "778M"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "[2 → 8 × 2 → 6]"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "679.6M → 453.1M (67%)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.2521 → "
+          }
+         },
+         {
+          "type": "text",
+          "text": {
+           "content": "2.2334"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "47.83 → "
+          }
+         },
+         {
+          "type": "text",
+          "text": {
+           "content": "48.73"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "1.4B"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "[3 → 8 × 2 → 6]"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "1,284.6M → 873.6M (68%)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.1283 → "
+          }
+         },
+         {
+          "type": "text",
+          "text": {
+           "content": "2.1073"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "52.11 → "
+          }
+         },
+         {
+          "type": "text",
+          "text": {
+           "content": "52.98"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "The seven tasks are PIQA, HellaSwag, WinoGrande, OpenBookQA, ARC-Easy, ARC-Challenge and LAMBADA (zero-shot, lm-evaluation-harness). On the thirteen-task suite the 778M and 1.4B models also lead, 43.39 vs 42.71 and 46.33 vs 45.69, and their WikiText perplexity is lower (25.03 vs 25.80; 20.29 vs 21.09)."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "image",
+   "image": {
+    "type": "external",
+    "external": {
+     "url": "LOCAL:images/fig_train_loss.png"
+    },
+    "caption": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Figure 4. Training loss of Loopback and the dense control at each scale, with the final gap in the inset. The curves cross early and the gap is stable over the decay phase."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Against eight other residual rules"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "At 191M and 374M we trained every rule on the same looped topology, with the same data order and the same learning rate for all looped arms (dense controls use their own best rate). Validation loss and the seven-task mean:"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "table",
+   "table": {
+    "table_width": 5,
+    "has_column_header": true,
+    "has_row_header": false,
+    "children": [
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Rule"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "191M loss"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "191M mean"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "374M loss"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "374M mean"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Dense (full parameters)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6234"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "39.81"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4198"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "43.28"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Plain loop (addition)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6802"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "39.03"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4415"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "43.37"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "mHC"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6250"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "39.83"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4062"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "44.17"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "HC"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6449"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "39.20"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4249"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "43.72"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "iHC"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6564"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "39.67"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4217"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "43.35"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Hyperloop"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6489"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "39.12"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4179"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "44.07"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "MHAR"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6564"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "39.04"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4223"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "43.64"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Attention Residuals"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6647"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "39.73"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4601"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "42.89"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Loopback"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6187"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "40.16"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.3971"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "44.27"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "The plain loop pays 0.057 and 0.022 of loss for sharing its blocks. Loopback gives all of that back and then some; the strongest alternative, mHC, lands 0.006 and 0.009 behind it in loss. The full thirteen-task tables, the per-task numbers and the learning-rate protocol are in the paper."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "divider",
+   "divider": {}
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "🔬 What makes it work"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Decay does most of the work, attention finishes it"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Switching the two mechanisms on and off separately gives a clean 2 × 2. Fixed allocation means zero queries; decay off means "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\lambda=1"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "table",
+   "table": {
+    "table_width": 5,
+    "has_column_header": true,
+    "has_row_header": false,
+    "children": [
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Decay \\ Allocation"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Fixed (191M)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Learned (191M)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Fixed (374M)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Learned (374M)"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Off (λ = 1)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6802"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6621"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4415"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.4308"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "On (λ = 1/4)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6220"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.6187"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.3999"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "2.3971"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Decay alone moves the plain loop from 2.6802 to 2.6220 at 191M and from 2.4415 to 2.3999 at 374M, past the dense control in both cases; learned allocation adds a further 0.003. Attention without decay helps too, but much less: a bounded total matters more than a learned split of an unbounded one."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Robust to initialization"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Loopback keeps its lead under three initializations at 191M, while the dense model's loss swings by 0.09: "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\mathcal N(0,0.02^2)"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " 2.6187 vs 2.6234, GPT-2 scaling 2.6178 vs 2.6419, PyTorch default 2.6138 vs 2.7145."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Feed readers updates, not states"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "The unified interface also lets us swap the reader. We replaced Loopback's attention read with eleven linear-attention and recurrent readers and fed each one either the stored updates or the loop states. Updates win in every family at both scales, and the best reader (Gated DeltaNet at 191M, HGRN-2 at 374M) still trails Loopback by 0.03 of loss."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "image",
+   "image": {
+    "type": "external",
+    "external": {
+     "url": "LOCAL:images/fig_memory_readers.png"
+    },
+    "caption": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Figure 5. Validation loss of eleven memory readers fed updates (solid) or states (hatched) at 191M and 374M; the dashed lines mark the plain loop, Dense and Loopback."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "divider",
+   "divider": {}
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "⚙️ What it costs"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "The read is the only addition, so the FLOP overhead is tiny (+0.08% at 191M and 374M, +0.04% at 778M). The fused kernel keeps the throughput cost moderate: at 778M Loopback trains at 63k tokens per second per GPU against 76k for the plain loop and 75k for the dense model, and prefills at 217k tokens per second against 269k. The parameter saving shows up where it is persistent: at 1.4B the weights take 1.87 GiB instead of 2.64 GiB in bf16, and weights plus a 4k-token KV cache take 2.65 GiB instead of 3.42 GiB."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "table",
+   "table": {
+    "table_width": 5,
+    "has_column_header": true,
+    "has_row_header": false,
+    "children": [
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Model (778M setting)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Transformer params"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Extra FLOPs"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Train tok/s/GPU"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Prefill tok/s"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Dense"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "679.6M"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "–"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "75k"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "269k"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Plain loop"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "453.0M"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "+0.00%"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "76k"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "269k"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "mHC"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "453.3M"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "+0.04%"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "68k"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "240k"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Loopback"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "453.1M"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "+0.04%"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "63k"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "217k"
+          }
+         }
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "divider",
+   "divider": {}
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "🧪 Try it"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "The project page has an interactive version of the animation above: play the loop step by step, change "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "K"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "R"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " and "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\lambda"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", point the attention query at a visit, and watch the input coefficient, the total update weight and the allocation respond. The same page collects the figures and the BibTeX."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bookmark",
+   "bookmark": {
+    "url": "https://yancyou.github.io/Loopback_page/"
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Training and evaluation code is being prepared for release; the paper has every setting needed to reproduce the tables, including the WSD schedule, the data order and the learning-rate protocol for looped arms."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "📖 Citation"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "code",
+   "code": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "@article{ouyang2026loopback,\n  title   = {Loopback Transformer: Towards a Unified View of Residual Looped Transformers},\n  author  = {Ouyang, Xuan and Cai, Zefan and Zhang, Chenlong and Luo, Cheng and Wan, Ke and Hu, Junjie},\n  journal = {arXiv preprint},\n  year    = {2026}\n}"
+      }
+     }
+    ],
+    "language": "latex"
+   }
+  }
+ ]
+}
