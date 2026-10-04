@@ -77,7 +77,12 @@ def h_block(b, out):
         out.append('<div class="callout"><div class="callout-icon">' + b[1] + '</div><div class="callout-body">' + ''.join(inner) + '</div></div>')
     elif k == 'eq': out.append('<div class="eq">\\[' + html.escape(b[1]) + '\\]</div>')
     elif k == 'img':
-        tag = '<img src="' + b[1] + '" alt="' + html.escape(b[2][:80]) + '">'
+        base = b[1][:-4] if b[1].endswith('.gif') else None
+        if base and os.path.exists(os.path.join(HERE, base + '.mp4')):   # crisp, smooth video for the page; the GIF stays for Notion
+            poster = base + '_poster.png' if os.path.exists(os.path.join(HERE, base + '_poster.png')) else ''
+            tag = '<video autoplay muted loop playsinline preload="metadata"' + (' poster="' + poster + '"' if poster else '') + ' aria-label="' + html.escape(b[2][:80]) + '"><source src="' + base + '.mp4" type="video/mp4"></video>'
+        else:
+            tag = '<img src="' + b[1] + '" alt="' + html.escape(b[2][:80]) + '">'
         out.append('<figure>' + tag + '<figcaption>' + h_rich(b[2]) + '</figcaption></figure>')
     elif k == 'table':
         out.append('<div class="tablewrap"><table><thead><tr>' + ''.join('<th>' + h_rich(c) + '</th>' for c in b[1]) + '</tr></thead><tbody>' + ''.join('<tr>' + ''.join('<td>' + h_rich(c) + '</td>' for c in r) + '</tr>' for r in b[2]) + '</tbody></table></div>')
