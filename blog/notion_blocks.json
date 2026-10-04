@@ -125,7 +125,91 @@
      {
       "type": "text",
       "text": {
-       "content": "We are excited to introduce the "
+       "content": "TL;DR."
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " A looped Transformer reuses a few shared blocks many times. We show that "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "what the loop remembers between visits"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " matters as much as the blocks themselves, and we give the memory a simple rule: store each block's "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "update"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " (not its output), keep the loop's "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "input on its own path"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", let a geometric "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "decay"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " set how much history is used, and let "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "attention"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " decide where that weight goes. The result, the "
       }
      },
      {
@@ -140,22 +224,37 @@
      {
       "type": "text",
       "text": {
-       "content": ", a looped Transformer that stores the "
+       "content": ", reaches lower validation loss and higher zero-shot accuracy than dense Transformers trained on the same tokens at the same depth, with "
       }
      },
      {
       "type": "text",
       "text": {
-       "content": "updates"
+       "content": "40%, 58%, 67% and 68%"
       },
       "annotations": {
-       "italic": true
+       "bold": true
       }
      },
      {
       "type": "text",
       "text": {
-       "content": " its shared blocks compute, keeps the loop's input on its own path, and lets a geometric decay set how much of that history is used while attention decides where it goes."
+       "content": " of their Transformer parameters at "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "191M, 374M, 778M and 1.4B"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "."
       }
      }
     ],
@@ -173,96 +272,7 @@
         {
          "type": "text",
          "text": {
-          "content": "Looped Transformers apply the same blocks several times, so a 20-block-deep model can be built from 4 shared blocks. But parameter sharing only says "
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": "which"
-         },
-         "annotations": {
-          "italic": true
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": " computation is reused, not how the results of repeated visits are "
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": "stored, carried forward, and read"
-         },
-         "annotations": {
-          "bold": true
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": ". We show that this memory rule makes a large difference, and that one depth-memory view (write, carry, read) covers ordinary residual addition, Attention Residuals, Hyper-Connections, Hyperloop and recurrent-depth readers alike."
-         }
-        }
-       ]
-      }
-     },
-     {
-      "object": "block",
-      "type": "paragraph",
-      "paragraph": {
-       "rich_text": [
-        {
-         "type": "text",
-         "text": {
-          "content": "Trained on ClimbMix at matched tokens and matched depth, Loopback reaches "
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": "lower validation loss and higher zero-shot accuracy than dense Transformers"
-         },
-         "annotations": {
-          "bold": true
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": " while using "
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": "40%, 58%, 67% and 68%"
-         },
-         "annotations": {
-          "bold": true
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": " of their Transformer parameters at "
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": "191M, 374M, 778M and 1.4B"
-         },
-         "annotations": {
-          "bold": true
-         }
-        },
-        {
-         "type": "text",
-         "text": {
-          "content": ", and it is the best of nine residual rules at the two scales where we ran the full comparison."
+          "content": "Along the way we show that residual addition, Attention Residuals, Hyper-Connections, mHC, Hyperloop and recurrent-depth readers (Mamba-2, DeltaNet, RWKV-7, …) are all instances of one write–carry–read interface, which makes their differences, and Loopback's design, easy to state."
          }
         }
        ]
@@ -279,7 +289,7 @@
      {
       "type": "text",
       "text": {
-       "content": "Takeaways for looped Transformers"
+       "content": "Takeaways"
       },
       "annotations": {
        "bold": true
@@ -386,7 +396,7 @@
         {
          "type": "text",
          "text": {
-          "content": " at each visit end gives a recency prior whose total is at most "
+          "content": " at each visit end gives a recency prior whose visit-end total is at most "
          }
         },
         {
@@ -398,7 +408,7 @@
         {
          "type": "text",
          "text": {
-          "content": "; a softmax over the stored updates redistributes that total. Decay alone recovers most of the gain over the plain loop (2.6802 → 2.6220 at 191M), and learned allocation adds the rest (2.6187)."
+          "content": "; a softmax over the stored updates redistributes that total. Decay alone recovers most of the gain over the plain loop (2.6802 → 2.6220 at 191M); learned allocation adds the rest (2.6187)."
          }
         }
        ]
@@ -473,6 +483,13 @@
   },
   {
    "object": "block",
+   "type": "table_of_contents",
+   "table_of_contents": {
+    "color": "gray"
+   }
+  },
+  {
+   "object": "block",
    "type": "divider",
    "divider": {}
   },
@@ -498,31 +515,22 @@
      {
       "type": "text",
       "text": {
-       "content": "A looped Transformer runs a prefix of ordinary blocks, then visits a shared stack of "
-      }
-     },
-     {
-      "type": "equation",
-      "equation": {
-       "expression": "K"
+       "content": "Depth is one of the cheapest things to add to a Transformer and one of the most expensive to pay for. Every extra block costs parameters, and parameters cost memory, bandwidth and money at inference time. Looped Transformers, from the Universal Transformer and ALBERT to the recent latent-reasoning models, take a different route: run a prefix of ordinary blocks, then "
       }
      },
      {
       "type": "text",
       "text": {
-       "content": " blocks "
-      }
-     },
-     {
-      "type": "equation",
-      "equation": {
-       "expression": "R"
+       "content": "visit a shared stack of $K$ blocks $R$ times"
+      },
+      "annotations": {
+       "bold": true
       }
      },
      {
       "type": "text",
       "text": {
-       "content": " times, then runs a coda. We write such a topology as "
+       "content": ", then run a coda. We write such a topology as "
       }
      },
      {
@@ -534,7 +542,7 @@
      {
       "type": "text",
       "text": {
-       "content": "; the 191M model, for instance, is "
+       "content": ". The 191M model below is "
       }
      },
      {
@@ -546,7 +554,7 @@
      {
       "type": "text",
       "text": {
-       "content": ": 20 block applications from 8 distinct blocks. Depth is cheap, parameters are shared, and the model can keep refining one hidden state."
+       "content": ": 20 block applications from 8 distinct blocks. The model gets to refine one hidden state over and over, and the extra visits are free in parameters."
       }
      }
     ]
@@ -560,7 +568,22 @@
      {
       "type": "text",
       "text": {
-       "content": "Each visit applies the same transformation to a "
+       "content": "Here is the catch. Each visit applies the "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "same"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " transformation to a "
       }
      },
      {
@@ -575,13 +598,13 @@
      {
       "type": "text",
       "text": {
-       "content": " hidden state and therefore produces a different update. That raises the question the paper is about: "
+       "content": " hidden state and therefore produces a different update. Parameter sharing decides which transformation is reused; it says nothing about "
       }
      },
      {
       "type": "text",
       "text": {
-       "content": "how should the updates from repeated visits be stored, carried forward, and used?"
+       "content": "how the results of repeated visits should be stored, carried forward and used"
       },
       "annotations": {
        "bold": true
@@ -590,7 +613,21 @@
      {
       "type": "text",
       "text": {
-       "content": " Parameter sharing decides which transformation is reused; it says nothing about how the results accumulate."
+       "content": ". That question is usually answered by default, with the plain residual connection, and the default is not a good answer: at 191M the plain loop is 0.057 of validation loss behind a dense model of the same depth, and at 374M it is 0.022 behind. Something in how the loop accumulates its own work is wasting the computation."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_3",
+   "heading_3": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Residual connections are memory"
       }
      }
     ]
@@ -604,7 +641,22 @@
      {
       "type": "text",
       "text": {
-       "content": "Residual connections are the natural lens, because they turn depth into memory: every layer "
+       "content": "The useful way to see this is the "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "depth-memory"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " view of residual connections. Every layer "
       }
      },
      {
@@ -613,7 +665,7 @@
        "content": "writes"
       },
       "annotations": {
-       "italic": true
+       "bold": true
       }
      },
      {
@@ -628,7 +680,7 @@
        "content": "carries"
       },
       "annotations": {
-       "italic": true
+       "bold": true
       }
      },
      {
@@ -643,13 +695,25 @@
        "content": "read"
       },
       "annotations": {
-       "italic": true
+       "bold": true
       }
      },
      {
       "type": "text",
       "text": {
-       "content": " it. Seen this way, the familiar residual rules differ only in what they write and how they weight what they read:"
+       "content": " it to form their input. Written as one interface, a memory "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol M_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " with a few columns is updated and read at every application:"
       }
      }
     ]
@@ -657,22 +721,74 @@
   },
   {
    "object": "block",
-   "type": "bulleted_list_item",
-   "bulleted_list_item": {
+   "type": "equation",
+   "equation": {
+    "expression": "\\boldsymbol M_{s+1}=\\boldsymbol M_s\\boldsymbol W_s+\\boldsymbol v_s\\boldsymbol b_s^{\\top},\\qquad \\boldsymbol h_{s+1}=\\boldsymbol M_{s+1}\\boldsymbol r_s ."
+   }
+  },
+  {
+   "object": "block",
+   "type": "paragraph",
+   "paragraph": {
     "rich_text": [
      {
-      "type": "text",
-      "text": {
-       "content": "Addition"
-      },
-      "annotations": {
-       "bold": true
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol v_s"
       }
      },
      {
       "type": "text",
       "text": {
-       "content": " writes the update and reads everything with coefficient one, so the total update weight grows linearly with depth."
+       "content": " is the value the "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "-th application writes, "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol b_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " says where it goes, "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol W_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " carries (or mixes, or decays) the old memory, and "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol r_s"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " reads the memory into the next hidden state. The familiar residual rules are just settings of these four controls:"
       }
      }
     ]
@@ -680,68 +796,320 @@
   },
   {
    "object": "block",
-   "type": "bulleted_list_item",
-   "bulleted_list_item": {
-    "rich_text": [
+   "type": "table",
+   "table": {
+    "table_width": 4,
+    "has_column_header": true,
+    "has_row_header": false,
+    "children": [
      {
-      "type": "text",
-      "text": {
-       "content": "Attention Residuals"
-      },
-      "annotations": {
-       "bold": true
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Rule"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Writes "
+          }
+         },
+         {
+          "type": "equation",
+          "equation": {
+           "expression": "\\boldsymbol v_s"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Carry "
+          }
+         },
+         {
+          "type": "equation",
+          "equation": {
+           "expression": "\\boldsymbol W_s"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Read "
+          }
+         },
+         {
+          "type": "equation",
+          "equation": {
+           "expression": "\\boldsymbol r_s"
+          }
+         }
+        ]
+       ]
       }
      },
      {
-      "type": "text",
-      "text": {
-       "content": " keep an explicit history of layer outputs and learn to weight them, but through one softmax shared by the input and the history."
-      }
-     }
-    ]
-   }
-  },
-  {
-   "object": "block",
-   "type": "bulleted_list_item",
-   "bulleted_list_item": {
-    "rich_text": [
-     {
-      "type": "text",
-      "text": {
-       "content": "Hyper-Connections, mHC and Hyperloop"
-      },
-      "annotations": {
-       "bold": true
-      }
-     },
-     {
-      "type": "text",
-      "text": {
-       "content": " carry several residual streams and learn the pathways between them."
-      }
-     }
-    ]
-   }
-  },
-  {
-   "object": "block",
-   "type": "bulleted_list_item",
-   "bulleted_list_item": {
-    "rich_text": [
-     {
-      "type": "text",
-      "text": {
-       "content": "Recurrent-depth readers"
-      },
-      "annotations": {
-       "bold": true
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Residual addition"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "the update"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "1"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "1 (sum everything)"
+          }
+         }
+        ]
+       ]
       }
      },
      {
-      "type": "text",
-      "text": {
-       "content": " (Mamba-2, DeltaNet, RWKV-7, …) fold the history into a fixed-size state."
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Attention Residuals"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "layer outputs, kept as an explicit history"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "identity (append a column)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "one softmax over input and history"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Hyper-Connections / mHC / iHC"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "block outputs into several streams"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "learned (mHC: doubly-stochastic, iHC: identity)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "learned mixing of the streams"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Hyperloop"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "block outputs"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "learned diagonal carry between loop visits"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "learned"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Recurrent readers (Mamba-2, DeltaNet, RWKV-7, …)"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "keys and values of a fixed-size state"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "gates, decay, delta-rule corrections"
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "a query"
+          }
+         }
+        ]
+       ]
+      }
+     },
+     {
+      "object": "block",
+      "type": "table_row",
+      "table_row": {
+       "cells": [
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "Loopback (ours)"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "the update, with the input kept outside the memory"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "geometric decay at visit ends"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ],
+        [
+         {
+          "type": "text",
+          "text": {
+           "content": "attention over the stored updates"
+          },
+          "annotations": {
+           "bold": true
+          }
+         }
+        ]
+       ]
       }
      }
     ]
@@ -759,10 +1127,132 @@
      {
       "type": "text",
       "text": {
-       "content": "Figure 1. Three ways to carry depth as memory: (a) residual addition, (b) an explicit history of updates read by a learned reader, (c) multiple memory streams. All three fit one interface: write a value, carry the memory forward, read it to form the next hidden state."
+       "content": "Figure 1. Three ways to carry depth as memory: (a) residual addition, (b) an explicit history of updates read by a learned reader, (c) multiple memory streams. All three fit the interface above: write a value, carry the memory forward, read it to form the next hidden state."
       }
      }
     ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "callout",
+   "callout": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Why this view is useful."
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " Unrolling the interface gives every earlier update an explicit coefficient in the current hidden state, "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\boldsymbol h_{s+1}=a_{s+1}\\boldsymbol h_0+\\sum_{i\\le s}c_{s,i}\\boldsymbol{\\delta}_i"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". Three quantities then describe any rule: the "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "input strength"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "a"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", the "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "total update weight"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "B=\\sum_i c_{s,i}"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", and the "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "allocation"
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\pi_i=c_{s,i}/B"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " across visits. Once you look at residual rules this way, the problems with the usual choices are visible by inspection, and so is the fix."
+      }
+     }
+    ],
+    "icon": {
+     "type": "emoji",
+     "emoji": "💡"
+    },
+    "color": "gray_background",
+    "children": []
    }
   },
   {
@@ -774,20 +1264,6 @@
       "type": "text",
       "text": {
        "content": "⚖️ Two couplings hidden in the usual choices"
-      }
-     }
-    ]
-   }
-  },
-  {
-   "object": "block",
-   "type": "paragraph",
-   "paragraph": {
-    "rich_text": [
-     {
-      "type": "text",
-      "text": {
-       "content": "Unrolling the interface gives every earlier update an explicit coefficient in the next hidden state, and that exposes two couplings that ordinary choices create without meaning to."
       }
      }
     ]
@@ -875,7 +1351,7 @@
      {
       "type": "text",
       "text": {
-       "content": ". Earlier information gets re-weighted as a side effect of weighting later outputs. Storing "
+       "content": ". Earlier information gets re-weighted as a side effect of weighting later outputs, and a reader that wants to down-weight one noisy visit cannot do so without also touching everything that visit was built on. Storing "
       }
      },
      {
@@ -887,7 +1363,7 @@
      {
       "type": "text",
       "text": {
-       "content": " alone lets a reader address each visit's contribution directly."
+       "content": " alone lets a reader address each visit's contribution directly. (This is a parameterization choice rather than an expressivity claim: an unrestricted carry matrix could undo the coupling, but nothing in the usual rules does.)"
       }
      }
     ]
@@ -966,13 +1442,31 @@
   },
   {
    "object": "block",
+   "type": "image",
+   "image": {
+    "type": "external",
+    "external": {
+     "url": "LOCAL:images/anim_rules.gif"
+    },
+    "caption": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Figure 2. The three rules as the loop runs (K = 4, R = 4, λ = 1/4). Left: the coefficient of the input. Right: the total weight of the stored updates. Under addition the total grows without bound; under a joint softmax the input fades; under Loopback the input stays at 1 and the visit-end total (dots) approaches the bound Kλ/(1−λ) while the within-visit reads (thin line) stay bounded too."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
    "type": "paragraph",
    "paragraph": {
     "rich_text": [
      {
       "type": "text",
       "text": {
-       "content": "Neither rule gives independent control over three things that matter in a loop: "
+       "content": "Neither rule gives independent control over the three quantities that matter in a loop: "
       }
      },
      {
@@ -1017,7 +1511,7 @@
      {
       "type": "text",
       "text": {
-       "content": " across visits. Loopback is built to control each one separately."
+       "content": " across visits. In a 20-deep loop the differences are not academic: the plain loop hands its coda a sum of 16 unit-weight updates, and an attention-residual loop hands it an input diluted to a sixteenth. Loopback is built to control each quantity separately."
       }
      }
     ]
@@ -1049,7 +1543,7 @@
      {
       "type": "text",
       "text": {
-       "content": "Figure 2. Loopback on a two-visit loop. (a) Each shared-block application appends its update δ and reads the history. (b) Visit-end decay sets the prior and the total weight. (c) Attention reallocates that total across the raw updates; the input enters with coefficient one and is never decayed."
+       "content": "Figure 3. Loopback on a two-visit loop. (a) Each shared-block application appends its update δ and reads the history. (b) Visit-end decay sets the prior and the total weight. (c) Attention reallocates that total across the raw updates; the input enters with coefficient one and is never decayed."
       }
      }
     ]
@@ -1101,7 +1595,22 @@
      {
       "type": "text",
       "text": {
-       "content": " never enters that history: it is added back directly, with coefficient one, in every read. The shared blocks themselves are untouched."
+       "content": " never enters that history: it is added back directly, with coefficient one, in every read. The shared blocks themselves (attention, MLP and their internal residuals) are untouched, so Loopback is a change to the residual rule "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "around"
+      },
+      "annotations": {
+       "italic": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " the loop, not to the blocks inside it."
       }
      }
     ]
@@ -1216,6 +1725,24 @@
   },
   {
    "object": "block",
+   "type": "image",
+   "image": {
+    "type": "external",
+    "external": {
+     "url": "LOCAL:images/anim_prior.gif"
+    },
+    "caption": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Figure 4. The decay prior, row by row, for K = 2 shared blocks and R = 3 visits (λ = 1/4). Each read s sees the updates written so far; a new update enters with weight 1, and a visit end multiplies every stored weight by λ. The total B of each read is on the right. Darker cells carry more weight, so the prior favors the current visit without ever forgetting the earlier ones."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
    "type": "paragraph",
    "paragraph": {
     "rich_text": [
@@ -1246,7 +1773,7 @@
      {
       "type": "text",
       "text": {
-       "content": ": the update weight is bounded no matter how many visits the loop runs. With zero attention queries this is the whole rule, and it already has a closed form: the loop output is "
+       "content": ": the update weight is bounded no matter how many visits the loop runs. With zero attention queries this is the whole rule, and it has a closed form: the loop output is "
       }
      },
      {
@@ -1285,7 +1812,7 @@
      {
       "type": "text",
       "text": {
-       "content": " loop."
+       "content": " loop. It is a one-line change to a plain looped Transformer and, as the ablations below show, it already recovers most of the gain."
       }
      }
     ]
@@ -1340,6 +1867,24 @@
   },
   {
    "object": "block",
+   "type": "image",
+   "image": {
+    "type": "external",
+    "external": {
+     "url": "LOCAL:images/anim_alloc.gif"
+    },
+    "caption": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Figure 5. Attention reallocates, decay decides the budget. The final read of a K = 4, R = 4 loop: the dashed outlines are the decay prior, the filled bars the coefficients after attention. As the query turns toward visit 2 and then visit 4, weight moves between visits while the total B = 1.328 and the input coefficient (black bar) stay exactly where decay put them."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
    "type": "paragraph",
    "paragraph": {
     "rich_text": [
@@ -1362,6 +1907,179 @@
       }
      }
     ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "callout",
+   "callout": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "A worked example."
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " Take "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "K=2"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "R=3"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\lambda=1/4"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " as in Figure 4. After the first visit the two updates each carry weight "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\lambda=0.25"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", so "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "B=0.5"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". The second visit writes two new updates at weight 1 each, and at its end all four are decayed: the old pair to "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "\\lambda^2=0.0625"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", the new pair to "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "0.25"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "B=0.625"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". After the third visit "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "B=0.656"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", close to the bound "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "K\\lambda/(1-\\lambda)=0.667"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". A plain loop would have "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "B=6"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " at the same point and an attention-residual loop would have an input coefficient of "
+      }
+     },
+     {
+      "type": "equation",
+      "equation": {
+       "expression": "1/7"
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". Attention can then move the 0.656 around, for instance putting most of it on the visit whose updates the current token finds useful, but it cannot make it 6 and it cannot touch the input."
+      }
+     }
+    ],
+    "icon": {
+     "type": "emoji",
+     "emoji": "🧩"
+    },
+    "color": "gray_background",
+    "children": []
    }
   },
   {
@@ -1391,7 +2109,7 @@
      {
       "type": "text",
       "text": {
-       "content": "All comparisons share the training-token budget and the computational depth (number of block applications) within a scale; parameter counts are Transformer-only, excluding embeddings and the vocabulary head, with shared weights counted once. Models are trained from scratch on ClimbMix with a WSD schedule at 20 tokens per parameter of the dense control."
+       "content": "All comparisons share the training-token budget and the computational depth (number of block applications) within a scale; parameter counts are Transformer-only, excluding embeddings and the vocabulary head, with shared weights counted once. Models are trained from scratch on ClimbMix with a warmup–stable–decay schedule at 20 tokens per parameter of the dense control, so the budgets are 3.82B, 7.47B, 15.60B and 28.31B tokens at the four scales. Looped arms at a scale share the same topology, data order and learning rate; the dense control uses its own best learning rate. Validation loss is measured with the same document packing as training."
       }
      }
     ]
@@ -1417,13 +2135,13 @@
    "image": {
     "type": "external",
     "external": {
-     "url": "LOCAL:images/fig_scaling.png"
+     "url": "LOCAL:images/anim_scaling.gif"
     },
     "caption": [
      {
       "type": "text",
       "text": {
-       "content": "Figure 3. Transformer parameters with validation loss (left) and 13-task mean accuracy (right) at 778M and 1.4B. Loopback (blue) beats the matched-depth dense control (grey) with 67% and 68% of its Transformer parameters; the 191M and 374M rows of the table below show the same picture at 40% and 58%."
+       "content": "Figure 6. Four scales, same tokens, same depth. Left: Transformer parameters of the dense control and of Loopback. Right: validation loss. Loopback keeps 40%, 58%, 67% and 68% of the parameters and ends below the dense control at every scale."
       }
      }
     ]
@@ -1760,7 +2478,7 @@
      {
       "type": "text",
       "text": {
-       "content": "The seven tasks are PIQA, HellaSwag, WinoGrande, OpenBookQA, ARC-Easy, ARC-Challenge and LAMBADA (zero-shot, lm-evaluation-harness). On the thirteen-task suite the 778M and 1.4B models also lead, 43.39 vs 42.71 and 46.33 vs 45.69, and their WikiText perplexity is lower (25.03 vs 25.80; 20.29 vs 21.09)."
+       "content": "The seven tasks are PIQA, HellaSwag, WinoGrande, OpenBookQA, ARC-Easy, ARC-Challenge and LAMBADA (zero-shot, lm-evaluation-harness). On the thirteen-task suite the 778M and 1.4B models also lead, 43.39 vs 42.71 and 46.33 vs 45.69, and their WikiText perplexity is lower (25.03 vs 25.80; 20.29 vs 21.09). Individual tasks are mixed, as they always are at these scales, so we read the means and the loss together rather than any single task."
       }
      }
     ]
@@ -1772,13 +2490,13 @@
    "image": {
     "type": "external",
     "external": {
-     "url": "LOCAL:images/fig_train_loss.png"
+     "url": "LOCAL:images/anim_train.gif"
     },
     "caption": [
      {
       "type": "text",
       "text": {
-       "content": "Figure 4. Training loss of Loopback and the dense control at each scale, with the final gap in the inset. The curves cross early and the gap is stable over the decay phase."
+       "content": "Figure 7. Training loss of Loopback and the dense control at each scale. The curves separate early and the gap (Δ, Loopback − Dense) is stable through the decay phase of the schedule; the largest gap, 0.0235 at 374M, is where Loopback keeps the smallest share of parameters among the two larger-margin scales."
       }
      }
     ]
@@ -1806,7 +2524,7 @@
      {
       "type": "text",
       "text": {
-       "content": "At 191M and 374M we trained every rule on the same looped topology, with the same data order and the same learning rate for all looped arms (dense controls use their own best rate). Validation loss and the seven-task mean:"
+       "content": "At 191M and 374M we trained every rule on the same looped topology, with the same data order and the same learning rate for all looped arms. Validation loss and the seven-task mean:"
       }
      }
     ]
@@ -2326,7 +3044,7 @@
      {
       "type": "text",
       "text": {
-       "content": "The plain loop pays 0.057 and 0.022 of loss for sharing its blocks. Loopback gives all of that back and then some; the strongest alternative, mHC, lands 0.006 and 0.009 behind it in loss. The full thirteen-task tables, the per-task numbers and the learning-rate protocol are in the paper."
+       "content": "The plain loop pays 0.057 and 0.022 of loss for sharing its blocks. Loopback gives all of that back and then some; the strongest alternative, mHC, lands 0.006 and 0.009 behind it in loss. These are complete-design comparisons: the stream methods place their mixing at visit boundaries, Attention Residuals reads sublayer outputs, and our multi-head attention-residual adaptation (MHAR) reads loop states, so each row is a method as its authors would run it on this topology, not a one-knob ablation. The full thirteen-task tables, per-task numbers and the learning-rate protocol are in the paper."
       }
      }
     ]
@@ -2560,7 +3278,7 @@
      {
       "type": "text",
       "text": {
-       "content": "Decay alone moves the plain loop from 2.6802 to 2.6220 at 191M and from 2.4415 to 2.3999 at 374M, past the dense control in both cases; learned allocation adds a further 0.003. Attention without decay helps too, but much less: a bounded total matters more than a learned split of an unbounded one."
+       "content": "Decay alone moves the plain loop from 2.6802 to 2.6220 at 191M and from 2.4415 to 2.3999 at 374M, past the dense control in both cases; learned allocation adds a further 0.003. Attention without decay helps too, but much less: a bounded total matters more than a learned split of an unbounded one. If you take one thing from this post for your own looped model, take the decay."
       }
      }
     ]
@@ -2600,7 +3318,7 @@
      {
       "type": "text",
       "text": {
-       "content": " 2.6187 vs 2.6234, GPT-2 scaling 2.6178 vs 2.6419, PyTorch default 2.6138 vs 2.7145."
+       "content": " 2.6187 vs 2.6234, GPT-2 scaling 2.6178 vs 2.6419, PyTorch default 2.6138 vs 2.7145. A bounded, decay-shaped residual stream is simply less sensitive to how the blocks start."
       }
      }
     ]
@@ -2628,7 +3346,7 @@
      {
       "type": "text",
       "text": {
-       "content": "The unified interface also lets us swap the reader. We replaced Loopback's attention read with eleven linear-attention and recurrent readers and fed each one either the stored updates or the loop states. Updates win in every family at both scales, and the best reader (Gated DeltaNet at 191M, HGRN-2 at 374M) still trails Loopback by 0.03 of loss."
+       "content": "The unified interface also lets us swap the reader. We replaced Loopback's attention read with eleven linear-attention and recurrent readers (Gated DeltaNet, HGRN-2, RWKV-7, Mesa, DeltaNet, KDA, Mamba-2, a LaCT-inspired reader, GLA, RetNet and linear attention) and fed each one either the stored updates or the loop states. Updates win in every family at both scales, and the best reader (Gated DeltaNet at 191M, HGRN-2 at 374M) still trails Loopback by 0.03 of loss. Updates are a good starting point for any depth-memory design; a separate input path and a controlled total are what turn them into a complete residual rule."
       }
      }
     ]
@@ -2646,7 +3364,7 @@
      {
       "type": "text",
       "text": {
-       "content": "Figure 5. Validation loss of eleven memory readers fed updates (solid) or states (hatched) at 191M and 374M; the dashed lines mark the plain loop, Dense and Loopback."
+       "content": "Figure 8. Validation-loss reduction over the plain loop for eleven memory readers fed updates (solid) or states (hatched), with Dense and Loopback for reference. Every reader improves on the plain loop, every reader does better with updates, and Loopback's reduction is 2.0× (191M) and 2.8× (374M) that of the best reader."
       }
      }
     ]
@@ -2679,7 +3397,7 @@
      {
       "type": "text",
       "text": {
-       "content": "The read is the only addition, so the FLOP overhead is tiny (+0.08% at 191M and 374M, +0.04% at 778M). The fused kernel keeps the throughput cost moderate: at 778M Loopback trains at 63k tokens per second per GPU against 76k for the plain loop and 75k for the dense model, and prefills at 217k tokens per second against 269k. The parameter saving shows up where it is persistent: at 1.4B the weights take 1.87 GiB instead of 2.64 GiB in bf16, and weights plus a 4k-token KV cache take 2.65 GiB instead of 3.42 GiB."
+       "content": "The read is the only addition, so the FLOP overhead is tiny (+0.08% at 191M and 374M, +0.04% at 778M). The history does cost memory traffic: with the fused kernel the step-time overhead over the plain loop falls from 33% at 191M to 19% at 778M, where Loopback trains at 63k tokens per second per GPU against 76k for the plain loop and 75k for the dense model, and prefills at 217k tokens per second against 269k. Peak training memory is a few GiB per GPU higher than the dense control. The parameter saving shows up where it is persistent: at 1.4B the weights take 1.87 GiB instead of 2.64 GiB in bf16, and weights plus a 4k-token KV cache take 2.65 GiB instead of 3.42 GiB, with the KV cache unchanged because the depth is unchanged."
       }
      }
     ]
@@ -2952,6 +3670,306 @@
      {
       "type": "text",
       "text": {
+       "content": "❓ FAQ"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "toggle",
+   "toggle": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Is this just ALBERT or a Universal Transformer with a fancier skip connection?"
+      }
+     }
+    ],
+    "children": [
+     {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "The blocks are shared exactly as in those models; what changes is the residual rule around the loop. The point of the post is that this rule, which is usually left at the default, decides whether the shared computation accumulates or dilutes. The same 8 blocks go from 0.057 behind the dense model (plain loop) to 0.005 ahead of it (Loopback) at 191M with no change to the blocks."
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "toggle",
+   "toggle": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "How is this different from Attention Residuals?"
+      }
+     }
+    ],
+    "children": [
+     {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "Attention Residuals keep an explicit history and learn to weight it, which Loopback also does, but they store layer outputs and use one softmax over the input and the history. Loopback stores updates, keeps the input outside the softmax at coefficient one, and lets decay rather than the softmax decide the total weight. In our loops those two changes are worth 0.046 of loss at 191M (2.6647 vs 2.6187)."
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "toggle",
+   "toggle": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "And from Hyper-Connections, mHC and Hyperloop?"
+      }
+     }
+    ],
+    "children": [
+     {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "Those methods carry several residual streams and learn how to mix them, typically at visit boundaries. In the interface above they are choices of carry and read with block outputs as the written value. mHC is the strongest of them in our runs and is the baseline Loopback beats by the smallest margin (0.006 and 0.009 of loss)."
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "toggle",
+   "toggle": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Why geometric decay and why λ = 1/4?"
+      }
+     }
+    ],
+    "children": [
+     {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "Decay is the simplest rule that bounds the total update weight while keeping every earlier visit reachable, and it gives the reader a recency prior for free. We scanned λ at 191M across several loop shapes and found a broad optimum around 1/4; the ablation shows that any reasonable decay is far better than none."
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "toggle",
+   "toggle": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Does storing the history blow up memory?"
+      }
+     }
+    ],
+    "children": [
+     {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "The history holds one vector per shared-block application per token, read once per application. The fused kernel streams it without materializing attention matrices, and the measured cost is a 19% to 33% step-time overhead over the plain loop and a few GiB of peak training memory, against a 32% to 60% reduction in Transformer parameters. At inference the stored weights and the KV cache are what persist, and both are smaller or equal."
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "toggle",
+   "toggle": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Will it hold at larger scales and longer training?"
+      }
+     }
+    ],
+    "children": [
+     {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "We have run it from 191M to 1.4B at 20 tokens per parameter on one corpus, and the margin over the dense control is present at every scale. Longer training, other mixtures and post-training are open; the paper's limitations section is explicit that the parameter–quality balance can depend on scale, topology and recipe."
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "🚧 Limitations and what's next"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Scope."
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " From-scratch pretraining on ClimbMix at four scales and one token budget per scale. Broader data mixtures, longer training and post-training remain to be tested."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Complete-design comparisons."
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " The baselines differ in placement and memory source as well as in their rule, which is faithful to how they are used but leaves finer-grained ablations for future work."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Memory traffic."
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " Loopback saves parameters, not activations: the explicit history costs bandwidth and peak training memory, and more compact histories or adaptive loop depths are natural extensions."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Next."
+      },
+      "annotations": {
+       "bold": true
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": " Larger scales, adaptive numbers of visits, and combining the unified interface with recurrent readers that are cheaper than attention are where we are heading."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
        "content": "🧪 Try it"
       }
      }
@@ -2966,7 +3984,7 @@
      {
       "type": "text",
       "text": {
-       "content": "The project page has an interactive version of the animation above: play the loop step by step, change "
+       "content": "The project page has an interactive version of the animations above: play the loop step by step, change "
       }
      },
      {
@@ -3024,6 +4042,254 @@
       "type": "text",
       "text": {
        "content": "Training and evaluation code is being prepared for release; the paper has every setting needed to reproduce the tables, including the WSD schedule, the data order and the learning-rate protocol for looped arms."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "heading_1",
+   "heading_1": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "📚 Further reading"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Dehghani et al., 2018. "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "Universal Transformers",
+       "link": {
+        "url": "https://arxiv.org/abs/1807.03819"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". Lan et al., 2019. "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "ALBERT",
+       "link": {
+        "url": "https://arxiv.org/abs/1909.11942"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". The classic shared-depth models."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Geiping et al., 2025. "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "Scaling up test-time compute with latent reasoning",
+       "link": {
+        "url": "https://arxiv.org/abs/2502.05171"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". Saunshi et al., 2025. "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "Reasoning with latent thoughts: on the power of looped Transformers",
+       "link": {
+        "url": "https://arxiv.org/abs/2502.17416"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". Why loops are back."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Zhu et al., 2024. "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "Hyper-Connections",
+       "link": {
+        "url": "https://arxiv.org/abs/2409.19606"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". Xie et al., 2025. mHC: manifold-constrained Hyper-Connections. Zeitoun et al., 2026. Hyperloop. Multi-stream residuals, our strongest baselines."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Attention Residuals (2026). The explicit-history, learned-read residual whose depth-memory view we build on."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Yang et al., 2024–2025. "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "DeltaNet",
+       "link": {
+        "url": "https://arxiv.org/abs/2406.06484"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "Gated DeltaNet",
+       "link": {
+        "url": "https://arxiv.org/abs/2412.06464"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "; Dao & Gu, 2024. "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "Mamba-2",
+       "link": {
+        "url": "https://arxiv.org/abs/2405.21060"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "; Peng et al., 2025. "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "RWKV-7",
+       "link": {
+        "url": "https://arxiv.org/abs/2503.14456"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ". The recurrent readers we adapt along depth."
+      }
+     }
+    ]
+   }
+  },
+  {
+   "object": "block",
+   "type": "bulleted_list_item",
+   "bulleted_list_item": {
+    "rich_text": [
+     {
+      "type": "text",
+      "text": {
+       "content": "Diao et al., 2025. "
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": "CLIMB",
+       "link": {
+        "url": "https://arxiv.org/abs/2504.13161"
+       }
+      }
+     },
+     {
+      "type": "text",
+      "text": {
+       "content": ", the source of the ClimbMix corpus."
       }
      }
     ]

@@ -44,6 +44,8 @@ def md_block(b, out):
     elif k == 'code': out.append('```' + b[1] + '\n' + b[2] + '\n```\n')
     elif k == 'divider': out.append('---\n')
     elif k == 'bookmark': out.append(b[1] + '\n')
+    elif k == 'toc': pass
+    elif k == 'qa': out.append('**' + b[1] + '**\n\n' + b[2] + '\n')
 
 def render_md():
     out = ['# ' + C.TITLE + '\n']
@@ -51,6 +53,8 @@ def render_md():
     return '\n'.join(out)
 
 # ---------------- HTML ----------------
+def slug(t):
+    t = re.sub(r'[^A-Za-z0-9 ]+', '', re.sub(r'\$[^$]*\$', '', t)).strip().lower(); return re.sub(r'\s+', '-', t)[:60] or 'section'
 def h_rich(s):
     o = ''
     for kind, t, extra in tokens(s):
@@ -65,7 +69,7 @@ def h_rich(s):
 def h_block(b, out):
     k = b[0]
     if k == 'p': out.append('<p>' + h_rich(b[1]) + '</p>')
-    elif k in ('h1', 'h2', 'h3'): n = {'h1': 2, 'h2': 3, 'h3': 4}[k]; out.append(f'<h{n}>' + h_rich(b[1]) + f'</h{n}>')
+    elif k in ('h1', 'h2', 'h3'): n = {'h1': 2, 'h2': 3, 'h3': 4}[k]; out.append(f'<h{n} id="' + slug(b[1]) + '">' + h_rich(b[1]) + f'</h{n}>')
     elif k == 'ul': out.append('<ul>' + ''.join('<li>' + h_rich(x) + '</li>' for x in b[1]) + '</ul>')
     elif k == 'callout':
         inner = []
@@ -80,6 +84,8 @@ def h_block(b, out):
     elif k == 'code': out.append('<pre><code>' + html.escape(b[2]) + '</code></pre>')
     elif k == 'divider': out.append('<hr>')
     elif k == 'bookmark': out.append('<p class="bookmark"><a href="' + html.escape(b[1]) + '">' + html.escape(b[1]) + '</a></p>')
+    elif k == 'toc': out.append('<nav class="toc"><div class="toc-title">Contents</div><ol>' + ''.join('<li><a href="#' + slug(x[1]) + '">' + h_rich(x[1]) + '</a></li>' for x in C.BLOCKS if x[0] == 'h1') + '</ol></nav>')
+    elif k == 'qa': out.append('<details class="qa"><summary>' + h_rich(b[1]) + '</summary><p>' + h_rich(b[2]) + '</p></details>')
 
 CSS = """
 :root { --ink:#1b1f24; --muted:#5b6470; --line:#e6e8eb; --navy:#0F4D92; --rose:#B64342; --bg:#ffffff; --callout:#f4f6f9; --accent:#0645ad; }
@@ -101,6 +107,9 @@ pre { background:var(--callout); border:1px solid var(--line); border-radius:8px
 hr { border:0; border-top:1px solid var(--line); margin:36px 0 }
 .bookmark a { display:block; border:1px solid var(--line); border-radius:8px; padding:12px 14px; background:var(--callout) }
 .meta p { margin:0 0 6px; color:var(--muted); font-size:15.5px } .meta strong { color:var(--ink) }
+.toc { background:var(--callout); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin:18px 0 } .toc-title { font-weight:600; font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:6px } .toc ol { margin:0; padding-left:1.2em; columns:2; column-gap:28px } .toc li { margin:3px 0; break-inside:avoid }
+details.qa { border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin:8px 0; background:var(--bg) } details.qa summary { cursor:pointer; font-weight:600 } details.qa p { margin:10px 0 2px }
+@media (max-width:640px) { .toc ol { columns:1 } }
 """
 def render_html():
     body = []
@@ -150,6 +159,8 @@ def n_block(b):
     if k == 'code': return {'object': 'block', 'type': 'code', 'code': {'rich_text': [{'type': 'text', 'text': {'content': b[2]}}], 'language': b[1]}}
     if k == 'divider': return {'object': 'block', 'type': 'divider', 'divider': {}}
     if k == 'bookmark': return {'object': 'block', 'type': 'bookmark', 'bookmark': {'url': b[1]}}
+    if k == 'toc': return {'object': 'block', 'type': 'table_of_contents', 'table_of_contents': {'color': 'gray'}}
+    if k == 'qa': return {'object': 'block', 'type': 'toggle', 'toggle': {'rich_text': n_rich(b[1]), 'children': [{'object': 'block', 'type': 'paragraph', 'paragraph': {'rich_text': n_rich(b[2])}}]}}
     raise ValueError(k)
 def render_notion():
     blocks = []
