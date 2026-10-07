@@ -193,6 +193,9 @@ button { font: inherit; color: inherit; }
 .fig-pair { display: grid; gap: clamp(1rem, 2.4vw, 1.75rem); }
 @media (min-width: 860px) { .fig-pair { grid-template-columns: 1fr 1fr; } }
 .fig--narrow { max-width: 56rem; margin-inline: auto; }
+.fig--video { max-width: 60rem; margin-inline: auto; }
+.fig__media--video { padding: 0; }
+.fig__media--video video { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--paper); }
 
 /* ---------------------------------------------------------------- KPI tiles */
 .kpis { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr)); margin: 0 0 clamp(1.25rem, 3vw, 2rem); padding: 0; list-style: none; }
@@ -357,7 +360,7 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
       Loopback
     </a>
     <div class="nav__links">
-      <a href="#abstract">Abstract</a><a href="#contributions">Contributions</a><a href="#method">Method</a><a href="#demo">Demo</a><a href="#results">Results</a><a href="#bibtex">BibTeX</a>
+      <a href="#video">Video</a><a href="#abstract">Abstract</a><a href="#contributions">Contributions</a><a href="#method">Method</a><a href="#demo">Demo</a><a href="#results">Results</a><a href="#bibtex">BibTeX</a>
     </div>
     <button class="theme-btn" id="theme-btn" type="button" aria-label="Switch between light and dark theme" title="Light / dark">
       <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -394,10 +397,31 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
       <a class="pill pill--soon" href="#bibtex" title="The code link goes live at release">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>Code
       </a>
+      <a class="pill" href="#video">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg>Video
+      </a>
     </div>
     <p class="links-note">The arXiv and code links go live at release.</p>
   </div>
 </header>
+
+<section class="section section--tint" id="video" aria-labelledby="video-title">
+  <div class="wrap">
+    <div class="section__head">
+      <h2 id="video-title">Loopback in one minute</h2>
+      <p class="lead">Why sharing weights leaves update reuse open, three ways a loop can reuse its updates, the Loopback recipe, and the results at four scales.</p>
+    </div>
+    <figure class="fig fig--video">
+      <div class="fig__head"><span class="fig__label"><b>Video</b> &middot; 64 seconds, no audio</span></div>
+      <div class="fig__media fig__media--video">
+        <video controls playsinline preload="metadata" poster="videos/loopback_promo_poster.jpg" aria-label="Loopback Transformer overview video, 64 seconds, no audio">
+          <source src="videos/loopback_promo.mp4" type="video/mp4">
+        </video>
+      </div>
+      <figcaption class="fig__caption"><strong>Decay sets the total update weight; attention allocates it.</strong> Residual addition lets the total grow with depth and a joint softmax shrinks the input. Loopback keeps the input at weight one and bounds the total at every visit end. It reaches lower loss than Dense with 40&ndash;68% of the Transformer parameters at four scales and has the lowest loss of nine models at 374M.</figcaption>
+    </figure>
+  </div>
+</section>
 
 <section class="section" id="overview" aria-labelledby="overview-title">
   <div class="wrap">

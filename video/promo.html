@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Loopback promo (render page)</title>
+<!-- Render page for the Loopback promo video. render.py loads it at 1920x1080, waits for window.__ready, then calls
+     renderAt(t) for every frame and screenshots #stage. Nothing animates on its own: every frame is a pure function of t. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@500;600;700&display=swap">
+<style>
+:root {
+  --navy: #0f4d92; --navy2: #1f6fb8; --teal: #0e8f81; --ink: #111a2b; --ink2: #2d3a4e; --ink3: #4f5f78; --muted: #6b7a92;
+  --line: #e1e7ef; --soft: #e8f0f9; --rose: #b64342; --grey: #767676; --dark: #4a5560;
+  --blueF: #d3e4f1; --blueS: #6f93b4; --peachF: #f1d9cd; --peachS: #c98f74; --greenF: #dfebd3; --greenS: #6f9a5e; --grayF: #eaeaea;
+}
+html, body { margin: 0; background: #fff; }
+#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #fff; font-family: "Noto Sans", sans-serif; color: var(--ink2); }
+#glow { position: absolute; inset: 0; background: radial-gradient(55% 60% at 50% -5%, #e8f0f9 0%, rgba(232,240,249,0) 70%); }
+.scene { position: absolute; inset: 0; opacity: 0; }
+.h { position: absolute; left: 0; right: 0; top: 112px; text-align: center; font: 800 62px/1.15 Manrope, sans-serif; color: var(--ink); letter-spacing: -.015em; }
+.h b { color: var(--navy); font-weight: 800; }
+.eyebrow { position: absolute; left: 0; right: 0; top: 70px; text-align: center; font: 700 22px/1 "Noto Sans", sans-serif; letter-spacing: .18em; color: var(--navy); text-transform: uppercase; }
+.brand { position: absolute; left: 72px; top: 54px; display: flex; align-items: center; gap: 14px; font: 700 26px/1 Manrope, sans-serif; color: var(--ink); opacity: 0; }
+.brand svg { width: 40px; height: 40px; }
+#bar { position: absolute; left: 0; bottom: 0; height: 7px; width: 0; background: linear-gradient(90deg, #0f4d92, #1f6fb8 50%, #0e8f81); }
+.fade { opacity: 0; }
+.caption { position: absolute; left: 0; right: 0; text-align: center; font: 500 36px/1.4 "Noto Sans", sans-serif; color: var(--ink2); }
+.caption b { color: var(--navy); font-weight: 700; }
+.note { position: absolute; left: 0; right: 0; text-align: center; font: 400 26px/1.4 "Noto Sans", sans-serif; color: var(--muted); }
+svg text { font-family: "Noto Sans", sans-serif; }
+.mono { font-family: "JetBrains Mono", monospace; }
+/* title */
+#t-logo { position: absolute; left: 50%; top: 170px; width: 132px; height: 132px; margin-left: -66px; }
+#t-kicker { position: absolute; left: 0; right: 0; top: 335px; text-align: center; font: 700 22px/1 "Noto Sans", sans-serif; letter-spacing: .2em; color: var(--ink3); }
+#t-title { position: absolute; left: 0; right: 0; top: 385px; text-align: center; font: 800 128px/1.05 Manrope, sans-serif; letter-spacing: -.02em; color: var(--ink); }
+.grad { background: linear-gradient(90deg, #0f4d92 0%, #1f6fb8 45%, #0e8f81 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#t-sub { position: absolute; left: 0; right: 0; top: 548px; text-align: center; font: 500 46px/1.25 Manrope, sans-serif; color: var(--ink3); }
+#t-auth { position: absolute; left: 0; right: 0; top: 680px; text-align: center; font: 600 32px/1.5 "Noto Sans", sans-serif; color: var(--ink); }
+#t-auth sup { font-size: .6em; color: var(--ink3); }
+#t-aff { position: absolute; left: 0; right: 0; top: 742px; text-align: center; font: 400 27px/1.5 "Noto Sans", sans-serif; color: var(--ink3); }
+/* panels for the three rules */
+.panel { position: absolute; top: 250px; width: 540px; }
+.panel h4 { margin: 0; font: 800 38px/1.2 Manrope, sans-serif; color: var(--ink); }
+.panel p { margin: 10px 0 0; font: 400 25px/1.4 "Noto Sans", sans-serif; color: var(--ink3); min-height: 70px; }
+.panel .lab { margin-top: 10px; font: 600 25px/1.35 "JetBrains Mono", monospace; color: var(--ink2); min-height: 68px; }
+/* recipe */
+.step { position: absolute; left: 300px; display: flex; align-items: center; gap: 34px; font: 600 46px/1.3 "Noto Sans", sans-serif; color: var(--ink); }
+.step i { font-style: italic; font-family: "Noto Sans", serif; }
+.num { flex: none; display: grid; place-items: center; width: 74px; height: 74px; border-radius: 50%; background: var(--navy); color: #fff; font: 800 38px/1 Manrope, sans-serif; }
+#r-formula { position: absolute; left: 0; right: 0; top: 720px; display: flex; justify-content: center; color: var(--ink); }
+#r-formula mjx-container { font-size: 300% !important; }
+/* tiles */
+.tile { position: absolute; top: 330px; width: 500px; height: 330px; border: 2px solid var(--line); border-radius: 26px; background: #fff; box-shadow: 0 2px 4px rgba(17,26,43,.04), 0 18px 36px -12px rgba(17,26,43,.16); padding: 44px 44px; box-sizing: border-box; }
+.tile .big { font: 800 84px/1 Manrope, sans-serif; color: var(--navy); letter-spacing: -.02em; }
+.tile .big small { font-size: .5em; letter-spacing: 0; }
+.tile .lbl { margin-top: 26px; font: 500 30px/1.4 "Noto Sans", sans-serif; color: var(--ink2); }
+.tile .lbl span { color: var(--muted); font-size: .85em; }
+/* outro */
+#o-title { position: absolute; left: 0; right: 0; top: 250px; text-align: center; font: 800 112px/1.05 Manrope, sans-serif; letter-spacing: -.02em; color: var(--ink); }
+#o-lines { position: absolute; left: 0; right: 0; top: 440px; text-align: center; font: 600 50px/1.55 Manrope, sans-serif; color: var(--ink2); }
+#o-lines b { color: var(--navy); }
+#o-auth { position: absolute; left: 0; right: 0; top: 740px; text-align: center; font: 600 30px/1.5 "Noto Sans", sans-serif; color: var(--ink); }
+#o-aff { position: absolute; left: 0; right: 0; top: 796px; text-align: center; font: 400 26px/1.5 "Noto Sans", sans-serif; color: var(--ink3); }
+</style>
+<script>
+window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'local' }, startup: { typeset: true } };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+  <div class="brand" id="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#0f4d92"/><path d="M22.5 11.5 A7 7 0 1 0 23 16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M19.5 9.2 L23.6 11.2 L21.2 15.1 Z" fill="#fff"/></svg>Loopback Transformer</div>
+
+  <!-- 1 title -->
+  <div class="scene" id="s-title">
+    <svg id="t-logo" viewBox="0 0 132 132">
+      <rect x="2" y="2" width="128" height="128" rx="32" fill="#0f4d92" id="t-logo-bg"/>
+      <path id="t-logo-arc" d="M93 47 A29 29 0 1 0 95 66" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+      <path id="t-logo-head" d="M80.5 37.5 L97.5 45.8 L87.5 62" fill="#fff"/>
+    </svg>
+    <div id="t-kicker" class="fade">PREPRINT &middot; 2026</div>
+    <div id="t-title" class="fade"><span class="grad">Loopback</span> Transformer</div>
+    <div id="t-sub" class="fade">Towards a Unified View of Residual Looped Transformers</div>
+    <div id="t-auth" class="fade">Xuan Ouyang<sup>*</sup> &nbsp;&middot;&nbsp; Zefan Cai<sup>*</sup> &nbsp;&middot;&nbsp; Chenlong Zhang &nbsp;&middot;&nbsp; Cheng Luo &nbsp;&middot;&nbsp; Ke Wan &nbsp;&middot;&nbsp; Junjie Hu</div>
+    <div id="t-aff" class="fade">University of Wisconsin&ndash;Madison &nbsp;&middot;&nbsp; UC Santa Barbara &nbsp;&middot;&nbsp; Caltech &nbsp;&middot;&nbsp; Microsoft</div>
+  </div>
+
+  <!-- 2 hook -->
+  <div class="scene" id="s-hook">
+    <div class="h fade" id="hk-h">Looped Transformers apply the <b>same blocks</b> again and again</div>
+    <svg id="hk-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+    <div class="caption fade" id="hk-cap" style="top:930px">Sharing fixes the weights. It does not decide <b>how each update is reused</b>.</div>
+  </div>
+
+  <!-- 3 rules -->
+  <div class="scene" id="s-rules">
+    <div class="h fade" id="ru-h">One interface, three ways to <b>reuse the updates</b></div>
+    <div class="panel fade" id="ru-p0" style="left:110px"><h4>Residual addition</h4><p>Every stored update keeps weight 1.</p><svg width="540" height="330" id="ru-c0"></svg><div class="lab" id="ru-l0"></div></div>
+    <div class="panel fade" id="ru-p1" style="left:690px"><h4>Joint softmax <span style="font-weight:600;color:#6b7a92;font-size:.72em">(AttnRes)</span></h4><p>Input and updates share one unit of weight.</p><svg width="540" height="330" id="ru-c1"></svg><div class="lab" id="ru-l1"></div></div>
+    <div class="panel fade" id="ru-p2" style="left:1270px"><h4 style="color:#0f4d92">Loopback</h4><p>Input stays at 1; decay sets the total, attention allocates it.</p><svg width="540" height="330" id="ru-c2"></svg><div class="lab" id="ru-l2"></div></div>
+    <div class="caption fade" id="ru-cap" style="top:968px;font-size:32px">Addition grows without bound; the joint softmax shrinks the input. <b>Loopback keeps both under control.</b></div>
+  </div>
+
+  <!-- 4 recipe -->
+  <div class="scene" id="s-recipe">
+    <div class="eyebrow fade" id="rc-e">The recipe</div>
+    <div class="h fade" id="rc-h" style="top:118px">Loopback in three moves</div>
+    <div class="step fade" id="rc-1" style="top:300px"><span class="num">1</span><span>Store each block's update <i>&delta;</i>, not its full output.</span></div>
+    <div class="step fade" id="rc-2" style="top:430px"><span class="num">2</span><span>Keep the shared stack's input on its own path, at weight 1.</span></div>
+    <div class="step fade" id="rc-3" style="top:560px"><span class="num">3</span><span>Decay sets the total update weight; attention allocates it.</span></div>
+    <div id="r-formula" class="fade">\( \displaystyle \boldsymbol h_{s+1}=\boldsymbol h_0+\sum_{i\le s} c_{s,i}\,\boldsymbol\delta_i,\qquad \sum_{i\le s} c_{s,i}=B_s \)</div>
+    <div class="note fade" id="rc-n" style="top:935px">At every visit end <i>B</i><sub><i>s</i></sub> &le; <i>K&lambda;</i>/(1&minus;<i>&lambda;</i>). Zero queries give the decay-only loop; &lambda; = 1 with zero queries gives ordinary addition.</div>
+  </div>
+
+  <!-- 5 scale -->
+  <div class="scene" id="s-scale">
+    <div class="h fade" id="sc-h">Lower loss than Dense, with <b>40&ndash;68%</b> of its parameters</div>
+    <svg id="sc-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+    <div class="note fade" id="sc-n" style="top:972px">Same executed depth and training tokens at every scale &middot; held-out ClimbMix validation loss</div>
+  </div>
+
+  <!-- 6 nine rules -->
+  <div class="scene" id="s-nine">
+    <div class="h fade" id="nn-h">Best of <b>nine models</b> at 374M</div>
+    <svg id="nn-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+    <div class="caption fade" id="nn-cap" style="top:968px;font-size:32px">Also the highest seven-task mean and the best WikiText perplexity of the nine.</div>
+  </div>
+
+  <!-- 7 efficiency -->
+  <div class="scene" id="s-eff">
+    <div class="h fade" id="ef-h">The read costs memory traffic, <b>not FLOPs</b></div>
+    <div class="tile fade" id="ef-1" style="left:170px"><div class="big">+0.08%</div><div class="lbl">forward FLOPs over Dense<br><span>at 374M; the same blocks run per token</span></div></div>
+    <div class="tile fade" id="ef-2" style="left:710px"><div class="big">Same</div><div class="lbl">KV cache as Dense<br><span>same executed depth and heads</span></div></div>
+    <div class="tile fade" id="ef-3" style="left:1250px"><div class="big">29&ndash;44%</div><div class="lbl">smaller bf16 weights<br><span>1.87 vs 2.64 GiB at 1.4B</span></div></div>
+    <div class="note fade" id="ef-n" style="top:740px">A fused Triton kernel streams the stored updates once per read: 19&ndash;33% step-time overhead.</div>
+  </div>
+
+  <!-- 8 outro -->
+  <div class="scene" id="s-outro">
+    <div id="o-title" class="fade"><span class="grad">Loopback</span> Transformer</div>
+    <div id="o-lines" class="fade">Store updates. Keep the input on its own path.<br><b>Decay sets the total. Attention allocates it.</b></div>
+    <div id="o-auth" class="fade">Xuan Ouyang<sup>*</sup> &nbsp;&middot;&nbsp; Zefan Cai<sup>*</sup> &nbsp;&middot;&nbsp; Chenlong Zhang &nbsp;&middot;&nbsp; Cheng Luo &nbsp;&middot;&nbsp; Ke Wan &nbsp;&middot;&nbsp; Junjie Hu</div>
+    <div id="o-aff" class="fade">University of Wisconsin&ndash;Madison &nbsp;&middot;&nbsp; UC Santa Barbara &nbsp;&middot;&nbsp; Caltech &nbsp;&middot;&nbsp; Microsoft</div>
+  </div>
+
+  <div id="bar"></div>
+</div>
+
+<script>
+'use strict';
+var DUR = 64;
+var SC = { title: [0, 5.5], hook: [5.5, 14], rules: [14, 29], recipe: [29, 37], scale: [37, 47], nine: [47, 54], eff: [54, 59], outro: [59, 64] };
+var NS = 'http://www.w3.org/2000/svg';
+var C = { navy: '#0f4d92', teal: '#0e8f81', ink: '#111a2b', ink2: '#2d3a4e', ink3: '#4f5f78', muted: '#6b7a92', line: '#e1e7ef', grid: '#edf1f6',
+          rose: '#b64342', grey: '#767676', dark: '#4a5560', blueF: '#d3e4f1', blueS: '#6f93b4', peachF: '#f1d9cd', peachS: '#c98f74', grayF: '#eaeaea', band: '#f3f6fa' };
+function $(id) { return document.getElementById(id); }
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+function prog(t, a, b) { return clamp((t - a) / (b - a), 0, 1); }
+function ease(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+function easeOut(x) { return 1 - Math.pow(1 - x, 3); }
+function lerp(a, b, x) { return a + (b - a) * x; }
+function el(n, a, p) { var e = document.createElementNS(NS, n); for (var k in a) { e.setAttribute(k, a[k]); } if (p) { p.appendChild(e); } return e; }
+function txt(p, x, y, s, a) { var o = { x: x, y: y, 'font-size': 26, fill: C.ink2 }; for (var k in (a || {})) { o[k] = a[k]; } var t = el('text', o, p); t.textContent = s; return t; }
+// fade + rise for an HTML element or SVG group
+function appear(e, t, start, dur, dy) {
+  var p = easeOut(prog(t, start, start + (dur || .6)));
+  e.style.opacity = p;
+  e.style.transform = 'translateY(' + ((1 - p) * (dy === undefined ? 24 : dy)) + 'px)';
+}
+function sceneOpacity(t, r, fin, fout) {
+  if (t < r[0] || t > r[1]) { return 0; }
+  return Math.min(1, (t - r[0]) / (fin || .45), (r[1] - t) / (fout || .45));
+}
+
+/* ---------------------------------------------------------------- scene 2: the loop */
+var HK = { cx: 560, cy: 585, r: 215, K: 4, R: 3 };
+(function buildHook() {
+  var s = $('hk-svg');
+  var g = el('g', { id: 'hk-g' }, s);
+  // prelude and coda
+  el('rect', { x: 150, y: 335, width: 120, height: 74, rx: 12, fill: C.grayF, stroke: C.dark, 'stroke-width': 2.5 }, g);
+  txt(g, 210, 382, 'P', { 'text-anchor': 'middle', 'font-size': 32, 'font-weight': 700, fill: C.ink });
+  txt(g, 210, 440, 'prelude', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted });
+  el('line', { x1: 272, y1: 372, x2: 470, y2: 372, stroke: C.dark, 'stroke-width': 2.5, 'marker-end': 'url(#arr)' }, g);
+  el('rect', { x: 850, y: 335, width: 120, height: 74, rx: 12, fill: C.grayF, stroke: C.dark, 'stroke-width': 2.5 }, g);
+  txt(g, 910, 382, 'C', { 'text-anchor': 'middle', 'font-size': 32, 'font-weight': 700, fill: C.ink });
+  txt(g, 910, 440, 'coda', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted });
+  el('line', { x1: 650, y1: 372, x2: 846, y2: 372, stroke: '#9aa6b6', 'stroke-width': 2.5, 'stroke-dasharray': '6 7', 'marker-end': 'url(#arrg)' }, g);
+  var defs = el('defs', {}, s);
+  var m = el('marker', { id: 'arr', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 8, markerHeight: 8, orient: 'auto-start-reverse' }, defs);
+  el('path', { d: 'M0 0 L10 5 L0 10 z', fill: C.dark }, m);
+  var m2 = el('marker', { id: 'arrg', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 8, markerHeight: 8, orient: 'auto-start-reverse' }, defs);
+  el('path', { d: 'M0 0 L10 5 L0 10 z', fill: '#9aa6b6' }, m2);
+  // ring
+  el('circle', { cx: HK.cx, cy: HK.cy, r: HK.r, fill: 'none', stroke: '#c9d2de', 'stroke-width': 3 }, g);
+  for (var a = 0; a < 4; a++) {  // direction chevrons between blocks
+    var ang = -Math.PI / 2 + (a + .5) * Math.PI / 2, x = HK.cx + HK.r * Math.cos(ang), y = HK.cy + HK.r * Math.sin(ang);
+    el('path', { d: 'M-9 -9 L5 0 L-9 9', fill: 'none', stroke: '#b4bfcc', 'stroke-width': 3.5, 'stroke-linecap': 'round', transform: 'translate(' + x + ' ' + y + ') rotate(' + ((ang + Math.PI / 2) * 180 / Math.PI) + ')' }, g);
+  }
+  HK.blocks = [];
+  for (var k = 0; k < HK.K; k++) {
+    var an = -Math.PI / 2 + k * Math.PI / 2, bx = HK.cx + HK.r * Math.cos(an), by = HK.cy + HK.r * Math.sin(an);
+    var bg = el('g', { transform: 'translate(' + bx + ' ' + by + ')' }, g);
+    var rc = el('rect', { x: -62, y: -36, width: 124, height: 72, rx: 12, fill: k % 2 ? C.peachF : C.blueF, stroke: k % 2 ? C.peachS : C.blueS, 'stroke-width': 2.5 }, bg);
+    var lt = txt(bg, 0, 11, '', { 'text-anchor': 'middle', 'font-size': 32, 'font-style': 'italic', fill: C.ink });
+    lt.innerHTML = 'f<tspan font-size="21" dy="7">' + (k + 1) + '</tspan>';
+    HK.blocks.push({ g: bg, rect: rc });
+  }
+  txt(g, HK.cx, HK.cy - 6, 'K = 4 shared blocks', { 'text-anchor': 'middle', 'font-size': 26, fill: C.ink3 });
+  HK.visit = txt(g, HK.cx, HK.cy + 34, 'visit 1 of 3', { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.navy });
+  HK.tok = el('circle', { r: 15, fill: C.navy, stroke: '#fff', 'stroke-width': 4 }, g);
+  // history grid
+  var hx = 1090, hy = 330, cw = 150, ch = 112, gap = 18;
+  txt(g, hx + 2 * (cw + gap) - gap / 2, hy - 34, 'history of updates, one card per application', { 'text-anchor': 'middle', 'font-size': 24, fill: C.muted });
+  HK.cards = [];
+  for (var v = 0; v < HK.R; v++) {
+    txt(g, hx - 24, hy + v * (ch + gap) + ch / 2 + 9, 'visit ' + (v + 1), { 'text-anchor': 'end', 'font-size': 24, fill: C.muted });
+    for (var j = 0; j < HK.K; j++) {
+      var x0 = hx + j * (cw + gap), y0 = hy + v * (ch + gap);
+      el('rect', { x: x0, y: y0, width: cw, height: ch, rx: 12, fill: 'none', stroke: '#d5dce6', 'stroke-width': 2, 'stroke-dasharray': '7 7' }, g);
+      var cg = el('g', { opacity: 0 }, g);
+      el('rect', { x: x0, y: y0, width: cw, height: ch, rx: 12, fill: j % 2 ? C.peachF : C.blueF, stroke: j % 2 ? C.peachS : C.blueS, 'stroke-width': 2.5 }, cg);
+      var ct = txt(cg, x0 + cw / 2, y0 + ch / 2 + 12, '', { 'text-anchor': 'middle', 'font-size': 34, 'font-style': 'italic', fill: C.ink });
+      ct.innerHTML = '&#948;<tspan font-size="22" dy="8">' + (v * HK.K + j + 1) + '</tspan>';
+      HK.cards.push({ g: cg, x: x0 + cw / 2, y: y0 + ch / 2 });
+    }
+  }
+})();
+function renderHook(t) {
+  var r = SC.hook;
+  appear($('hk-h'), t, r[0] + .2, .6);
+  var g = $('hk-g'); g.style.opacity = easeOut(prog(t, r[0] + .5, r[0] + 1.2));
+  // 12 applications between t0 and t1
+  var t0 = r[0] + 1.3, t1 = r[1] - 2.4, n = HK.K * HK.R, per = (t1 - t0) / n;
+  var u = clamp((t - t0) / per, 0, n);           // applications completed (fractional)
+  var i = Math.min(Math.floor(u), n - 1), f = u >= n ? 1 : ease(u - Math.floor(u));
+  var a0 = -Math.PI / 2 + i * Math.PI / 2, ang = t < t0 ? -Math.PI / 2 : a0 + f * Math.PI / 2;
+  if (u >= n) { ang = -Math.PI / 2 + n * Math.PI / 2; }
+  HK.tok.setAttribute('cx', HK.cx + HK.r * Math.cos(ang)); HK.tok.setAttribute('cy', HK.cy + HK.r * Math.sin(ang));
+  var applied = Math.floor(u + 1e-9);           // the block under the token has just been applied
+  HK.visit.textContent = 'visit ' + Math.min(HK.R, Math.floor(Math.min(u, n - 1e-6) / HK.K) + 1) + ' of ' + HK.R;
+  HK.blocks.forEach(function (b, k) {
+    var active = t >= t0 && u < n && (Math.floor(u) % HK.K) === k && (u - Math.floor(u)) < .35;
+    b.rect.setAttribute('stroke-width', active ? 6 : 2.5);
+    b.rect.setAttribute('stroke', active ? C.navy : (k % 2 ? C.peachS : C.blueS));
+  });
+  HK.cards.forEach(function (c, j) {
+    var p = easeOut(clamp((u - j) / .6, 0, 1)) * (t >= t0 ? 1 : 0);
+    c.g.setAttribute('opacity', p);
+    c.g.setAttribute('transform', 'translate(' + (c.x * (1 - (.85 + .15 * p))) + ' ' + (c.y * (1 - (.85 + .15 * p))) + ') scale(' + (.85 + .15 * p) + ')');
+  });
+  appear($('hk-cap'), t, r[1] - 2.2, .6);
+}
+
+/* ---------------------------------------------------------------- scene 3: three rules */
+var RU = { K: 4, n: 12, lam: .25, W: 540, H: 330, x0: 40, y0: 18, ch: 250, bw: 22, gap: 9 };
+RU.charts = [0, 1, 2].map(function (p) {
+  var s = $('ru-c' + p), o = { bars: [], ghosts: [] };
+  // visit bands (Loopback only)
+  if (p === 2) {
+    for (var v = 0; v < 3; v++) {
+      var bx = RU.x0 + 54 + v * RU.K * (RU.bw + RU.gap) - 4;
+      el('rect', { x: bx, y: RU.y0, width: RU.K * (RU.bw + RU.gap) - 1, height: RU.ch, fill: v % 2 ? '#fff' : C.band }, s);
+      txt(s, bx + (RU.K * (RU.bw + RU.gap)) / 2, RU.y0 + 26, 'visit ' + (v + 1), { 'text-anchor': 'middle', 'font-size': 19, fill: C.muted });
+    }
+  }
+  [0, .5, 1].forEach(function (yv) {
+    var y = RU.y0 + RU.ch - yv * RU.ch;
+    el('line', { x1: RU.x0, x2: RU.W - 6, y1: y, y2: y, stroke: yv === 0 ? '#9aa6b6' : C.grid, 'stroke-width': yv === 0 ? 2 : 1.5 }, s);
+    txt(s, RU.x0 - 8, y + 7, yv === .5 ? '0.5' : String(yv), { 'text-anchor': 'end', 'font-size': 19, fill: C.muted, class: 'mono' });
+  });
+  o.input = el('rect', { x: RU.x0 + 10, y: RU.y0, width: RU.bw + 6, height: 0, rx: 4, fill: C.dark }, s);
+  txt(s, RU.x0 + 10 + (RU.bw + 6) / 2, RU.y0 + RU.ch + 30, 'input', { 'text-anchor': 'middle', 'font-size': 20, fill: C.muted });
+  txt(s, RU.x0 + 54 + 6 * (RU.bw + RU.gap), RU.y0 + RU.ch + 30, 'stored updates, oldest → newest', { 'text-anchor': 'middle', 'font-size': 20, fill: C.muted });
+  for (var i = 0; i < RU.n; i++) {
+    var x = RU.x0 + 54 + i * (RU.bw + RU.gap);
+    o.ghosts.push(el('rect', { x: x - 1, y: 0, width: RU.bw + 2, height: 0, rx: 4, fill: 'none', stroke: '#9aa6b6', 'stroke-width': 2, 'stroke-dasharray': '4 4', opacity: 0 }, s));
+    o.bars.push(el('rect', { x: x, y: RU.y0 + RU.ch, width: RU.bw, height: 0, rx: 4, fill: [C.grey, C.rose, C.navy][p] }, s));
+  }
+  return o;
+});
+function priorWeights(n, dec) {                  // Loopback decay prior after n applications; dec animates the visit-end decay
+  var w = [], pre = Math.floor((n - 1) / RU.K), post = Math.floor(n / RU.K);
+  for (var i = 0; i < n; i++) {
+    var after = Math.pow(RU.lam, post - Math.floor(i / RU.K)), before = Math.pow(RU.lam, pre - Math.floor(i / RU.K));
+    w.push(dec === undefined ? after : lerp(before, after, dec));
+  }
+  return w;
+}
+function ruTimeline(dt) {                         // K applications per visit, then a hold in which every weight is multiplied by lambda
+  var per = .4, hold = .8, seg = RU.K * per;
+  if (dt <= 0) { return { u: 0, n: 1, grow: 0, dec: 0 }; }
+  for (var v = 0; v < 3; v++) {
+    if (dt < seg) { var u = v * RU.K + dt / per, n = v * RU.K + Math.max(1, Math.ceil(dt / per - 1e-9)); return { u: u, n: n, grow: clamp(u - (n - 1), 0, 1), dec: 0 }; }
+    dt -= seg;
+    if (dt < hold || v === 2) { return { u: (v + 1) * RU.K, n: (v + 1) * RU.K, grow: 1, dec: ease(clamp(dt / .45, 0, 1)) }; }
+    dt -= hold;
+  }
+}
+function attnWeights(n) {                        // attention favoring visit 2, total kept at the prior's B
+  var c0 = priorWeights(n), B = c0.reduce(function (a, b) { return a + b; }, 0);
+  var z = c0.map(function (c, i) { return Math.floor(i / RU.K) === 1 ? 2 : 0; });
+  var e = c0.map(function (c, i) { return c * Math.exp(z[i]); }), Z = e.reduce(function (a, b) { return a + b; }, 0);
+  return e.map(function (x) { return B * x / Z; });
+}
+function setBar(b, w, show) {
+  var hgt = clamp(w, 0, 1.15) * RU.ch;
+  b.setAttribute('height', show ? hgt : 0); b.setAttribute('y', RU.y0 + RU.ch - (show ? hgt : 0));
+}
+function fmt2(x) { return x.toFixed(2); }
+function renderRules(t) {
+  var r = SC.rules;
+  appear($('ru-h'), t, r[0] + .2, .6);
+  [0, 1, 2].forEach(function (p) { appear($('ru-p' + p), t, r[0] + .6 + p * .25, .6); });
+  var tl = ruTimeline(t - (r[0] + 1.6)), u = tl.u, n = tl.n, grow = tl.grow;   // applications 1..12, newest bar grows in
+  var realloc = ease(prog(t, r[0] + 9.2, r[0] + 11.4));
+  // addition
+  var A = RU.charts[0];
+  setBar(A.input, 1, true);
+  A.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? 1 : i === n - 1 ? easeOut(grow) : 0, i < n); });
+  $('ru-l0').innerHTML = 'input 1 &middot; total ' + (u === 0 ? 0 : n) + '<br><span style="color:#b64342">grows with depth</span>';
+  // joint softmax
+  var S = RU.charts[1], ws = 1 / (n + 1);
+  setBar(S.input, u === 0 ? 1 : ws, true);
+  S.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? ws : i === n - 1 ? ws * easeOut(grow) : 0, i < n); });
+  $('ru-l1').innerHTML = 'input 1/' + (u === 0 ? 1 : n + 1) + ' &middot; total ' + (u === 0 ? '0' : fmt2(n / (n + 1))) + '<br><span style="color:#b64342">the input shrinks</span>';
+  // Loopback
+  var L = RU.charts[2], c0 = priorWeights(n, tl.dec), ca = attnWeights(RU.n), B = c0.reduce(function (a, b) { return a + b; }, 0);
+  setBar(L.input, 1, true);
+  L.bars.forEach(function (b, i) {
+    var w = i < n ? c0[i] : 0;
+    if (n === RU.n && tl.dec >= 1) { w = lerp(c0[i], ca[i], realloc); }
+    if (i === n - 1) { w *= easeOut(grow); }
+    setBar(b, w, i < n);
+    var gh = L.ghosts[i], showG = n === RU.n && tl.dec >= 1 && realloc > 0;
+    gh.setAttribute('opacity', showG ? realloc : 0);
+    gh.setAttribute('height', c0[i] ? c0[i] * RU.ch : 0); gh.setAttribute('y', RU.y0 + RU.ch - (c0[i] || 0) * RU.ch);
+  });
+  var atEnd = tl.dec >= 1;
+  $('ru-l2').innerHTML = 'input 1 &middot; total ' + (u === 0 ? '0.00' : fmt2(B)) + (atEnd ? ' &le; 1.33' : '') + '<br><span style="color:#0e8f81">' +
+    (realloc > .02 ? 'attention moves weight; same total' : tl.dec > 0 ? 'visit end: every weight ×λ, λ = 1/4' : 'each new update enters at weight 1') + '</span>';
+  var dim = ease(prog(t, r[0] + 12, r[0] + 12.6));
+  $('ru-p0').style.opacity = Math.min(parseFloat($('ru-p0').style.opacity) || 0, 1 - .55 * dim);
+  $('ru-p1').style.opacity = Math.min(parseFloat($('ru-p1').style.opacity) || 0, 1 - .55 * dim);
+  appear($('ru-cap'), t, r[0] + 12, .6);
+}
+
+/* ---------------------------------------------------------------- scene 4: recipe */
+function renderRecipe(t) {
+  var r = SC.recipe;
+  appear($('rc-e'), t, r[0] + .1, .5); appear($('rc-h'), t, r[0] + .2, .6);
+  appear($('rc-1'), t, r[0] + .9, .6, 30); appear($('rc-2'), t, r[0] + 1.9, .6, 30); appear($('rc-3'), t, r[0] + 2.9, .6, 30);
+  appear($('r-formula'), t, r[0] + 4.2, .8); appear($('rc-n'), t, r[0] + 5.2, .6);
+}
+
+/* ---------------------------------------------------------------- scene 5: four scales */
+var SCL = [
+  { s: '191M', d: 141.59, l: 56.65, pct: '40%', dl: -0.0047 },
+  { s: '374M', d: 308.33, l: 179.88, pct: '58%', dl: -0.0227 },
+  { s: '778M', d: 679.55, l: 453.06, pct: '67%', dl: -0.0187 },
+  { s: '1.4B', d: 1284.61, l: 873.57, pct: '68%', dl: -0.0210 }
+];
+(function buildScale() {
+  var s = $('sc-svg'), g = el('g', { id: 'sc-g' }, s);
+  // left: parameters
+  var X0 = 210, Y0 = 860, Hc = 520, W = 760, ymax = 1400;
+  txt(g, X0, 300, 'Transformer parameters (M)', { 'font-size': 26, 'font-weight': 600, fill: C.ink });
+  [0, 400, 800, 1200].forEach(function (v) {
+    var y = Y0 - v / ymax * Hc;
+    el('line', { x1: X0, x2: X0 + W, y1: y, y2: y, stroke: v ? C.grid : '#9aa6b6', 'stroke-width': v ? 1.5 : 2 }, g);
+    txt(g, X0 - 12, y + 8, v.toLocaleString('en-US'), { 'text-anchor': 'end', 'font-size': 21, fill: C.muted, class: 'mono' });
+  });
+  SCALE_BARS = [];
+  SCL.forEach(function (d, i) {
+    var cx = X0 + 95 + i * 190;
+    var bd = el('rect', { x: cx - 64, y: Y0, width: 60, height: 0, rx: 5, fill: '#9aa3ad' }, g);
+    var bl = el('rect', { x: cx + 4, y: Y0, width: 60, height: 0, rx: 5, fill: C.navy }, g);
+    var lb = txt(g, cx + 34, Y0, d.pct, { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.navy, opacity: 0 });
+    txt(g, cx, Y0 + 40, d.s, { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 600, fill: C.ink2 });
+    SCALE_BARS.push({ bd: bd, bl: bl, lb: lb, d: d, Y0: Y0, Hc: Hc, ymax: ymax });
+  });
+  el('rect', { x: X0 + 430, y: 286, width: 22, height: 22, rx: 4, fill: '#9aa3ad' }, g); txt(g, X0 + 462, 305, 'Dense', { 'font-size': 23, fill: C.ink2 });
+  el('rect', { x: X0 + 560, y: 286, width: 22, height: 22, rx: 4, fill: C.navy }, g); txt(g, X0 + 592, 305, 'Loopback', { 'font-size': 23, fill: C.ink2 });
+  // right: loss change
+  var RX = 1180, RW = 560, zeroX = RX + RW, scale = RW / 0.025;
+  txt(g, RX, 300, 'Validation loss, Loopback minus Dense', { 'font-size': 26, 'font-weight': 600, fill: C.ink });
+  [-0.02, -0.01, 0].forEach(function (v) {
+    var x = zeroX + v * scale;
+    el('line', { x1: x, x2: x, y1: 340, y2: 860, stroke: v ? C.grid : '#9aa6b6', 'stroke-width': v ? 1.5 : 2 }, g);
+    txt(g, x, 896, v === 0 ? '0' : '−' + Math.abs(v).toFixed(2), { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted, class: 'mono' });
+  });
+  txt(g, RX + RW / 2, 934, 'nats · lower is better', { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted });
+  LOSS_BARS = [];
+  SCL.forEach(function (d, i) {
+    var y = 380 + i * 120;
+    txt(g, RX - 18, y + 32, d.s, { 'text-anchor': 'end', 'font-size': 26, 'font-weight': 600, fill: C.ink2 });
+    var b = el('rect', { x: zeroX, y: y + 6, width: 0, height: 40, rx: 5, fill: C.teal }, g);
+    var lb = txt(g, zeroX, y + 37, '−' + Math.abs(d.dl).toFixed(3), { 'text-anchor': 'end', 'font-size': 25, 'font-weight': 700, fill: C.ink, class: 'mono', opacity: 0 });
+    LOSS_BARS.push({ b: b, lb: lb, d: d, zeroX: zeroX, scale: scale });
+  });
+})();
+var SCALE_BARS, LOSS_BARS;
+function renderScale(t) {
+  var r = SC.scale;
+  appear($('sc-h'), t, r[0] + .2, .6);
+  $('sc-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.2));
+  SCALE_BARS.forEach(function (o, i) {
+    var pd = ease(prog(t, r[0] + 1.0 + i * .25, r[0] + 1.9 + i * .25)), pl = ease(prog(t, r[0] + 1.6 + i * .25, r[0] + 2.5 + i * .25));
+    var hd = o.d.d / o.ymax * o.Hc * pd, hl = o.d.l / o.ymax * o.Hc * pl;
+    o.bd.setAttribute('height', hd); o.bd.setAttribute('y', o.Y0 - hd);
+    o.bl.setAttribute('height', hl); o.bl.setAttribute('y', o.Y0 - hl);
+    o.lb.setAttribute('y', o.Y0 - hl - 14); o.lb.setAttribute('opacity', prog(t, r[0] + 2.4 + i * .25, r[0] + 2.9 + i * .25));
+  });
+  LOSS_BARS.forEach(function (o, i) {
+    var p = ease(prog(t, r[0] + 3.6 + i * .3, r[0] + 4.6 + i * .3)), w = Math.abs(o.d.dl) * o.scale * p;
+    o.b.setAttribute('x', o.zeroX - w); o.b.setAttribute('width', w);
+    var inside = w > 160;
+    o.lb.setAttribute('x', inside ? o.zeroX - w + 16 : o.zeroX - w - 14); o.lb.setAttribute('text-anchor', inside ? 'start' : 'end');
+    o.lb.setAttribute('fill', inside ? '#fff' : '#111a2b'); o.lb.setAttribute('opacity', prog(t, r[0] + 4.4 + i * .3, r[0] + 4.9 + i * .3));
+  });
+  appear($('sc-n'), t, r[0] + 6.2, .6);
+}
+
+/* ---------------------------------------------------------------- scene 6: nine rules at 374M */
+var NINE = [['Loopback', 2.3971, 44.27], ['mHC', 2.4062, 44.17], ['Hyperloop', 2.4179, 44.07], ['Dense', 2.4198, 43.28], ['iHC', 2.4217, 43.35],
+            ['MHAR', 2.4223, 43.64], ['HC', 2.4249, 43.72], ['Plain loop', 2.4415, 43.37], ['AttnRes', 2.4601, 42.89]];
+var NN = [];
+(function buildNine() {
+  var s = $('nn-svg'), g = el('g', { id: 'nn-g' }, s);
+  var X0 = 520, W = 900, lo = 2.39, hi = 2.47, Y0 = 300, rh = 66;
+  function xOf(v) { return X0 + (v - lo) / (hi - lo) * W; }
+  txt(g, X0, Y0 - 26, 'Held-out ClimbMix validation loss  (lower is better)', { 'font-size': 24, 'font-weight': 600, fill: C.ink });
+  txt(g, 1560, Y0 - 26, '7-task mean', { 'text-anchor': 'middle', 'font-size': 24, 'font-weight': 600, fill: C.ink });
+  [2.40, 2.42, 2.44, 2.46].forEach(function (v) {
+    el('line', { x1: xOf(v), x2: xOf(v), y1: Y0, y2: Y0 + 9 * rh, stroke: C.grid, 'stroke-width': 1.5 }, g);
+    txt(g, xOf(v), Y0 + 9 * rh + 34, v.toFixed(2), { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted, class: 'mono' });
+  });
+  NINE.forEach(function (d, i) {
+    var y = Y0 + i * rh + rh / 2, ours = d[0] === 'Loopback', dense = d[0] === 'Dense';
+    var row = el('g', { opacity: 0 }, g);
+    if (ours) { el('rect', { x: 150, y: y - rh / 2 + 4, width: 1530, height: rh - 8, rx: 12, fill: '#e6f3f0' }, row); }
+    txt(row, X0 - 30, y + 9, d[0], { 'text-anchor': 'end', 'font-size': 28, 'font-weight': ours ? 800 : 500, fill: ours ? C.teal : C.ink2 });
+    el('line', { x1: X0, x2: X0 + W, y1: y, y2: y, stroke: ours ? '#bfe3dc' : '#edf1f6', 'stroke-width': 2 }, row);
+    el('circle', { cx: xOf(d[1]), cy: y, r: ours ? 13 : 10, fill: dense ? '#fff' : ours ? C.teal : C.navy, stroke: dense ? C.dark : '#fff', 'stroke-width': dense ? 3.5 : 3 }, row);
+    txt(row, xOf(d[1]) + 24, y + 9, d[1].toFixed(4), { 'font-size': 24, 'font-weight': ours ? 700 : 500, fill: ours ? C.ink : C.ink3, class: 'mono' });
+    txt(row, 1560, y + 9, d[2].toFixed(2), { 'text-anchor': 'middle', 'font-size': 25, 'font-weight': ours ? 700 : 500, fill: ours ? C.ink : C.ink3, class: 'mono' });
+    NN.push(row);
+  });
+})();
+function renderNine(t) {
+  var r = SC.nine;
+  appear($('nn-h'), t, r[0] + .2, .6);
+  $('nn-g').style.opacity = easeOut(prog(t, r[0] + .5, r[0] + 1));
+  NN.forEach(function (row, i) {
+    var p = easeOut(prog(t, r[0] + .8 + i * .28, r[0] + 1.3 + i * .28));
+    row.setAttribute('opacity', p); row.setAttribute('transform', 'translate(' + ((1 - p) * -30) + ' 0)');
+  });
+  appear($('nn-cap'), t, r[0] + 4.4, .6);
+}
+
+/* ---------------------------------------------------------------- scene 7: efficiency, 8: outro */
+function renderEff(t) {
+  var r = SC.eff;
+  appear($('ef-h'), t, r[0] + .2, .6);
+  appear($('ef-1'), t, r[0] + .7, .6, 40); appear($('ef-2'), t, r[0] + 1.1, .6, 40); appear($('ef-3'), t, r[0] + 1.5, .6, 40);
+  appear($('ef-n'), t, r[0] + 2.3, .6);
+}
+function renderOutro(t) {
+  var r = SC.outro;
+  appear($('o-title'), t, r[0] + .2, .8, 30); appear($('o-lines'), t, r[0] + 1.0, .8); appear($('o-auth'), t, r[0] + 1.8, .7); appear($('o-aff'), t, r[0] + 2.2, .7);
+}
+function renderTitle(t) {
+  var arc = $('t-logo-arc'), L = arc.getTotalLength(), p = ease(prog(t, .15, 1.35));
+  arc.style.strokeDasharray = L; arc.style.strokeDashoffset = L * (1 - p);
+  $('t-logo-head').style.opacity = prog(t, 1.15, 1.45);
+  var lp = easeOut(prog(t, 0, .5)); $('t-logo').style.opacity = lp; $('t-logo').style.transform = 'scale(' + (.9 + .1 * lp) + ')';
+  appear($('t-kicker'), t, .7, .5); appear($('t-title'), t, .9, .8, 36); appear($('t-sub'), t, 1.5, .7);
+  appear($('t-auth'), t, 2.3, .7); appear($('t-aff'), t, 2.7, .7);
+}
+
+/* ---------------------------------------------------------------- frame */
+var SCENES = [['title', renderTitle], ['hook', renderHook], ['rules', renderRules], ['recipe', renderRecipe], ['scale', renderScale],
+              ['nine', renderNine], ['eff', renderEff], ['outro', renderOutro]];
+function renderAt(t) {
+  SCENES.forEach(function (s) {
+    var r = SC[s[0]], node = $('s-' + s[0]);
+    var o = sceneOpacity(t, r, s[0] === 'title' ? .01 : .45, s[0] === 'outro' ? .01 : .45);
+    node.style.opacity = o;
+    if (o > 0) { s[1](t); }
+  });
+  $('brand').style.opacity = Math.min(prog(t, SC.hook[0], SC.hook[0] + .6), 1 - prog(t, SC.outro[0] - .5, SC.outro[0]));
+  $('bar').style.width = (t / DUR * 1920) + 'px';
+}
+window.renderAt = renderAt;
+window.__ready = false;
+Promise.all([document.fonts.ready, (window.MathJax && MathJax.startup) ? MathJax.startup.promise : Promise.resolve()]).then(function () {
+  renderAt(0); window.__ready = true;
+});
+</script>
+</body>
+</html>

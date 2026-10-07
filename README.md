@@ -12,6 +12,10 @@ overview, the method, an interactive loop demo, and the paper's results as data-
 - `build.py` — assembles `index.html` (standalone, GitHub Pages) and `artifact.html` (the same page without the document
   skeleton, for the Claude artifact publisher); run `python3 build.py` after editing
 - `images/` — figures exported from the paper (pdftoppm, 220 dpi)
+- `video/` — the promo video's source: `promo.html` draws every frame as a function of time (`renderAt(t)`, 1920×1080),
+  `render.py` screenshots it at 30 fps with Playwright and encodes with ffmpeg (`python3 render.py --preview 3 21 43` for a
+  few frames and a contact sheet; `python3 render.py` for the full 64 s video)
+- `videos/` — the rendered `loopback_promo.mp4` (H.264, no audio) and its poster frame, shown in the page's video section
 - `blog/` — the blog post source (see its own files)
 
 Fonts come from Google Fonts (Manrope, Noto Sans, JetBrains Mono) and MathJax from cdnjs; everything else is inline, so the

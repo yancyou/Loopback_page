@@ -181,6 +181,9 @@ button { font: inherit; color: inherit; }
 .fig-pair { display: grid; gap: clamp(1rem, 2.4vw, 1.75rem); }
 @media (min-width: 860px) { .fig-pair { grid-template-columns: 1fr 1fr; } }
 .fig--narrow { max-width: 56rem; margin-inline: auto; }
+.fig--video { max-width: 60rem; margin-inline: auto; }
+.fig__media--video { padding: 0; }
+.fig__media--video video { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--paper); }
 
 /* ---------------------------------------------------------------- KPI tiles */
 .kpis { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr)); margin: 0 0 clamp(1.25rem, 3vw, 2rem); padding: 0; list-style: none; }
