@@ -1,22 +1,5 @@
-// Page behaviour: header shadow and mobile nav (replaces the template's Alpine bindings), the interactive Loopback
-// demo, and the BibTeX copy button. Inlined into index.html / artifact.html by build.py.
-(function () {
-  var header = document.getElementById('site-header');
-  function onScroll() { var top = (window.pageYOffset || 0) < 10; header.classList.toggle('bg-white', !top); header.classList.toggle('backdrop-blur-sm', !top); header.classList.toggle('shadow-lg', !top); }
-  window.addEventListener('scroll', onScroll); onScroll();
-  var ham = document.getElementById('hamburger'), mnav = document.getElementById('mobile-nav');
-  ham.addEventListener('click', function (e) { e.stopPropagation(); var open = mnav.hidden; mnav.hidden = !open; ham.classList.toggle('active', open); ham.setAttribute('aria-expanded', String(open)); });
-  document.addEventListener('click', function (e) { if (!mnav.hidden && !mnav.contains(e.target)) { mnav.hidden = true; ham.classList.remove('active'); ham.setAttribute('aria-expanded', 'false'); } });
-  mnav.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { mnav.hidden = true; ham.classList.remove('active'); }); });
-
-  var copy = document.getElementById('copybib'), bib = document.getElementById('bib');
-  copy.addEventListener('click', function () {
-    function done() { copy.textContent = 'Copied'; setTimeout(function () { copy.textContent = 'Copy BibTeX'; }, 1500); }
-    function select() { var r = document.createRange(); r.selectNodeContents(bib); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); copy.textContent = 'Select and copy'; }
-    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(bib.textContent).then(done).catch(select); } else { select(); }
-  });
-})();
-
+// The interactive Loopback demo (the loop stage, the three-rule ledger and the chart). Page chrome (theme, nav, lightbox,
+// BibTeX copy, data tables) lives in page.js; both are inlined by build.py.
 // ---------------------------------------------------------------------------------------------------------------
 // Interactive demo: one token's hidden state circles the shared blocks; each application appends an update to the
 // history and the reader forms the next state from the input (coefficient one) and the stored updates (prior set
