@@ -218,7 +218,7 @@
       });
       scroller.innerHTML = ''; scroller.appendChild(table); scroller.scrollLeft = 0;
       title.innerHTML = '<strong>' + s.title + '.</strong> ' + (keys.length > 2
-        ? 'Nine residual rules on one topology; all looped arms share the topology, the token budget and the learning rate, and Dense keeps the same number of block applications.'
+        ? 'Dense and eight residual rules on one topology; all looped arms share the topology, the token budget and the learning rate, and Dense keeps the same number of block applications.'
         : 'Dense and Loopback at the same executed depth and token budget.');
       hint.classList.remove('is-on'); setTimeout(function () { scroller.dispatchEvent(new Event('scroll')); }, 0);
     }
@@ -271,7 +271,7 @@
       });
       table.appendChild(tb);
       cscroller.innerHTML = ''; cscroller.appendChild(table); cscroller.scrollLeft = 0;
-      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '4%' : '8%') + ' of a percent in FLOPs and pays for the read in memory traffic: ' + (s.key === '191M' ? '25%' : s.key === '374M' ? '23%' : '16%') + ' fewer training tokens per second than Dense.';
+      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to Dense\'s forward FLOPs and pays for the read in memory traffic: ' + (s.key === '191M' ? '25%' : s.key === '374M' ? '23%' : '16%') + ' fewer training tokens per second than Dense.';
       chint.classList.remove('is-on'); setTimeout(function () { cscroller.dispatchEvent(new Event('scroll')); }, 0);
     }
     crender();

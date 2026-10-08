@@ -18,6 +18,25 @@
   function el(n, a, p) { var e = document.createElementNS(NS, n); for (var k in a) if (a[k] !== undefined && a[k] !== null) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
   function txt(p, x, y, s, a) { var o = { x: x, y: y, 'font-family': SERIF, 'font-size': 13, fill: C.ink }; for (var k in (a || {})) o[k] = a[k]; var t = el('text', o, p); t.textContent = s; return t; }
   function halo(t) { t.setAttribute('paint-order', 'stroke'); t.setAttribute('stroke', '#fff'); t.setAttribute('stroke-width', 3.5); t.setAttribute('stroke-linejoin', 'round'); return t; }
+  // box of a text element in its own user space (0s when the svg is not rendered, so callers simply skip the backing)
+  function bbox(t) { try { var b = t.getBBox(); return { x: b.x, y: b.y, w: b.width, h: b.height }; } catch (e) { return { x: 0, y: 0, w: 0, h: 0 }; } }
+  // halo in the colour of whatever lies behind a label (wide enough to close the gaps between digits), so lines
+  // passing under the label stop short of its glyphs
+  function rim(t, color) { t.setAttribute('paint-order', 'stroke'); t.setAttribute('stroke', color); t.setAttribute('stroke-width', 3.6); t.setAttribute('stroke-linejoin', 'round'); return t; }
+  // a card label against the liquid level whose top edge is at y (glyphs span t0..t1 vertically): above the level it is
+  // ink on the card colour, on the level it is white when the level is deep (w > 0.45, as before) and ink otherwise.
+  // Each part has a thin halo in its own background, so the dashed prior outline stops short of the glyphs and no halo
+  // shows as a rim; a label the level's edge runs through is drawn twice, each copy clipped to its side of the edge.
+  function levelLabel(p, id, make, t0, t1, y, w, k, x, size) {
+    function part(fill, halo, clip) { var t = rim(make(fill), halo); if (clip) t.setAttribute('clip-path', 'url(#' + clip + ')'); return t; }
+    var pad = 2, onFill = w > 0.45 ? '#fff' : C.ink;
+    if (y >= t1 + pad) return part(C.ink, blockFill(k));
+    if (y <= t0 - pad) return part(onFill, rampColor(w));
+    var a = 'lb-cut-' + id + 'a', b = 'lb-cut-' + id + 'b';
+    el('rect', { x: x, y: t0 - 8, width: size, height: y - t0 + 8 }, el('clipPath', { id: a }, p));
+    el('rect', { x: x, y: y, width: size, height: t1 + 8 - y }, el('clipPath', { id: b }, p));
+    part(C.ink, blockFill(k), a); part(onFill, rampColor(w), b);
+  }
   // italic symbol with an optional subscript, e.g. δ7, h0, f3
   function sym(p, x, y, base, sub, a) {
     var t = txt(p, x, y, '', a);
@@ -57,12 +76,14 @@
     var K = P.K, R = P.R;
     L.ring = { cx: 176, cy: 238, r: 110 };
     L.block = { w: 60, h: 30 };
-    L.reader = { cx: 420, cy: 238, r: 24 };
-    var gx0 = 560, gx1 = 988, gy0 = 74, gy1 = 404;
+    L.reader = { cx: 404, cy: 238, r: 24 };
+    // the visit labels sit to the right of the grid, outside the fan of read threads; the grid region stops short of
+    // the right edge to leave them room (K = 8 still gets 45-unit cards, so every card keeps its three-decimal value)
+    var gx0 = 544, gx1 = 956, gy0 = 74, gy1 = 404;
     var cell = Math.floor(Math.min(62, (gx1 - gx0) / K, (gy1 - gy0) / R)), gap = Math.max(5, Math.round(cell * 0.12)), card = cell - gap;
     var gw = K * cell - gap, gh = R * cell - gap;
     L.grid = { x0: gx0 + Math.floor((gx1 - gx0 - gw) / 2), y0: gy0 + Math.floor((gy1 - gy0 - gh) / 2), cell: cell, card: card, gap: gap, w: gw, h: gh };
-    L.h0 = { x: 474, y: L.reader.cy - card / 2, card: card };
+    L.h0 = { x: 458, y: L.reader.cy - card / 2, card: card };
     L.blockPos = [];
     for (var k = 0; k < K; k++) { var a = -Math.PI / 2 + 2 * Math.PI * k / K; L.blockPos.push({ x: L.ring.cx + L.ring.r * Math.cos(a), y: L.ring.cy + L.ring.r * Math.sin(a), a: a }); }
   }
@@ -130,13 +151,16 @@
     el('rect', { x: h.x, y: h.y, width: h.card, height: h.card, rx: 5, fill: C.grayF, stroke: C.border, 'stroke-width': 1 }, hg);
     el('rect', { x: h.x + 5, y: h.y + h.card * 0.42, width: h.card - 10, height: h.card * 0.58 - 5, rx: 2, fill: C.ramp[3] }, hg);
     sym(hg, h.x + 6, h.y + 15, 'h', '0', { 'font-size': 13 });
-    halo(txt(hg, h.x + h.card / 2, h.y + h.card + 14, 'input · 1', { 'text-anchor': 'middle', 'font-size': 11, fill: C.muted }));
+    // with many visits the lower read threads leave h0 right under its caption: give the caption a paper backing
+    var inLab = halo(txt(hg, h.x + h.card / 2, h.y + h.card + 14, 'input · 1', { 'text-anchor': 'middle', 'font-size': 11, fill: C.muted })), ib = bbox(inLab);
+    if (ib.w) hg.insertBefore(el('rect', { x: ib.x - 3, y: ib.y + 0.5, width: ib.w + 6, height: ib.h, rx: 3, fill: '#fff' }), inLab);
     hover(hg, 'the input h0 enters every read with coefficient 1: it is never decayed and never shares a softmax with the updates');
     // history grid frame: column headers, row labels, ghost cells
     var gr = L.grid;
     txt(g, gr.x0 + gr.w / 2, gr.y0 - 26, 'history of updates (one card per application)', { 'text-anchor': 'middle', 'font-size': 12, fill: C.muted });
     for (k = 0; k < K; k++) sym(g, gr.x0 + k * gr.cell + gr.card / 2, gr.y0 - 9, 'f', String(k), { 'text-anchor': 'middle', 'font-size': 12, fill: blockStroke(k) });
-    G.labels.innerHTML = ''; G.rowLabels = G.labels; for (var v = 0; v < P.R; v++) halo(txt(G.rowLabels, gr.x0 - 7, gr.y0 + v * gr.cell + gr.card / 2 + 4, 'visit ' + (v + 1), { 'text-anchor': 'end', 'font-size': 11, fill: C.muted }));
+    // row labels on the right of the grid: the threads from the reader converge on the left edge of each row
+    G.labels.innerHTML = ''; G.rowLabels = G.labels; for (var v = 0; v < P.R; v++) halo(txt(G.rowLabels, gr.x0 + gr.w + 8, gr.y0 + v * gr.cell + gr.card / 2 + 4, 'visit ' + (v + 1), { 'text-anchor': 'start', 'font-size': 11, fill: C.muted }));
     // visit pips under the ring
     G.pips = [];
     var px = rg.cx - (P.R * 16 - 4) / 2, py = rg.cy + rg.r + 22;
@@ -176,8 +200,17 @@
       el('rect', { x: c.x + 5, y: c.y + 5 + inner - hgt, width: inner, height: hgt, rx: 2, fill: rampColor(w) }, cg);
       // prior outline (decay only), visible when attention has moved weight
       if (Math.abs(pr - w) > 0.004) { var ph = Math.max(0, inner * Math.min(1, pr)); el('rect', { x: c.x + 5, y: c.y + 5 + inner - ph, width: inner, height: ph, rx: 2, fill: 'none', stroke: C.rose, 'stroke-width': 1, 'stroke-dasharray': '2 2' }, cg); }
-      if (gr.card >= 34) sym(cg, c.x + 5, c.y + 14, 'δ', String(i), { 'font-size': gr.card >= 48 ? 12.5 : 11 });
-      if (gr.card >= 40) txt(cg, c.x + gr.card - 4, c.y + gr.card - 5, fmt(w, gr.card >= 44 ? 3 : 2), { 'text-anchor': 'end', 'font-size': gr.card >= 50 ? 10.5 : 9.5, fill: w > 0.45 ? '#fff' : C.ink });
+      // card labels sit inside the level's area, clear of the dashed prior outline's edges, and take their colours from
+      // whatever lies behind them (levelLabel)
+      var barTop = c.y + 5 + inner - hgt;
+      if (gr.card >= 34) {
+        var fd = gr.card >= 48 ? 12.5 : 11, dy = c.y + 16.5;
+        levelLabel(cg, 'd' + i, function (fill) { return sym(cg, c.x + 7.5, dy, 'δ', String(i), { 'font-size': fd, fill: fill }); }, dy - 0.76 * fd, dy + 0.32 * fd, barTop, w, k, c.x, gr.card);
+      }
+      if (gr.card >= 40) {
+        var fn = gr.card >= 50 ? 10.5 : 9.5, ny = c.y + gr.card - 7, val = fmt(w, gr.card >= 44 ? 3 : 2);
+        levelLabel(cg, 'n' + i, function (fill) { return txt(cg, c.x + gr.card - 8.5, ny, val, { 'text-anchor': 'end', 'font-size': fn, fill: fill }); }, ny - 0.74 * fn, ny, barTop, w, k, c.x, gr.card);
+      }
       (function (i, k, v) { hover(cg, function () { var cc = coeffs(P.s, false); return 'δ' + i + ' from block f' + k + ', visit ' + (v + 1) + ': decay prior ' + fmt(cc.prior[i]) + ', after attention ' + fmt(cc.post[i]); }); })(i, k, v);
     }
     // visit pips
@@ -207,12 +240,14 @@
     chart.innerHTML = ''; var n = N(), W = 1000, H = 210, i;
     var allB = []; for (i = 0; i < n; i++) allB.push(coeffs(i, false).B);
     var panels = [{ x0: 62, x1: 470, title: 'input coefficient', ymax: 1.12 }, { x0: 560, x1: 985, title: 'total update weight B of the stored updates', ymax: isFinite(bound()) ? Math.max.apply(null, allB) * 1.14 : n * 1.06 }];
-    CH.panels = panels; CH.top = 34; CH.bot = 176;
+    // header: the panel titles, then one row for the right panel's annotations (bound key on the right, off-scale note on
+    // the left), above the plot frame, so that no curve can run through them
+    CH.panels = panels; CH.title = 17; CH.ann = 32; CH.top = 41; CH.bot = 176;
     panels.forEach(function (p, j) {
       p.px = function (s) { return p.x0 + (p.x1 - p.x0) * (n > 1 ? s / (n - 1) : 0); };
       p.py = function (v) { return CH.bot - (CH.bot - CH.top) * Math.min(v, p.ymax) / p.ymax; };
       el('clipPath', { id: 'lb-clip' + j }, el('defs', {}, chart)).appendChild(el('rect', { x: p.x0 - 2, y: CH.top - 2, width: p.x1 - p.x0 + 4, height: CH.bot - CH.top + 4 }));
-      txt(chart, p.x0, 20, p.title, { 'font-size': 13, 'font-weight': 'bold' });
+      txt(chart, p.x0, CH.title, p.title, { 'font-size': 13, 'font-weight': 'bold' });
       el('rect', { x: p.x0, y: CH.top, width: p.x1 - p.x0, height: CH.bot - CH.top, fill: 'none', stroke: C.ink, 'stroke-width': 0.8 }, chart);
       var ticks = j === 0 ? [0, 0.5, 1] : (p.ymax <= 3 ? [0, 0.5, 1, 1.5, 2, 2.5, 3] : null);
       if (!ticks) { ticks = []; var step = p.ymax > 20 ? 10 : p.ymax > 8 ? 4 : p.ymax > 4 ? 2 : 1; for (i = 0; i <= p.ymax + 1e-9; i += step) ticks.push(i); }
@@ -220,7 +255,13 @@
       var xt = n <= 12 ? 1 : n <= 24 ? 4 : 8;
       for (i = 0; i < n; i += xt) { var x = p.px(i); el('line', { x1: x, x2: x, y1: CH.bot, y2: CH.bot + 4, stroke: C.ink, 'stroke-width': 0.8 }, chart); txt(chart, x, CH.bot + 16, String(i), { 'text-anchor': 'middle', 'font-size': 11, fill: C.muted }); }
       txt(chart, (p.x0 + p.x1) / 2, CH.bot + 31, 'application s', { 'text-anchor': 'middle', 'font-size': 11.5, fill: C.muted });
-      if (j === 1 && isFinite(bound())) { var yb = p.py(bound()); el('line', { x1: p.x0, x2: p.x1, y1: yb, y2: yb, stroke: C.navy, 'stroke-width': 1, 'stroke-dasharray': '5 4' }, chart); halo(txt(chart, p.x1 - 4, yb - 5, 'visit-end total ≤ Kλ/(1−λ) = ' + fmt(bound()), { 'text-anchor': 'end', 'font-size': 11, fill: C.navy })); }
+      if (j === 1 && isFinite(bound())) {
+        var yb = p.py(bound());
+        el('line', { x1: p.x0, x2: p.x1, y1: yb, y2: yb, stroke: C.navy, 'stroke-width': 1, 'stroke-dasharray': '5 4' }, chart);
+        // its label as a key in the header row: a short sample of the same dashed line, then the text
+        var key = txt(chart, p.x1, CH.ann, 'visit-end total ≤ Kλ/(1−λ) = ' + fmt(bound()), { 'text-anchor': 'end', 'font-size': 11, fill: C.navy }), kw = bbox(key).w || 175;
+        el('line', { x1: p.x1 - kw - 29, x2: p.x1 - kw - 6, y1: CH.ann - 3.5, y2: CH.ann - 3.5, stroke: C.navy, 'stroke-width': 1, 'stroke-dasharray': '5 4' }, chart);
+      }
     });
     CH.g = el('g', {}, chart);
     // full curves
@@ -241,8 +282,8 @@
     line(p1, CH.lb, C.navy, 1.2, null, 'url(#lb-clip1)');
     var d = '', first = true; for (i = 0; i <= s; i++) if ((i + 1) % P.K === 0 || P.lam >= 1) { d += (first ? 'M' : ' L') + p1.px(i) + ' ' + p1.py(CH.lb[i]); first = false; el('circle', { cx: p1.px(i), cy: p1.py(CH.lb[i]), r: 3.2, fill: C.navy }, g); }
     if (d) el('path', { d: d, fill: 'none', stroke: C.navy, 'stroke-width': 2.4, 'stroke-linejoin': 'round' }, g);
-    // the addition line leaves the Loopback-scaled panel: say so
-    for (i = 0; i <= s; i++) if (CH.add[i] > p1.ymax) { halo(txt(g, Math.min(p1.px(i) + 6, p1.x1 - 170), CH.top + 14, 'residual addition: ' + (s + 1) + ', off the scale', { 'font-size': 11, fill: C.dense })); break; }
+    // the addition line leaves the Loopback-scaled panel through its top edge: say so in the header row above that edge
+    for (i = 0; i <= s; i++) if (CH.add[i] > p1.ymax) { txt(g, p1.x0, CH.ann, 'residual addition: ' + (s + 1) + ', off the scale', { 'font-size': 11, fill: C.dense }); break; }
   }
 
   // ---------- animation ----------
@@ -274,7 +315,7 @@
   function flyStep(i, dur) {
     var k = i % P.K, b = G.blocks[k], c = cellPos(i), card = L.grid.card, g;
     return { dur: dur,
-      start: function () { g = el('g', {}, G.fly); el('rect', { x: -card / 2, y: -card / 2, width: card, height: card, rx: 5, fill: blockFill(k), stroke: C.navy, 'stroke-width': 1.5, filter: 'url(#lb-glow)' }, g); sym(g, -card / 2 + 5, -card / 2 + 14, 'δ', String(i), { 'font-size': 12 }); },
+      start: function () { g = el('g', {}, G.fly); el('rect', { x: -card / 2, y: -card / 2, width: card, height: card, rx: 5, fill: blockFill(k), stroke: C.navy, 'stroke-width': 1.5, filter: 'url(#lb-glow)' }, g); sym(g, -card / 2 + 7.5, -card / 2 + 16.5, 'δ', String(i), { 'font-size': 12 }); },
       tick: function (e) { var x = b.x + (c.x + card / 2 - b.x) * e, y = b.y - 28 * Math.sin(Math.PI * e) + (c.y + card / 2 - b.y) * e, sc = 0.55 + 0.45 * e; g.setAttribute('transform', 'translate(' + x + ' ' + y + ') scale(' + sc + ')'); g.setAttribute('opacity', 0.5 + 0.5 * e); },
       end: function () { G.fly.innerHTML = ''; } };
   }

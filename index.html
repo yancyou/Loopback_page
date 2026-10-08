@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Loopback Transformer: a looped Transformer that stores block updates, keeps the input on its own path, and lets decay set the total update weight while attention allocates it. Lower loss than dense controls at 191M to 1.4B with 40-68% of the parameters.">
 <meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Loopback Transformer: Towards a Unified View of Residual Looped Transformers">
+<meta property="og:description" content="Store block updates, keep the input on its own path, let decay set the total update weight and attention allocate it.">
+<meta property="og:url" content="https://yancyou.github.io/Loopback_page/">
+<meta property="og:image" content="https://yancyou.github.io/Loopback_page/videos/loopback_promo_poster.jpg">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://yancyou.github.io/Loopback_page/videos/loopback_promo_poster.jpg">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230f4d92%27/%3E%3Cpath d=%27M22.5 11.5 A7 7 0 1 0 23 16%27 fill=%27none%27 stroke=%27%23fff%27 stroke-width=%272.4%27 stroke-linecap=%27round%27/%3E%3Cpath d=%27M19.5 9.2 L23.6 11.2 L21.2 15.1 Z%27 fill=%27%23fff%27/%3E%3C/svg%3E">
+<script>try{var t=localStorage.getItem("lb-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}</script>
 <title>Loopback Transformer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -127,7 +138,7 @@ button { font: inherit; color: inherit; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .theme-btn .ico-moon { display: none; } :root:not([data-theme="light"]) .theme-btn .ico-sun { display: block; } }
 
 /* ---------------------------------------------------------------- hero */
-.hero { position: relative; padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(2rem, 4vw, 3rem); text-align: center; overflow: hidden; }
+.hero { position: relative; padding-block: clamp(2rem, 5vw, 3.5rem) clamp(2.5rem, 5vw, 3.75rem); text-align: center; overflow: hidden; }
 .hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 70% at 50% 0%, var(--brand-soft), transparent 70%); pointer-events: none; }
 .hero > .wrap { position: relative; }
 .hero__kicker { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.1rem; padding: 6px 12px 6px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-3); font: 600 .78rem/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; }
@@ -146,8 +157,12 @@ button { font: inherit; color: inherit; }
 .pill { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; background: var(--pill-bg); color: var(--pill-ink); font: 600 .95rem/1 var(--font-body); box-shadow: var(--shadow-sm); transition: background-color var(--dur), transform var(--dur), box-shadow var(--dur); }
 .pill:hover { background: var(--pill-hover); color: var(--pill-ink); text-decoration: none; transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .pill svg { width: 18px; height: 18px; }
-.pill--soon { opacity: .85; }
-.links-note { margin-top: .6rem; color: var(--text-muted); font-size: .88rem; }
+.pill--soon { cursor: default; opacity: .9; }
+.pill--soon:hover { background: var(--pill-bg); transform: none; box-shadow: var(--shadow-sm); }
+.pill__soon { margin-left: 2px; padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, currentColor 16%, transparent); font: 600 .7rem/1 var(--font-body); letter-spacing: .04em; text-transform: uppercase; }
+.hero__video { max-width: 56rem; margin: clamp(1.75rem, 3.5vw, 2.5rem) auto 0; border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface); box-shadow: var(--shadow-lg); overflow: hidden; text-align: left; }
+.hero__video video { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--paper); }
+.hero__video figcaption { padding: 12px 16px 14px; border-top: 1px solid var(--border); color: var(--text-3); font-size: .93rem; line-height: 1.55; text-wrap: pretty; }
 
 /* ---------------------------------------------------------------- sections */
 .section { padding-block: var(--section-pad); }
@@ -162,6 +177,7 @@ button { font: inherit; color: inherit; }
 .prose p { margin: 0 0 1.1em; }
 .prose p:last-child { margin-bottom: 0; }
 .abstract { font-size: 1.1rem; line-height: 1.7; }
+.steps-wrap { max-width: var(--w-text); margin-inline: auto; }
 .steps { display: grid; gap: 1.1rem; counter-reset: step; margin: 0 0 1.75rem; padding: 0; list-style: none; }
 .step { display: grid; grid-template-columns: 2.4rem 1fr; gap: 12px; align-items: start; }
 .step::before { counter-increment: step; content: counter(step); display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 999px; background: var(--brand); color: #fff; font: 700 .95rem/1 var(--font-display); margin-top: 2px; }
@@ -169,7 +185,8 @@ button { font: inherit; color: inherit; }
 .step p { color: var(--text-3); font-size: 1rem; }
 
 /* ---------------------------------------------------------------- contributions */
-.contrib-grid { display: grid; gap: clamp(1rem, 2.4vw, 1.5rem); grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); }
+.contrib-grid { display: grid; gap: clamp(1rem, 2.4vw, 1.5rem); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 760px) { .contrib-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .contrib { position: relative; display: flex; gap: 16px; padding: clamp(18px, 2.4vw, 24px); border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface); box-shadow: var(--shadow-sm); transition: transform var(--dur), box-shadow var(--dur), border-color var(--dur); min-width: 0; }
 .contrib:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--brand-ring); }
 .contrib__icon { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: var(--brand-soft); color: var(--brand); }
@@ -181,21 +198,19 @@ button { font: inherit; color: inherit; }
 .fig { margin: 0; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface); box-shadow: var(--shadow-sm); overflow: hidden; min-width: 0; transition: box-shadow var(--dur); }
 .fig:hover { box-shadow: var(--shadow-md); }
 .fig__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 10px 9px 16px; border-bottom: 1px solid var(--border); }
-.fig__label { color: var(--text-3); font: 600 .75rem/1.3 var(--font-body); letter-spacing: .08em; text-transform: uppercase; }
+.fig__label { min-width: 0; color: var(--text-3); font: 600 .75rem/1.3 var(--font-body); letter-spacing: .08em; text-transform: uppercase; }
 .fig__label b { color: var(--brand); font-weight: 700; }
-.fig__zoom { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-3); font: 600 .82rem/1 var(--font-body); cursor: pointer; transition: color var(--dur), border-color var(--dur), background-color var(--dur); }
+.fig__zoom { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-3); font: 600 .82rem/1 var(--font-body); cursor: pointer; transition: color var(--dur), border-color var(--dur), background-color var(--dur); }
 .fig__zoom:hover { color: var(--brand); border-color: var(--brand-ring); background: var(--brand-soft); }
 .fig__zoom svg { width: 14px; height: 14px; }
 .fig__media { flex: 1 1 auto; display: grid; place-items: center; padding: 14px 16px; background: var(--paper); }
 .fig__media img { width: 100%; height: auto; cursor: zoom-in; display: block; }
 .fig__caption { padding: 14px 16px 16px; border-top: 1px solid var(--border); color: var(--text-3); font-size: .93rem; line-height: 1.6; text-wrap: pretty; }
 .fig__caption strong { color: var(--text); }
-.fig-pair { display: grid; gap: clamp(1rem, 2.4vw, 1.75rem); }
-@media (min-width: 860px) { .fig-pair { grid-template-columns: 1fr 1fr; } }
+.fig-stack { display: grid; gap: clamp(1.25rem, 2.6vw, 2rem); }
+.fig-stack--after { margin-top: clamp(1.25rem, 2.6vw, 2rem); }
+.fig__media { padding: clamp(10px, 2vw, 20px) clamp(10px, 2.4vw, 28px); }
 .fig--narrow { max-width: 56rem; margin-inline: auto; }
-.fig--video { max-width: 60rem; margin-inline: auto; }
-.fig__media--video { padding: 0; }
-.fig__media--video video { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--paper); }
 
 /* ---------------------------------------------------------------- KPI tiles */
 .kpis { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr)); margin: 0 0 clamp(1.25rem, 3vw, 2rem); padding: 0; list-style: none; }
@@ -272,14 +287,17 @@ button { font: inherit; color: inherit; }
 .tbl td.best { color: var(--text); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .tbl tr.ours td { background: var(--accent-soft); }
 .tbl tr.ours td:first-child { color: var(--accent); font-weight: 700; }
-.tbl td.gain { color: var(--pos); font-size: .78rem; }
+.tbl .gain { display: inline-block; margin-top: 2px; color: var(--pos); font-size: .76rem; font-weight: 600; }
 .tbl tbody tr:last-child td { border-bottom: 0; }
+.tbl--t2 th:nth-child(2), .tbl--t2 td:nth-child(2), .tbl--t6 th:nth-child(6), .tbl--t6 td:nth-child(6) { text-align: left; font-family: var(--font-body); font-size: .9rem; }
+.card--table { width: 100%; max-width: 56rem; margin-inline: auto; }
 .tbl .sub th { padding-top: 12px; color: var(--brand); text-transform: uppercase; letter-spacing: .1em; font-size: .72rem; text-align: left; border-bottom: 0; }
 .card { border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface); box-shadow: var(--shadow-sm); padding: clamp(16px, 2.4vw, 22px); min-width: 0; }
 .card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
 .card > p { color: var(--text-3); font-size: .95rem; margin-bottom: .9rem; }
 .card-grid { display: grid; gap: clamp(1rem, 2.4vw, 1.5rem); }
-@media (min-width: 860px) { .card-grid--2 { grid-template-columns: 1fr 1fr; } }
+.card-grid { align-items: start; }
+@media (min-width: 860px) { .card-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .card-grid--2 > .span-2 { grid-column: 1 / -1; } }
 details.more { margin-top: 1rem; border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface); }
 details.more > summary { cursor: pointer; padding: 12px 18px; color: var(--brand); font: 600 .92rem/1.3 var(--font-body); list-style: none; display: flex; align-items: center; gap: 8px; }
 details.more > summary::-webkit-details-marker { display: none; }
@@ -301,6 +319,8 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
 .lb-scrub { flex: 1 1 220px; } .lb-speed { flex: 0 1 150px; }
 .lb-scrub input, .lb-speed input, .lb-ctl input[type=range] { width: 100%; accent-color: var(--brand); }
 .lb-scrub output, .lb-speed output, .lb-ctl label output { font-family: var(--font-mono); color: var(--text); }
+.lb-swipe { display: none; margin: 0 0 .35rem; color: var(--text-muted); font-size: .85rem; }
+@media (max-width: 820px) { .lb-swipe { display: block; } }
 .lb-stagewrap { overflow-x: auto; margin: 0.25rem 0 0.5rem; background: var(--paper); border: 1px solid var(--border); border-radius: 10px; }
 .lb-stagewrap svg { display: block; width: 100%; min-width: 760px; height: auto; }
 .lb-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.8rem 1.4rem; margin: 1rem 0 0.4rem; }
@@ -327,9 +347,11 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
   .lb-ledger span { min-width: 0; overflow-wrap: anywhere; } .lb-lhead span { font-size: .7rem; } }
 
 /* ---------------------------------------------------------------- bibtex, footer */
-.bib { position: relative; border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface-2); padding: 18px 20px; }
-.bib pre { margin: 0; overflow-x: auto; font: .86rem/1.6 var(--font-mono); color: var(--text-2); white-space: pre; }
-.bib__copy { position: absolute; top: 12px; right: 12px; min-height: 34px; padding: 0 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-3); font: 600 .82rem/1 var(--font-body); cursor: pointer; }
+.bib { border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface-2); overflow: hidden; }
+.bib__bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px 8px 18px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.bib__label { color: var(--text-3); font: 600 .75rem/1.3 var(--font-body); letter-spacing: .08em; text-transform: uppercase; }
+.bib pre { margin: 0; padding: 16px 20px 18px; font: .86rem/1.6 var(--font-mono); color: var(--text-2); white-space: pre-wrap; overflow-wrap: anywhere; }
+.bib__copy { flex: none; min-height: 34px; padding: 0 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-3); font: 600 .82rem/1 var(--font-body); cursor: pointer; }
 .bib__copy:hover { color: var(--brand); border-color: var(--brand-ring); background: var(--brand-soft); }
 .foot { padding-block: 2rem calc(2rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--border); color: var(--text-muted); font-size: .88rem; text-align: center; }
 
@@ -349,6 +371,13 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* ---------------------------------------------------------------- narrow screens */
+@media (max-width: 720px) {
+  .nav__links { -webkit-mask-image: linear-gradient(90deg, #000 80%, transparent); mask-image: linear-gradient(90deg, #000 80%, transparent); }
+  .nav__links a { padding: 8px 9px; font-size: .9rem; }
+  .rt-table td.rt-ours, .rt-table thead th.rt-ours { position: static; box-shadow: none; }
+}
 </style>
 </head>
 <body>
@@ -360,7 +389,7 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
       Loopback
     </a>
     <div class="nav__links">
-      <a href="#video">Video</a><a href="#abstract">Abstract</a><a href="#contributions">Contributions</a><a href="#method">Method</a><a href="#demo">Demo</a><a href="#results">Results</a><a href="#bibtex">BibTeX</a>
+      <a href="#abstract">Abstract</a><a href="#contributions">Contributions</a><a href="#method">Method</a><a href="#demo">Demo</a><a href="#results">Results</a><a href="#bibtex">BibTeX</a>
     </div>
     <button class="theme-btn" id="theme-btn" type="button" aria-label="Switch between light and dark theme" title="Light / dark">
       <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -391,51 +420,35 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
     </p>
     <p class="note">(<sup>*</sup>Equal contribution, <sup>&#9993;</sup>Corresponding author)</p>
     <div class="links">
-      <a class="pill pill--soon" href="#bibtex" title="The arXiv link goes live at release">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h8l6 6v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V9h5.5L13 3.5zM8 13h8v1.6H8V13zm0 3.2h8v1.6H8v-1.6z"/></svg>Paper
-      </a>
-      <a class="pill pill--soon" href="#bibtex" title="The code link goes live at release">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>Code
-      </a>
-      <a class="pill" href="#video">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg>Video
-      </a>
+      <span class="pill pill--soon" aria-disabled="true" title="The arXiv link goes live at release">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h8l6 6v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V9h5.5L13 3.5zM8 13h8v1.6H8V13zm0 3.2h8v1.6H8v-1.6z"/></svg>Paper<span class="pill__soon">soon</span>
+      </span>
+      <span class="pill pill--soon" aria-disabled="true" title="The code link goes live at release">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>Code<span class="pill__soon">soon</span>
+      </span>
     </div>
-    <p class="links-note">The arXiv and code links go live at release.</p>
+    <figure class="hero__video" id="video">
+      <video controls playsinline preload="metadata" poster="videos/loopback_promo_poster_hero.jpg" aria-label="Loopback Transformer overview video, 64 seconds">
+        <source src="videos/loopback_promo.mp4" type="video/mp4">
+      </video>
+      <figcaption><strong>Loopback in one minute.</strong> Why sharing weights leaves update reuse open, three ways a loop can reuse its updates, the recipe, and the results at four scales.</figcaption>
+    </figure>
   </div>
 </header>
 
-<section class="section section--tint" id="video" aria-labelledby="video-title">
-  <div class="wrap">
-    <div class="section__head">
-      <h2 id="video-title">Loopback in one minute</h2>
-      <p class="lead">Why sharing weights leaves update reuse open, three ways a loop can reuse its updates, the Loopback recipe, and the results at four scales.</p>
-    </div>
-    <figure class="fig fig--video">
-      <div class="fig__head"><span class="fig__label"><b>Video</b> &middot; 64 seconds, no audio</span></div>
-      <div class="fig__media fig__media--video">
-        <video controls playsinline preload="metadata" poster="videos/loopback_promo_poster.jpg" aria-label="Loopback Transformer overview video, 64 seconds, no audio">
-          <source src="videos/loopback_promo.mp4" type="video/mp4">
-        </video>
-      </div>
-      <figcaption class="fig__caption"><strong>Decay sets the total update weight; attention allocates it.</strong> Residual addition lets the total grow with depth and a joint softmax shrinks the input. Loopback keeps the input at weight one and bounds the total at every visit end. It reaches lower loss than Dense with 40&ndash;68% of the Transformer parameters at four scales and has the lowest loss of nine models at 374M.</figcaption>
-    </figure>
-  </div>
-</section>
-
-<section class="section" id="overview" aria-labelledby="overview-title">
+<section class="section section--tint" id="overview" aria-labelledby="overview-title">
   <div class="wrap">
     <div class="section__head">
       <h2 id="overview-title">Performance overview</h2>
       <p class="lead">Loopback trains a looped stack to lower loss than a dense control of the same executed depth, with 40&ndash;68% of its Transformer parameters, at every scale we ran.</p>
     </div>
-    <div class="fig-pair">
+    <div class="fig-stack">
       <figure class="fig" id="fig-1">
         <div class="fig__head"><span class="fig__label"><b>Figure 1</b> &middot; Training loss, four scales</span><button type="button" class="fig__zoom" data-zoom="fig-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
         <div class="fig__media"><img src="images/fig_train_loss.png" alt="Training loss against tokens seen for Dense and Loopback at 191M, 374M, 778M and 1.4B" loading="lazy" data-zoom="fig-1"></div>
         <figcaption class="fig__caption"><strong>Loopback trains below Dense at every scale.</strong> 100-step moving averages against tokens seen. The final training-loss gap to Dense is &minus;0.005, &minus;0.024, &minus;0.019 and &minus;0.021 nats at 191M, 374M, 778M and 1.4B, while Loopback stores 40&ndash;68% of Dense's Transformer parameters.</figcaption>
       </figure>
-      <figure class="fig" id="fig-2">
+      <figure class="fig fig--narrow" id="fig-2">
         <div class="fig__head"><span class="fig__label"><b>Figure 2</b> &middot; Parameters and quality at 778M and 1.4B</span><button type="button" class="fig__zoom" data-zoom="fig-2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
         <div class="fig__media"><img src="images/fig_scaling.png" alt="Transformer parameters, validation loss and seven-task accuracy of Dense and Loopback at 778M and 1.4B" loading="lazy" data-zoom="fig-2"></div>
         <figcaption class="fig__caption"><strong>The advantage persists at scale.</strong> With 67% and 68% of Dense's Transformer parameters, Loopback lowers validation loss by 0.019 and 0.021 nats and raises the seven-task mean by 0.90 and 0.87 points (47.83&rarr;48.73 and 52.11&rarr;52.98); the thirteen-task mean and WikiText perplexity improve as well.</figcaption>
@@ -444,52 +457,52 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
   </div>
 </section>
 
-<section class="section section--tint" id="abstract" aria-labelledby="abstract-title">
+<section class="section" id="abstract" aria-labelledby="abstract-title">
   <div class="wrap wrap--text">
     <div class="section__head"><h2 id="abstract-title">Abstract</h2></div>
     <p class="abstract prose">Looped Transformers reduce parameter count by repeatedly applying shared blocks, but parameter sharing alone does not determine how the results of repeated computation are reused. Building on the depth-memory view of residual connections, we analyze how the written representation and weighting rule constrain the contribution of each update. Storing a full block output also writes back its input, changing how earlier information is carried forward. Reading individual updates with a separate input path exposes independent controls over input strength, total update weight, and allocation. Guided by this analysis, we develop the Loopback Transformer, which stores individual block updates and keeps the shared stack's input on a separate path. Geometric decay controls total update weight and supplies a recency prior, while attention learns how to allocate that weight. On ClimbMix, Loopback uses only about 40% and 58% of the dense controls' Transformer parameters at the 191M and 374M scales, respectively, while achieving lower validation loss and better downstream performance at the studied training budgets; the advantage persists at 778M and 1.4B with about two thirds of the parameters. Comparisons use the same training-token budget and computational depth within each scale.</p>
   </div>
 </section>
 
-<section class="section" id="contributions" aria-labelledby="contrib-title">
+<section class="section section--tint" id="contributions" aria-labelledby="contrib-title">
   <div class="wrap">
     <div class="section__head"><h2 id="contrib-title">Key contributions</h2></div>
     <div class="contrib-grid">
       <article class="contrib">
         <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1.5"/><rect x="3" y="15" width="18" height="5" rx="1.5"/><path d="M8 9v6M16 9v6M12 9v6"/></svg></div>
-        <div><h3>One interface for residual rules</h3><p>Addition, Attention Residuals, Hyper-Connections, mHC, Hyperloop and recurrent depth readers all write a value, carry old memory forward, and read it to form the next hidden state. Unrolling the interface gives every earlier update an explicit coefficient and exposes two couplings: storing a full block output rewrites the input it contains, and a joint softmax over input and updates ties their weights to a single unit.</p></div>
+        <div><h3>One interface for residual rules</h3><p>Addition, Attention Residuals, Hyper-Connections, mHC, Hyperloop and recurrent depth readers all write a value, carry old memory forward and read it to form the next state. Unrolled, every earlier update gets an explicit coefficient, and two couplings become visible.</p></div>
       </article>
       <article class="contrib">
         <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h5"/><path d="M15 12h5"/><path d="M9 12c0-3 2-5 5-5h1"/><path d="M9 12c0 3 2 5 5 5h1"/><path d="M14 5l2 2-2 2M14 15l2 2-2 2"/></svg></div>
-        <div><h3>Store updates, keep the input on its own path</h3><p>Loopback appends each block's update rather than its output and keeps the shared stack's input at coefficient one. At every visit end a geometric factor <i>&lambda;</i> shrinks all stored weights, so the prior favors recent visits and the total update weight stays bounded by <i>K&lambda;/(1&minus;&lambda;)</i>.</p></div>
+        <div><h3>Store updates, keep the input on its own path</h3><p>Loopback appends each block&rsquo;s update rather than its output, so the input is never written back, and it reads the shared stack&rsquo;s input at coefficient one, so a softmax never shrinks it.</p></div>
       </article>
       <article class="contrib">
         <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16"/><path d="M5 8l7-4 7 4"/><rect x="3" y="16" width="5" height="4" rx="1"/><rect x="9.5" y="13" width="5" height="7" rx="1"/><rect x="16" y="10" width="5" height="10" rx="1"/></svg></div>
-        <div><h3>Attention allocates the total</h3><p>A destination query scores the normalized updates and redistributes the decay-set total across them. Zero queries recover the decay-only loop exactly; <i>&lambda;</i> = 1 with zero queries recovers ordinary addition. A fused Triton kernel streams the stored updates once per read.</p></div>
+        <div><h3>Decay sets the total, attention allocates it</h3><p>A factor <i>&lambda;</i> at every visit end sets a recency prior whose total is bounded by <i>K&lambda;/(1&minus;&lambda;)</i>; a destination query redistributes that total. Zero queries give the decay-only loop.</p></div>
       </article>
       <article class="contrib">
         <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="M4 16l5-5 4 3 7-8"/><path d="M16 6h4v4"/></svg></div>
-        <div><h3>Fewer parameters, lower loss, at four scales</h3><p>Against dense controls of the same executed depth and token budget, Loopback reaches lower validation loss and higher zero-shot accuracy at 191M, 374M, 778M and 1.4B with 40&ndash;68% of their Transformer parameters, and it is the best of nine residual rules on one topology at 191M and 374M. The read adds under 0.1% to forward FLOPs.</p></div>
+        <div><h3>Fewer parameters, lower loss</h3><p>Against dense controls of the same executed depth and token budget, Loopback reaches lower validation loss and higher zero-shot accuracy at 191M to 1.4B with 40&ndash;68% of their Transformer parameters, and the lowest loss of nine models on one topology at 191M and 374M.</p></div>
       </article>
     </div>
   </div>
 </section>
 
-<section class="section section--tint" id="method" aria-labelledby="method-title">
+<section class="section" id="method" aria-labelledby="method-title">
   <div class="wrap">
     <div class="section__head">
       <span class="eyebrow">Method</span>
       <h2 id="method-title">From residual addition to a controllable read</h2>
       <p class="lead">Three moves separate the controls that ordinary addition ties together: what is stored, how the input is carried, and how the stored weight is set and allocated.</p>
     </div>
-    <div class="wrap--text" style="margin-inline:auto;padding:0">
+    <div class="steps-wrap">
       <ol class="steps">
         <li class="step"><div><h4>One interface for residual rules</h4><p>Addition, Attention Residuals, Hyper-Connections, mHC, Hyperloop and recurrent depth readers all write a value, carry old memory forward, and read it to form the next hidden state. Unrolling the interface gives every earlier update an explicit coefficient, which exposes two couplings: storing a full block output also rewrites the input it contains, and a joint softmax over the input and the updates ties their weights to a single unit.</p></div></li>
         <li class="step"><div><h4>Store updates, keep the input on its own path, set the total with decay</h4><p>Loopback appends each block's update <i>&delta;</i> rather than its output and keeps the shared stack's input at coefficient one. At every visit end a geometric factor <i>&lambda;</i> shrinks all stored weights, so the prior favors recent visits and the total update weight stays bounded by <i>K&lambda;/(1&minus;&lambda;)</i>.</p></div></li>
         <li class="step"><div><h4>Attention allocates the total</h4><p>A destination query scores the normalized updates and redistributes the decay-set total across them. Zero queries recover the decay-only loop exactly; <i>&lambda;</i> = 1 with zero queries recovers ordinary addition. A fused Triton kernel streams the stored updates once per read.</p></div></li>
       </ol>
     </div>
-    <div class="fig-pair">
+    <div class="fig-stack">
       <figure class="fig" id="fig-3">
         <div class="fig__head"><span class="fig__label"><b>Figure 3</b> &middot; Three residual rules, one interface</span><button type="button" class="fig__zoom" data-zoom="fig-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
         <div class="fig__media"><img src="images/fig1_unified_view.png" alt="Three residual rules for a looped stack: addition, an explicit depth history, and multiple memory streams" loading="lazy" data-zoom="fig-3"></div>
@@ -504,7 +517,7 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
   </div>
 </section>
 
-<section class="section" id="demo" aria-labelledby="demo-title">
+<section class="section section--tint" id="demo" aria-labelledby="demo-title">
   <div class="wrap">
     <div class="section__head">
       <span class="eyebrow">Interactive</span>
@@ -519,6 +532,7 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
         <label class="lb-scrub"><span>application <output id="so">0</output> / <output id="smax">15</output></span><input id="s" type="range" min="0" max="15" value="0"></label>
         <label class="lb-speed"><span>speed <output id="speedo">1&times;</output></span><input id="speed" type="range" min="0.5" max="3" step="0.25" value="1"></label>
       </div>
+      <p class="lb-swipe">Swipe sideways to see the whole loop.</p>
       <div class="lb-stagewrap"><svg id="lb-stage" viewBox="0 0 1000 445" role="img" aria-label="The loop, the reader and the history of updates at the current application"></svg></div>
       <div class="lb-legend">
         <span style="--sw:#D3E4F1;--sb:#6F93B4">shared block (even)</span><span style="--sw:#F1D9CD;--sb:#C98F74">shared block (odd)</span><span style="--sw:#DFEBD3;--sb:#6F9A5E">reader</span><span style="--sw:#EAEAEA;--sb:#4A5560">prefix, coda, input</span><span style="--sw:#B64342;--sb:#B64342">read coefficient (lighter = smaller)</span><span style="--sw:#0F4D92;--sb:#0F4D92">read weight (thread width)</span><span class="dashed" style="--sw:transparent;--sb:#9A9A9A">prior that attention moved</span>
@@ -546,7 +560,7 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
   </div>
 </section>
 
-<section class="section section--tint" id="results" aria-labelledby="results-title">
+<section class="section" id="results" aria-labelledby="results-title">
   <div class="wrap">
     <div class="section__head">
       <h2 id="results-title">Results</h2>
@@ -557,18 +571,18 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
       <li class="kpi"><span class="kpi__value">40&ndash;68% of the parameters</span><span class="kpi__label">Transformer parameters of Loopback against the dense control: <strong>56.65 vs 141.59M</strong> at 191M, <strong>873.57 vs 1,284.61M</strong> at 1.4B</span></li>
       <li class="kpi"><span class="kpi__value">Lower loss at all four scales</span><span class="kpi__label">ClimbMix validation loss against Dense: <strong>&minus;0.005, &minus;0.023, &minus;0.019, &minus;0.021</strong> at 191M, 374M, 778M and 1.4B</span></li>
       <li class="kpi"><span class="kpi__value">+0.35 to +0.99 points</span><span class="kpi__label">seven-task zero-shot mean against Dense: <strong>40.16 vs 39.81</strong>, <strong>44.27 vs 43.28</strong>, <strong>48.73 vs 47.83</strong>, <strong>52.98 vs 52.11</strong></span></li>
-      <li class="kpi"><span class="kpi__value">Best of nine residual rules</span><span class="kpi__label">on one topology at 191M and 374M, against the plain loop, mHC, HC, iHC, Hyperloop, MHAR and Attention Residuals</span></li>
+      <li class="kpi"><span class="kpi__value">Lowest loss of nine models</span><span class="kpi__label">on one topology at 191M and 374M, against Dense, the plain loop, mHC, HC, iHC, Hyperloop, MHAR and Attention Residuals</span></li>
     </ul>
 
     <div id="results-table" data-widget="results">
-      <div class="card"><strong>Table 1: main results.</strong> Validation loss, thirteen zero-shot tasks and WikiText perplexity for nine residual rules at 191M and 374M, and for Dense and Loopback at 778M and 1.4B. The interactive table needs JavaScript.</div>
+      <div class="card"><strong>Table 1: main results.</strong> Validation loss, thirteen zero-shot tasks and WikiText perplexity for Dense and eight residual rules at 191M and 374M, and for Dense and Loopback at 778M and 1.4B. The interactive table needs JavaScript.</div>
     </div>
 
     <details class="more" id="configs">
       <summary>Configuration at each scale</summary>
       <div>
         <p>Blocks and heads apply to Dense and to every looped arm; head width is 64 throughout. Sequences per optimizer step are the per-GPU micro-batch times gradient-accumulation steps, on 8 ranks, at 4,096 tokens per sequence. Peak learning rates are Dense / looped arms.</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl tbl--t6">
           <thead><tr><th>Scale</th><th>Width</th><th>Blocks</th><th>Heads</th><th>SwiGLU</th><th>Loopback topology</th><th>Seq./step</th><th>Micro &times; acc.</th><th>Steps</th><th>Tokens</th><th>LR (&times;10<sup>&minus;3</sup>)</th></tr></thead>
           <tbody>
             <tr><td>191M</td><td>768</td><td>20</td><td>12</td><td>2,048</td><td>[2 &rarr; 4&times;4 &rarr; 2]</td><td>128</td><td>16 &times; 1</td><td>7,280</td><td>3.82B</td><td>1 / 3</td></tr>
@@ -594,16 +608,16 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
     <div id="compute-table" data-widget="compute">
       <div class="card"><strong>Table 2: compute and efficiency.</strong> Parameters, extra FLOPs, training throughput, hours per 20 TPP, peak memory and prefill throughput of the residual rules at 191M, 374M and 778M. The interactive table needs JavaScript.</div>
     </div>
-    <div class="fig-pair" style="margin-top:clamp(1rem,2.4vw,1.5rem)">
-      <figure class="fig" id="fig-5">
+    <div class="fig-stack fig-stack--after">
+      <figure class="fig fig--narrow" id="fig-5">
         <div class="fig__head"><span class="fig__label"><b>Figure 5</b> &middot; Throughput and quality versus FLOPs at 374M</span><button type="button" class="fig__zoom" data-zoom="fig-5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
         <div class="fig__media"><img src="images/fig_efficiency.png" alt="Training throughput and validation loss against forward FLOPs for the residual rules at 374M" loading="lazy" data-zoom="fig-5"></div>
         <figcaption class="fig__caption"><strong>Quality per FLOP at 374M.</strong> The residual rules execute the same blocks per token; the read's extra FLOPs are below 0.5% for every rule. Loopback has the lowest loss at essentially Dense's compute, with the fused read's memory traffic as its only cost.</figcaption>
       </figure>
-      <div class="card">
+      <div class="card card--table">
         <h3>Persistent inference memory</h3>
         <p>Analytical bf16 storage for all weights, including embeddings and the vocabulary head, plus the KV cache at 4,096 tokens. Totals exclude temporary activations and workspaces.</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl tbl--t2">
           <thead><tr><th>Scale</th><th>Model</th><th>Params (M)</th><th>Weights (GiB)</th><th>KV / seq. (MiB)</th><th>1 seq. (GiB)</th><th>8 seq. (GiB)</th></tr></thead>
           <tbody>
             <tr><td>191M</td><td>Dense</td><td>190.74</td><td>0.36</td><td>240</td><td>0.59</td><td>2.23</td></tr>
@@ -628,7 +642,7 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
       <div class="card">
         <h3>Decay and attention at two scales</h3>
         <p>Validation loss. Fixed allocation uses zero queries; the Dense row is the control at the same depth and tokens.</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl tbl--t2">
           <thead><tr><th>Decay</th><th>Allocation</th><th>191M</th><th>374M</th></tr></thead>
           <tbody>
             <tr><td>off (<i>&lambda;</i> = 1)</td><td>fixed (plain loop)</td><td>2.6802</td><td>2.4415</td></tr>
@@ -652,20 +666,20 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
           </tbody>
         </table></div>
       </div>
-      <div class="card">
+      <div class="card span-2">
         <h3>Weight initialization at 191M</h3>
-        <p>Validation loss under three initializations without retuning learning rates; the green number is Loopback's difference from Dense.</p>
+        <p>Validation loss under three initializations without retuning learning rates; the green number under each Loopback loss is its difference from Dense.</p>
         <div class="tbl-wrap"><table class="tbl">
           <thead><tr><th>Model</th><th>Params (M)</th><th>N(0, 0.02<sup>2</sup>)</th><th>GPT-2</th><th>PyTorch</th></tr></thead>
           <tbody>
             <tr><td>Dense</td><td>141.59</td><td>2.6234</td><td>2.6419</td><td>2.7145</td></tr>
             <tr><td>Plain loop</td><td>56.64</td><td>2.6802</td><td>2.6977</td><td>2.6642</td></tr>
             <tr><td>mHC</td><td>56.93</td><td>2.6250</td><td>2.6408</td><td>2.6278</td></tr>
-            <tr class="ours"><td>Loopback</td><td>56.65</td><td class="best">2.6187 <span class="gain">(&minus;0.0047)</span></td><td class="best">2.6178 <span class="gain">(&minus;0.0241)</span></td><td class="best">2.6138 <span class="gain">(&minus;0.1007)</span></td></tr>
+            <tr class="ours"><td>Loopback</td><td>56.65</td><td class="best">2.6187<br><span class="gain">&minus;0.0047</span></td><td class="best">2.6178<br><span class="gain">&minus;0.0241</span></td><td class="best">2.6138<br><span class="gain">&minus;0.1007</span></td></tr>
           </tbody>
         </table></div>
       </div>
-      <figure class="fig" id="fig-6">
+      <figure class="fig fig--narrow span-2" id="fig-6">
         <div class="fig__head"><span class="fig__label"><b>Figure 6</b> &middot; Eleven depth-memory readers</span><button type="button" class="fig__zoom" data-zoom="fig-6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
         <div class="fig__media"><img src="images/fig_memory_readers.png" alt="Validation-loss reduction over the plain loop for eleven linear-attention and recurrent readers of the loop's history, reading updates or states" loading="lazy" data-zoom="fig-6"></div>
         <figcaption class="fig__caption"><strong>Reading updates beats reading states, and none of the readers reaches Loopback.</strong> Eleven recurrent and linear-attention cores (linear attention, RetNet, GLA, Mamba-2, HGRN-2, DeltaNet, Gated DeltaNet, KDA, RWKV-7, Mesa and a LaCT-inspired reader) adapted to read the loop's history. All improve on the plain loop; deltas are a useful starting point, not a complete residual design.</figcaption>
@@ -700,11 +714,11 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
   </div>
 </section>
 
-<section class="section" id="bibtex" aria-labelledby="bibtex-title">
+<section class="section section--tint" id="bibtex" aria-labelledby="bibtex-title">
   <div class="wrap wrap--text">
     <div class="section__head"><h2 id="bibtex-title">BibTeX</h2></div>
     <div class="bib">
-      <button class="bib__copy" id="copybib" type="button">Copy BibTeX</button>
+      <div class="bib__bar"><span class="bib__label">arXiv preprint &middot; 2026</span><button class="bib__copy" id="copybib" type="button">Copy BibTeX</button></div>
 <pre><code id="bib">@article{ouyang2026loopback,
   title   = {Loopback Transformer: Towards a Unified View of Residual Looped Transformers},
   author  = {Ouyang, Xuan and Cai, Zefan and Zhang, Chenlong and Luo, Cheng and Wan, Ke and Hu, Junjie},
@@ -722,11 +736,11 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
 
 <dialog class="lightbox" id="lightbox" aria-labelledby="lightbox-title">
   <div class="lightbox__bar"><span class="lightbox__title" id="lightbox-title"></span><button type="button" class="lightbox__close" id="lightbox-close">Close &middot; Esc</button></div>
-  <div class="lightbox__stage"><img id="lightbox-img" src="" alt=""></div>
+  <div class="lightbox__stage"><img id="lightbox-img" alt=""></div>
   <div class="lightbox__caption" id="lightbox-caption"></div>
 </dialog>
 <div class="lb-tip" id="tip"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 <script>
 // Loopback project page: the paper's result tables as data (arXiv version). Tables 1-2 of the page are rendered from this
 // file by page.js; the static tables (ablations, readers, inference memory, configurations) live in page.html.
@@ -1090,7 +1104,7 @@ window.LOOPBACK_DATA = {
       });
       scroller.innerHTML = ''; scroller.appendChild(table); scroller.scrollLeft = 0;
       title.innerHTML = '<strong>' + s.title + '.</strong> ' + (keys.length > 2
-        ? 'Nine residual rules on one topology; all looped arms share the topology, the token budget and the learning rate, and Dense keeps the same number of block applications.'
+        ? 'Dense and eight residual rules on one topology; all looped arms share the topology, the token budget and the learning rate, and Dense keeps the same number of block applications.'
         : 'Dense and Loopback at the same executed depth and token budget.');
       hint.classList.remove('is-on'); setTimeout(function () { scroller.dispatchEvent(new Event('scroll')); }, 0);
     }
@@ -1143,7 +1157,7 @@ window.LOOPBACK_DATA = {
       });
       table.appendChild(tb);
       cscroller.innerHTML = ''; cscroller.appendChild(table); cscroller.scrollLeft = 0;
-      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '4%' : '8%') + ' of a percent in FLOPs and pays for the read in memory traffic: ' + (s.key === '191M' ? '25%' : s.key === '374M' ? '23%' : '16%') + ' fewer training tokens per second than Dense.';
+      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to Dense\'s forward FLOPs and pays for the read in memory traffic: ' + (s.key === '191M' ? '25%' : s.key === '374M' ? '23%' : '16%') + ' fewer training tokens per second than Dense.';
       chint.classList.remove('is-on'); setTimeout(function () { cscroller.dispatchEvent(new Event('scroll')); }, 0);
     }
     crender();
@@ -1171,6 +1185,25 @@ window.LOOPBACK_DATA = {
   function el(n, a, p) { var e = document.createElementNS(NS, n); for (var k in a) if (a[k] !== undefined && a[k] !== null) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
   function txt(p, x, y, s, a) { var o = { x: x, y: y, 'font-family': SERIF, 'font-size': 13, fill: C.ink }; for (var k in (a || {})) o[k] = a[k]; var t = el('text', o, p); t.textContent = s; return t; }
   function halo(t) { t.setAttribute('paint-order', 'stroke'); t.setAttribute('stroke', '#fff'); t.setAttribute('stroke-width', 3.5); t.setAttribute('stroke-linejoin', 'round'); return t; }
+  // box of a text element in its own user space (0s when the svg is not rendered, so callers simply skip the backing)
+  function bbox(t) { try { var b = t.getBBox(); return { x: b.x, y: b.y, w: b.width, h: b.height }; } catch (e) { return { x: 0, y: 0, w: 0, h: 0 }; } }
+  // halo in the colour of whatever lies behind a label (wide enough to close the gaps between digits), so lines
+  // passing under the label stop short of its glyphs
+  function rim(t, color) { t.setAttribute('paint-order', 'stroke'); t.setAttribute('stroke', color); t.setAttribute('stroke-width', 3.6); t.setAttribute('stroke-linejoin', 'round'); return t; }
+  // a card label against the liquid level whose top edge is at y (glyphs span t0..t1 vertically): above the level it is
+  // ink on the card colour, on the level it is white when the level is deep (w > 0.45, as before) and ink otherwise.
+  // Each part has a thin halo in its own background, so the dashed prior outline stops short of the glyphs and no halo
+  // shows as a rim; a label the level's edge runs through is drawn twice, each copy clipped to its side of the edge.
+  function levelLabel(p, id, make, t0, t1, y, w, k, x, size) {
+    function part(fill, halo, clip) { var t = rim(make(fill), halo); if (clip) t.setAttribute('clip-path', 'url(#' + clip + ')'); return t; }
+    var pad = 2, onFill = w > 0.45 ? '#fff' : C.ink;
+    if (y >= t1 + pad) return part(C.ink, blockFill(k));
+    if (y <= t0 - pad) return part(onFill, rampColor(w));
+    var a = 'lb-cut-' + id + 'a', b = 'lb-cut-' + id + 'b';
+    el('rect', { x: x, y: t0 - 8, width: size, height: y - t0 + 8 }, el('clipPath', { id: a }, p));
+    el('rect', { x: x, y: y, width: size, height: t1 + 8 - y }, el('clipPath', { id: b }, p));
+    part(C.ink, blockFill(k), a); part(onFill, rampColor(w), b);
+  }
   // italic symbol with an optional subscript, e.g. δ7, h0, f3
   function sym(p, x, y, base, sub, a) {
     var t = txt(p, x, y, '', a);
@@ -1210,12 +1243,14 @@ window.LOOPBACK_DATA = {
     var K = P.K, R = P.R;
     L.ring = { cx: 176, cy: 238, r: 110 };
     L.block = { w: 60, h: 30 };
-    L.reader = { cx: 420, cy: 238, r: 24 };
-    var gx0 = 560, gx1 = 988, gy0 = 74, gy1 = 404;
+    L.reader = { cx: 404, cy: 238, r: 24 };
+    // the visit labels sit to the right of the grid, outside the fan of read threads; the grid region stops short of
+    // the right edge to leave them room (K = 8 still gets 45-unit cards, so every card keeps its three-decimal value)
+    var gx0 = 544, gx1 = 956, gy0 = 74, gy1 = 404;
     var cell = Math.floor(Math.min(62, (gx1 - gx0) / K, (gy1 - gy0) / R)), gap = Math.max(5, Math.round(cell * 0.12)), card = cell - gap;
     var gw = K * cell - gap, gh = R * cell - gap;
     L.grid = { x0: gx0 + Math.floor((gx1 - gx0 - gw) / 2), y0: gy0 + Math.floor((gy1 - gy0 - gh) / 2), cell: cell, card: card, gap: gap, w: gw, h: gh };
-    L.h0 = { x: 474, y: L.reader.cy - card / 2, card: card };
+    L.h0 = { x: 458, y: L.reader.cy - card / 2, card: card };
     L.blockPos = [];
     for (var k = 0; k < K; k++) { var a = -Math.PI / 2 + 2 * Math.PI * k / K; L.blockPos.push({ x: L.ring.cx + L.ring.r * Math.cos(a), y: L.ring.cy + L.ring.r * Math.sin(a), a: a }); }
   }
@@ -1283,13 +1318,16 @@ window.LOOPBACK_DATA = {
     el('rect', { x: h.x, y: h.y, width: h.card, height: h.card, rx: 5, fill: C.grayF, stroke: C.border, 'stroke-width': 1 }, hg);
     el('rect', { x: h.x + 5, y: h.y + h.card * 0.42, width: h.card - 10, height: h.card * 0.58 - 5, rx: 2, fill: C.ramp[3] }, hg);
     sym(hg, h.x + 6, h.y + 15, 'h', '0', { 'font-size': 13 });
-    halo(txt(hg, h.x + h.card / 2, h.y + h.card + 14, 'input · 1', { 'text-anchor': 'middle', 'font-size': 11, fill: C.muted }));
+    // with many visits the lower read threads leave h0 right under its caption: give the caption a paper backing
+    var inLab = halo(txt(hg, h.x + h.card / 2, h.y + h.card + 14, 'input · 1', { 'text-anchor': 'middle', 'font-size': 11, fill: C.muted })), ib = bbox(inLab);
+    if (ib.w) hg.insertBefore(el('rect', { x: ib.x - 3, y: ib.y + 0.5, width: ib.w + 6, height: ib.h, rx: 3, fill: '#fff' }), inLab);
     hover(hg, 'the input h0 enters every read with coefficient 1: it is never decayed and never shares a softmax with the updates');
     // history grid frame: column headers, row labels, ghost cells
     var gr = L.grid;
     txt(g, gr.x0 + gr.w / 2, gr.y0 - 26, 'history of updates (one card per application)', { 'text-anchor': 'middle', 'font-size': 12, fill: C.muted });
     for (k = 0; k < K; k++) sym(g, gr.x0 + k * gr.cell + gr.card / 2, gr.y0 - 9, 'f', String(k), { 'text-anchor': 'middle', 'font-size': 12, fill: blockStroke(k) });
-    G.labels.innerHTML = ''; G.rowLabels = G.labels; for (var v = 0; v < P.R; v++) halo(txt(G.rowLabels, gr.x0 - 7, gr.y0 + v * gr.cell + gr.card / 2 + 4, 'visit ' + (v + 1), { 'text-anchor': 'end', 'font-size': 11, fill: C.muted }));
+    // row labels on the right of the grid: the threads from the reader converge on the left edge of each row
+    G.labels.innerHTML = ''; G.rowLabels = G.labels; for (var v = 0; v < P.R; v++) halo(txt(G.rowLabels, gr.x0 + gr.w + 8, gr.y0 + v * gr.cell + gr.card / 2 + 4, 'visit ' + (v + 1), { 'text-anchor': 'start', 'font-size': 11, fill: C.muted }));
     // visit pips under the ring
     G.pips = [];
     var px = rg.cx - (P.R * 16 - 4) / 2, py = rg.cy + rg.r + 22;
@@ -1329,8 +1367,17 @@ window.LOOPBACK_DATA = {
       el('rect', { x: c.x + 5, y: c.y + 5 + inner - hgt, width: inner, height: hgt, rx: 2, fill: rampColor(w) }, cg);
       // prior outline (decay only), visible when attention has moved weight
       if (Math.abs(pr - w) > 0.004) { var ph = Math.max(0, inner * Math.min(1, pr)); el('rect', { x: c.x + 5, y: c.y + 5 + inner - ph, width: inner, height: ph, rx: 2, fill: 'none', stroke: C.rose, 'stroke-width': 1, 'stroke-dasharray': '2 2' }, cg); }
-      if (gr.card >= 34) sym(cg, c.x + 5, c.y + 14, 'δ', String(i), { 'font-size': gr.card >= 48 ? 12.5 : 11 });
-      if (gr.card >= 40) txt(cg, c.x + gr.card - 4, c.y + gr.card - 5, fmt(w, gr.card >= 44 ? 3 : 2), { 'text-anchor': 'end', 'font-size': gr.card >= 50 ? 10.5 : 9.5, fill: w > 0.45 ? '#fff' : C.ink });
+      // card labels sit inside the level's area, clear of the dashed prior outline's edges, and take their colours from
+      // whatever lies behind them (levelLabel)
+      var barTop = c.y + 5 + inner - hgt;
+      if (gr.card >= 34) {
+        var fd = gr.card >= 48 ? 12.5 : 11, dy = c.y + 16.5;
+        levelLabel(cg, 'd' + i, function (fill) { return sym(cg, c.x + 7.5, dy, 'δ', String(i), { 'font-size': fd, fill: fill }); }, dy - 0.76 * fd, dy + 0.32 * fd, barTop, w, k, c.x, gr.card);
+      }
+      if (gr.card >= 40) {
+        var fn = gr.card >= 50 ? 10.5 : 9.5, ny = c.y + gr.card - 7, val = fmt(w, gr.card >= 44 ? 3 : 2);
+        levelLabel(cg, 'n' + i, function (fill) { return txt(cg, c.x + gr.card - 8.5, ny, val, { 'text-anchor': 'end', 'font-size': fn, fill: fill }); }, ny - 0.74 * fn, ny, barTop, w, k, c.x, gr.card);
+      }
       (function (i, k, v) { hover(cg, function () { var cc = coeffs(P.s, false); return 'δ' + i + ' from block f' + k + ', visit ' + (v + 1) + ': decay prior ' + fmt(cc.prior[i]) + ', after attention ' + fmt(cc.post[i]); }); })(i, k, v);
     }
     // visit pips
@@ -1360,12 +1407,14 @@ window.LOOPBACK_DATA = {
     chart.innerHTML = ''; var n = N(), W = 1000, H = 210, i;
     var allB = []; for (i = 0; i < n; i++) allB.push(coeffs(i, false).B);
     var panels = [{ x0: 62, x1: 470, title: 'input coefficient', ymax: 1.12 }, { x0: 560, x1: 985, title: 'total update weight B of the stored updates', ymax: isFinite(bound()) ? Math.max.apply(null, allB) * 1.14 : n * 1.06 }];
-    CH.panels = panels; CH.top = 34; CH.bot = 176;
+    // header: the panel titles, then one row for the right panel's annotations (bound key on the right, off-scale note on
+    // the left), above the plot frame, so that no curve can run through them
+    CH.panels = panels; CH.title = 17; CH.ann = 32; CH.top = 41; CH.bot = 176;
     panels.forEach(function (p, j) {
       p.px = function (s) { return p.x0 + (p.x1 - p.x0) * (n > 1 ? s / (n - 1) : 0); };
       p.py = function (v) { return CH.bot - (CH.bot - CH.top) * Math.min(v, p.ymax) / p.ymax; };
       el('clipPath', { id: 'lb-clip' + j }, el('defs', {}, chart)).appendChild(el('rect', { x: p.x0 - 2, y: CH.top - 2, width: p.x1 - p.x0 + 4, height: CH.bot - CH.top + 4 }));
-      txt(chart, p.x0, 20, p.title, { 'font-size': 13, 'font-weight': 'bold' });
+      txt(chart, p.x0, CH.title, p.title, { 'font-size': 13, 'font-weight': 'bold' });
       el('rect', { x: p.x0, y: CH.top, width: p.x1 - p.x0, height: CH.bot - CH.top, fill: 'none', stroke: C.ink, 'stroke-width': 0.8 }, chart);
       var ticks = j === 0 ? [0, 0.5, 1] : (p.ymax <= 3 ? [0, 0.5, 1, 1.5, 2, 2.5, 3] : null);
       if (!ticks) { ticks = []; var step = p.ymax > 20 ? 10 : p.ymax > 8 ? 4 : p.ymax > 4 ? 2 : 1; for (i = 0; i <= p.ymax + 1e-9; i += step) ticks.push(i); }
@@ -1373,7 +1422,13 @@ window.LOOPBACK_DATA = {
       var xt = n <= 12 ? 1 : n <= 24 ? 4 : 8;
       for (i = 0; i < n; i += xt) { var x = p.px(i); el('line', { x1: x, x2: x, y1: CH.bot, y2: CH.bot + 4, stroke: C.ink, 'stroke-width': 0.8 }, chart); txt(chart, x, CH.bot + 16, String(i), { 'text-anchor': 'middle', 'font-size': 11, fill: C.muted }); }
       txt(chart, (p.x0 + p.x1) / 2, CH.bot + 31, 'application s', { 'text-anchor': 'middle', 'font-size': 11.5, fill: C.muted });
-      if (j === 1 && isFinite(bound())) { var yb = p.py(bound()); el('line', { x1: p.x0, x2: p.x1, y1: yb, y2: yb, stroke: C.navy, 'stroke-width': 1, 'stroke-dasharray': '5 4' }, chart); halo(txt(chart, p.x1 - 4, yb - 5, 'visit-end total ≤ Kλ/(1−λ) = ' + fmt(bound()), { 'text-anchor': 'end', 'font-size': 11, fill: C.navy })); }
+      if (j === 1 && isFinite(bound())) {
+        var yb = p.py(bound());
+        el('line', { x1: p.x0, x2: p.x1, y1: yb, y2: yb, stroke: C.navy, 'stroke-width': 1, 'stroke-dasharray': '5 4' }, chart);
+        // its label as a key in the header row: a short sample of the same dashed line, then the text
+        var key = txt(chart, p.x1, CH.ann, 'visit-end total ≤ Kλ/(1−λ) = ' + fmt(bound()), { 'text-anchor': 'end', 'font-size': 11, fill: C.navy }), kw = bbox(key).w || 175;
+        el('line', { x1: p.x1 - kw - 29, x2: p.x1 - kw - 6, y1: CH.ann - 3.5, y2: CH.ann - 3.5, stroke: C.navy, 'stroke-width': 1, 'stroke-dasharray': '5 4' }, chart);
+      }
     });
     CH.g = el('g', {}, chart);
     // full curves
@@ -1394,8 +1449,8 @@ window.LOOPBACK_DATA = {
     line(p1, CH.lb, C.navy, 1.2, null, 'url(#lb-clip1)');
     var d = '', first = true; for (i = 0; i <= s; i++) if ((i + 1) % P.K === 0 || P.lam >= 1) { d += (first ? 'M' : ' L') + p1.px(i) + ' ' + p1.py(CH.lb[i]); first = false; el('circle', { cx: p1.px(i), cy: p1.py(CH.lb[i]), r: 3.2, fill: C.navy }, g); }
     if (d) el('path', { d: d, fill: 'none', stroke: C.navy, 'stroke-width': 2.4, 'stroke-linejoin': 'round' }, g);
-    // the addition line leaves the Loopback-scaled panel: say so
-    for (i = 0; i <= s; i++) if (CH.add[i] > p1.ymax) { halo(txt(g, Math.min(p1.px(i) + 6, p1.x1 - 170), CH.top + 14, 'residual addition: ' + (s + 1) + ', off the scale', { 'font-size': 11, fill: C.dense })); break; }
+    // the addition line leaves the Loopback-scaled panel through its top edge: say so in the header row above that edge
+    for (i = 0; i <= s; i++) if (CH.add[i] > p1.ymax) { txt(g, p1.x0, CH.ann, 'residual addition: ' + (s + 1) + ', off the scale', { 'font-size': 11, fill: C.dense }); break; }
   }
 
   // ---------- animation ----------
@@ -1427,7 +1482,7 @@ window.LOOPBACK_DATA = {
   function flyStep(i, dur) {
     var k = i % P.K, b = G.blocks[k], c = cellPos(i), card = L.grid.card, g;
     return { dur: dur,
-      start: function () { g = el('g', {}, G.fly); el('rect', { x: -card / 2, y: -card / 2, width: card, height: card, rx: 5, fill: blockFill(k), stroke: C.navy, 'stroke-width': 1.5, filter: 'url(#lb-glow)' }, g); sym(g, -card / 2 + 5, -card / 2 + 14, 'δ', String(i), { 'font-size': 12 }); },
+      start: function () { g = el('g', {}, G.fly); el('rect', { x: -card / 2, y: -card / 2, width: card, height: card, rx: 5, fill: blockFill(k), stroke: C.navy, 'stroke-width': 1.5, filter: 'url(#lb-glow)' }, g); sym(g, -card / 2 + 7.5, -card / 2 + 16.5, 'δ', String(i), { 'font-size': 12 }); },
       tick: function (e) { var x = b.x + (c.x + card / 2 - b.x) * e, y = b.y - 28 * Math.sin(Math.PI * e) + (c.y + card / 2 - b.y) * e, sc = 0.55 + 0.45 * e; g.setAttribute('transform', 'translate(' + x + ' ' + y + ') scale(' + sc + ')'); g.setAttribute('opacity', 0.5 + 0.5 * e); },
       end: function () { G.fly.innerHTML = ''; } };
   }
