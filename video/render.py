@@ -1,7 +1,10 @@
 """Render the Loopback promo video from promo.html.
 
     python3 render.py --preview 3 10 20 25 33 43 51 57 62     # a few frames as PNGs + a contact sheet
-    python3 render.py                                          # every frame at 30 fps, then ffmpeg -> ../videos/loopback_promo.mp4
+    python3 render.py                                          # every frame at 30 fps -> voiceover/build/loopback_promo_silent.mp4
+                                                               # and the two posters in ../videos/
+
+The silent render is the input of voiceover/make_av.py, which writes the published ../videos/loopback_promo.mp4 with sound.
 
 The page draws every frame as a pure function of t (renderAt), so frames are exact and the output is reproducible.
 Needs Playwright (Chromium), network access for Google Fonts and MathJax from cdnjs, and ffmpeg with libx264.
@@ -10,7 +13,8 @@ import argparse, asyncio, os, shutil, subprocess, sys
 from playwright.async_api import async_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FPS, DUR = 30, 64.0
+FPS, DUR = 30, 74.0                 # DUR must match promo.html
+POSTER_T, HERO_T = 4.2, 25.5        # title card (og:image); the three-rules frame shown before play
 
 async def frames(times, out_dir, prefix):
     async with async_playwright() as p:
@@ -38,10 +42,11 @@ async def frames(times, out_dir, prefix):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview", nargs="*", type=float)
-    ap.add_argument("--out", default=os.path.join(HERE, "..", "videos", "loopback_promo.mp4"))
+    ap.add_argument("--out", default=os.path.join(HERE, "voiceover", "build", "loopback_promo_silent.mp4"))
     ap.add_argument("--tmp", default=os.path.join(HERE, "_frames"))
     a = ap.parse_args()
     os.makedirs(a.tmp, exist_ok=True)
+    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     if a.preview is not None:
         paths = asyncio.run(frames(a.preview, a.tmp, "preview_"))
         from PIL import Image
@@ -59,10 +64,11 @@ def main():
                     "-c:v", "libx264", "-preset", "slow", "-crf", "20", "-profile:v", "high", "-level:v", "4.1", "-x264-params", "ref=4",
                     "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                     "-tune", "animation", a.out], check=True)
-    poster = os.path.splitext(a.out)[0] + "_poster.jpg"
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", os.path.join(a.tmp, "f%05d.png" % int(4.2 * FPS)),
-                    "-q:v", "3", poster], check=True)
-    print("wrote", a.out, os.path.getsize(a.out), "bytes;", poster)
+    vids = os.path.join(HERE, "..", "videos")
+    for t, name in ((POSTER_T, "loopback_promo_poster.jpg"), (HERO_T, "loopback_promo_poster_hero.jpg")):
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", os.path.join(a.tmp, "f%05d.png" % int(t * FPS)),
+                        "-q:v", "3", os.path.join(vids, name)], check=True)
+    print("wrote", a.out, os.path.getsize(a.out), "bytes, and the posters in", os.path.normpath(vids))
     shutil.rmtree(a.tmp)
 
 if __name__ == "__main__":

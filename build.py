@@ -3,7 +3,7 @@
 Inputs (this directory): page.html (markup), style.css (tokens + rules, light and dark), results-data.js (the paper's
 tables as data), page.js (theme, nav, lightbox, BibTeX copy, the two data tables), site.js (the interactive loop demo).
 Outputs: index.html (standalone, GitHub Pages) and artifact.html (the same page without the document skeleton, which the
-Claude artifact publisher adds itself; it also publishes images/ alongside).
+Claude artifact publisher adds itself; it also publishes images/ and videos/ alongside, with the captions inline).
 """
 import os
 
@@ -28,7 +28,17 @@ scripts = ("<script>\n" + read("results-data.js") + "</script>\n"
            "<script>\n" + read("page.js") + "</script>\n"
            "<script>\n" + read("site.js") + "</script>\n")
 
-artifact = title + THEME + FONTS + style + body + MATHJAX + scripts
+# The artifact host serves no .vtt, so the preview carries the captions inline and hands the track a same-origin blob URL;
+# index.html keeps the file (videos/loopback_promo.vtt) for GitHub Pages.
+TRACK = '<track kind="captions" src="videos/loopback_promo.vtt" srclang="en" label="English">'
+assert body.count(TRACK) == 1, "the hero video's caption track moved"
+vtt = read(os.path.join("videos", "loopback_promo.vtt"))
+assert "</script" not in vtt
+captions = ('<script type="text/vtt" id="lb-vtt">\n' + vtt + '</script>\n'
+            '<script>(function(){var t=document.querySelector("track[data-vtt]"),s=document.getElementById("lb-vtt");'
+            'if(t&&s&&window.Blob&&window.URL){t.src=URL.createObjectURL(new Blob([s.textContent.trim()+"\\n"],{type:"text/vtt"}));}})();</script>\n')
+artifact_body = body.replace(TRACK, '<track kind="captions" srclang="en" label="English" data-vtt="inline">')
+artifact = title + THEME + FONTS + style + artifact_body + captions + MATHJAX + scripts
 open(os.path.join(HERE, "artifact.html"), "w", encoding="utf-8").write(artifact)
 page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'

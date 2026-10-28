@@ -2,3 +2,4 @@ artifact.html
 __pycache__/
 *.pyc
 video/_frames/
+video/voiceover/build/

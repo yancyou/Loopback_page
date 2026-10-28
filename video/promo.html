@@ -114,24 +114,24 @@ window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'loc
 
   <!-- 5 scale -->
   <div class="scene" id="s-scale">
-    <div class="h fade" id="sc-h">Lower loss than Dense, with <b>40&ndash;68%</b> of its parameters</div>
+    <div class="h fade" id="sc-h">Lower loss with <b>40&ndash;75%</b> of the parameters, 191M to 3B</div>
     <svg id="sc-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
     <div class="note fade" id="sc-n" style="top:972px">Same executed depth and training tokens at every scale &middot; held-out ClimbMix validation loss</div>
   </div>
 
   <!-- 6 nine rules -->
   <div class="scene" id="s-nine">
-    <div class="h fade" id="nn-h">Best of <b>nine models</b> at 374M</div>
+    <div class="h fade" id="nn-h">Best of <b>nine models</b> at 374M, 32 layers</div>
     <svg id="nn-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
-    <div class="caption fade" id="nn-cap" style="top:968px;font-size:32px">Also the highest seven-task mean and the best WikiText perplexity of the nine.</div>
+    <div class="caption fade" id="nn-cap" style="top:968px;font-size:32px">Also the highest thirteen-task mean and the best WikiText perplexity of the nine.</div>
   </div>
 
   <!-- 7 efficiency -->
   <div class="scene" id="s-eff">
     <div class="h fade" id="ef-h">The read costs memory traffic, <b>not FLOPs</b></div>
-    <div class="tile fade" id="ef-1" style="left:170px"><div class="big">+0.08%</div><div class="lbl">forward FLOPs over Dense<br><span>at 374M; the same blocks run per token</span></div></div>
-    <div class="tile fade" id="ef-2" style="left:710px"><div class="big">Same</div><div class="lbl">KV cache as Dense<br><span>same executed depth and heads</span></div></div>
-    <div class="tile fade" id="ef-3" style="left:1250px"><div class="big">29&ndash;44%</div><div class="lbl">smaller bf16 weights<br><span>1.87 vs 2.64 GiB at 1.4B</span></div></div>
+    <div class="tile fade" id="ef-1" style="left:170px"><div class="big">+0.08%</div><div class="lbl">extra forward FLOPs<br><span>at 374M; same blocks per token</span></div></div>
+    <div class="tile fade" id="ef-2" style="left:710px"><div class="big">Same</div><div class="lbl">KV cache as Standard<br><span>same executed depth and heads</span></div></div>
+    <div class="tile fade" id="ef-3" style="left:1250px"><div class="big">23&ndash;44%</div><div class="lbl">smaller bf16 weights<br><span>4.16 vs 5.43 GiB at 3B</span></div></div>
     <div class="note fade" id="ef-n" style="top:740px">A fused Triton kernel streams the stored updates once per read: 19&ndash;33% step-time overhead.</div>
   </div>
 
@@ -148,8 +148,8 @@ window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'loc
 
 <script>
 'use strict';
-var DUR = 64;
-var SC = { title: [0, 5.5], hook: [5.5, 14], rules: [14, 29], recipe: [29, 37], scale: [37, 47], nine: [47, 54], eff: [54, 59], outro: [59, 64] };
+var DUR = 74;
+var SC = { title: [0, 5.5], hook: [5.5, 14], rules: [14, 30], recipe: [30, 39], scale: [39, 51], nine: [51, 59.5], eff: [59.5, 66.5], outro: [66.5, 74] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { navy: '#0f4d92', teal: '#0e8f81', ink: '#111a2b', ink2: '#2d3a4e', ink3: '#4f5f78', muted: '#6b7a92', line: '#e1e7ef', grid: '#edf1f6',
           rose: '#b64342', grey: '#767676', dark: '#4a5560', blueF: '#d3e4f1', blueS: '#6f93b4', peachF: '#f1d9cd', peachS: '#c98f74', grayF: '#eaeaea', band: '#f3f6fa' };
@@ -353,38 +353,39 @@ function renderRecipe(t) {
   appear($('r-formula'), t, r[0] + 4.2, .8); appear($('rc-n'), t, r[0] + 5.2, .6);
 }
 
-/* ---------------------------------------------------------------- scene 5: four scales */
+/* ---------------------------------------------------------------- scene 5: five scales */
 var SCL = [
   { s: '191M', d: 141.59, l: 56.65, pct: '40%', dl: -0.0047 },
-  { s: '374M', d: 308.33, l: 179.88, pct: '58%', dl: -0.0227 },
-  { s: '778M', d: 679.55, l: 453.06, pct: '67%', dl: -0.0187 },
-  { s: '1.4B', d: 1284.61, l: 873.57, pct: '68%', dl: -0.0210 }
+  { s: '374M', d: 323.02, l: 181.72, pct: '56%', dl: -0.0387 },
+  { s: '778M', d: 708.68, l: 398.68, pct: '56%', dl: -0.0240 },
+  { s: '1.4B', d: 1284.61, l: 873.57, pct: '68%', dl: -0.0210 },
+  { s: '3B', d: 2718.06, l: 2038.58, pct: '75%', dl: -0.0156 }
 ];
 (function buildScale() {
   var s = $('sc-svg'), g = el('g', { id: 'sc-g' }, s);
-  // left: parameters
-  var X0 = 210, Y0 = 860, Hc = 520, W = 760, ymax = 1400;
-  txt(g, X0, 300, 'Transformer parameters (M)', { 'font-size': 26, 'font-weight': 600, fill: C.ink });
-  [0, 400, 800, 1200].forEach(function (v) {
+  // left: Loopback's Transformer parameters as a share of the standard Transformer's (the grey bar)
+  var X0 = 210, Y0 = 860, Hc = 500, W = 760, ymax = 100;
+  txt(g, X0, 300, 'Parameters relative to Standard', { 'font-size': 26, 'font-weight': 600, fill: C.ink });
+  [0, 25, 50, 75, 100].forEach(function (v) {
     var y = Y0 - v / ymax * Hc;
     el('line', { x1: X0, x2: X0 + W, y1: y, y2: y, stroke: v ? C.grid : '#9aa6b6', 'stroke-width': v ? 1.5 : 2 }, g);
-    txt(g, X0 - 12, y + 8, v.toLocaleString('en-US'), { 'text-anchor': 'end', 'font-size': 21, fill: C.muted, class: 'mono' });
+    txt(g, X0 - 12, y + 8, v + '%', { 'text-anchor': 'end', 'font-size': 21, fill: C.muted, class: 'mono' });
   });
   SCALE_BARS = [];
   SCL.forEach(function (d, i) {
-    var cx = X0 + 95 + i * 190;
-    var bd = el('rect', { x: cx - 64, y: Y0, width: 60, height: 0, rx: 5, fill: '#9aa3ad' }, g);
-    var bl = el('rect', { x: cx + 4, y: Y0, width: 60, height: 0, rx: 5, fill: C.navy }, g);
+    var cx = X0 + 76 + i * 152;
+    var bd = el('rect', { x: cx - 62, y: Y0, width: 56, height: 0, rx: 5, fill: '#9aa3ad' }, g);
+    var bl = el('rect', { x: cx + 6, y: Y0, width: 56, height: 0, rx: 5, fill: C.navy }, g);
     var lb = txt(g, cx + 34, Y0, d.pct, { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.navy, opacity: 0 });
     txt(g, cx, Y0 + 40, d.s, { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 600, fill: C.ink2 });
     SCALE_BARS.push({ bd: bd, bl: bl, lb: lb, d: d, Y0: Y0, Hc: Hc, ymax: ymax });
   });
-  el('rect', { x: X0 + 430, y: 286, width: 22, height: 22, rx: 4, fill: '#9aa3ad' }, g); txt(g, X0 + 462, 305, 'Dense', { 'font-size': 23, fill: C.ink2 });
-  el('rect', { x: X0 + 560, y: 286, width: 22, height: 22, rx: 4, fill: C.navy }, g); txt(g, X0 + 592, 305, 'Loopback', { 'font-size': 23, fill: C.ink2 });
+  el('rect', { x: X0 + 470, y: 286, width: 22, height: 22, rx: 4, fill: '#9aa3ad' }, g); txt(g, X0 + 502, 305, 'Standard', { 'font-size': 23, fill: C.ink2 });
+  el('rect', { x: X0 + 630, y: 286, width: 22, height: 22, rx: 4, fill: C.navy }, g); txt(g, X0 + 662, 305, 'Loopback', { 'font-size': 23, fill: C.ink2 });
   // right: loss change
-  var RX = 1180, RW = 560, zeroX = RX + RW, scale = RW / 0.025;
-  txt(g, RX, 300, 'Validation loss, Loopback minus Dense', { 'font-size': 26, 'font-weight': 600, fill: C.ink });
-  [-0.02, -0.01, 0].forEach(function (v) {
+  var RX = 1180, RW = 560, zeroX = RX + RW, scale = RW / 0.045;
+  txt(g, RX, 300, 'Validation loss, Loopback minus Standard', { 'font-size': 26, 'font-weight': 600, fill: C.ink });
+  [-0.04, -0.03, -0.02, -0.01, 0].forEach(function (v) {
     var x = zeroX + v * scale;
     el('line', { x1: x, x2: x, y1: 340, y2: 860, stroke: v ? C.grid : '#9aa6b6', 'stroke-width': v ? 1.5 : 2 }, g);
     txt(g, x, 896, v === 0 ? '0' : '−' + Math.abs(v).toFixed(2), { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted, class: 'mono' });
@@ -392,7 +393,7 @@ var SCL = [
   txt(g, RX + RW / 2, 934, 'nats · lower is better', { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted });
   LOSS_BARS = [];
   SCL.forEach(function (d, i) {
-    var y = 380 + i * 120;
+    var y = 366 + i * 98;
     txt(g, RX - 18, y + 32, d.s, { 'text-anchor': 'end', 'font-size': 26, 'font-weight': 600, fill: C.ink2 });
     var b = el('rect', { x: zeroX, y: y + 6, width: 0, height: 40, rx: 5, fill: C.teal }, g);
     var lb = txt(g, zeroX, y + 37, '−' + Math.abs(d.dl).toFixed(3), { 'text-anchor': 'end', 'font-size': 25, 'font-weight': 700, fill: C.ink, class: 'mono', opacity: 0 });
@@ -406,7 +407,7 @@ function renderScale(t) {
   $('sc-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.2));
   SCALE_BARS.forEach(function (o, i) {
     var pd = ease(prog(t, r[0] + 1.0 + i * .25, r[0] + 1.9 + i * .25)), pl = ease(prog(t, r[0] + 1.6 + i * .25, r[0] + 2.5 + i * .25));
-    var hd = o.d.d / o.ymax * o.Hc * pd, hl = o.d.l / o.ymax * o.Hc * pl;
+    var hd = o.Hc * pd, hl = o.d.l / o.d.d * 100 / o.ymax * o.Hc * pl;
     o.bd.setAttribute('height', hd); o.bd.setAttribute('y', o.Y0 - hd);
     o.bl.setAttribute('height', hl); o.bl.setAttribute('y', o.Y0 - hl);
     o.lb.setAttribute('y', o.Y0 - hl - 14); o.lb.setAttribute('opacity', prog(t, r[0] + 2.4 + i * .25, r[0] + 2.9 + i * .25));
@@ -422,21 +423,21 @@ function renderScale(t) {
 }
 
 /* ---------------------------------------------------------------- scene 6: nine rules at 374M */
-var NINE = [['Loopback', 2.3971, 44.27], ['mHC', 2.4062, 44.17], ['Hyperloop', 2.4179, 44.07], ['Dense', 2.4198, 43.28], ['iHC', 2.4217, 43.35],
-            ['MHAR', 2.4223, 43.64], ['HC', 2.4249, 43.72], ['Plain loop', 2.4415, 43.37], ['AttnRes', 2.4601, 42.89]];
+var NINE = [['Loopback', 2.4008, 40.89], ['mHC', 2.4118, 40.70], ['Hyperloop', 2.4147, 40.28], ['AttnRes', 2.4166, 40.19], ['iHC', 2.4199, 40.64],
+            ['HC', 2.4273, 40.17], ['MHAR', 2.4310, 40.65], ['Plain loop', 2.4371, 40.84], ['Standard', 2.4395, 39.18]];
 var NN = [];
 (function buildNine() {
   var s = $('nn-svg'), g = el('g', { id: 'nn-g' }, s);
-  var X0 = 520, W = 900, lo = 2.39, hi = 2.47, Y0 = 300, rh = 66;
+  var X0 = 520, W = 900, lo = 2.395, hi = 2.445, Y0 = 300, rh = 66;
   function xOf(v) { return X0 + (v - lo) / (hi - lo) * W; }
   txt(g, X0, Y0 - 26, 'Held-out ClimbMix validation loss  (lower is better)', { 'font-size': 24, 'font-weight': 600, fill: C.ink });
-  txt(g, 1560, Y0 - 26, '7-task mean', { 'text-anchor': 'middle', 'font-size': 24, 'font-weight': 600, fill: C.ink });
-  [2.40, 2.42, 2.44, 2.46].forEach(function (v) {
+  txt(g, 1560, Y0 - 26, '13-task mean', { 'text-anchor': 'middle', 'font-size': 24, 'font-weight': 600, fill: C.ink });
+  [2.40, 2.41, 2.42, 2.43, 2.44].forEach(function (v) {
     el('line', { x1: xOf(v), x2: xOf(v), y1: Y0, y2: Y0 + 9 * rh, stroke: C.grid, 'stroke-width': 1.5 }, g);
     txt(g, xOf(v), Y0 + 9 * rh + 34, v.toFixed(2), { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted, class: 'mono' });
   });
   NINE.forEach(function (d, i) {
-    var y = Y0 + i * rh + rh / 2, ours = d[0] === 'Loopback', dense = d[0] === 'Dense';
+    var y = Y0 + i * rh + rh / 2, ours = d[0] === 'Loopback', dense = d[0] === 'Standard';
     var row = el('g', { opacity: 0 }, g);
     if (ours) { el('rect', { x: 150, y: y - rh / 2 + 4, width: 1530, height: rh - 8, rx: 12, fill: '#e6f3f0' }, row); }
     txt(row, X0 - 30, y + 9, d[0], { 'text-anchor': 'end', 'font-size': 28, 'font-weight': ours ? 800 : 500, fill: ours ? C.teal : C.ink2 });

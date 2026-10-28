@@ -1,0 +1,125 @@
+1
+00:00:00,450 --> 00:00:01,925
+Loopback Transformer:
+
+2
+00:00:01,925 --> 00:00:05,150
+towards a unified view of
+residual looped Transformers.
+
+3
+00:00:05,950 --> 00:00:09,200
+Looped Transformers apply the
+same blocks again and again.
+
+4
+00:00:09,238 --> 00:00:10,850
+Sharing fixes the weights,
+
+5
+00:00:10,850 --> 00:00:13,225
+but not how each update is reused.
+
+6
+00:00:14,450 --> 00:00:16,650
+Addition gives every update weight one,
+
+7
+00:00:16,650 --> 00:00:18,763
+so the total grows with depth.
+
+8
+00:00:18,763 --> 00:00:21,325
+A joint softmax shares one unit of weight,
+
+9
+00:00:21,325 --> 00:00:23,075
+so the input shrinks.
+
+10
+00:00:23,100 --> 00:00:25,000
+Loopback keeps the input at one;
+
+11
+00:00:25,000 --> 00:00:26,425
+decay sets the total,
+
+12
+00:00:26,425 --> 00:00:28,200
+and attention allocates it.
+
+13
+00:00:30,450 --> 00:00:31,312
+The recipe:
+
+14
+00:00:31,312 --> 00:00:32,137
+store updates,
+
+15
+00:00:32,137 --> 00:00:33,275
+not outputs;
+
+16
+00:00:33,275 --> 00:00:35,387
+keep the input on its own path;
+
+17
+00:00:35,387 --> 00:00:36,725
+let decay set the total,
+
+18
+00:00:36,725 --> 00:00:38,375
+and attention allocate it.
+
+19
+00:00:39,450 --> 00:00:43,288
+From 191M to 3B parameters,
+
+20
+00:00:43,288 --> 00:00:47,575
+Loopback reaches lower validation
+loss than the standard Transformer,
+
+21
+00:00:47,575 --> 00:00:50,775
+with 40–75% of its parameters.
+
+22
+00:00:51,450 --> 00:00:53,712
+At 374M,
+
+23
+00:00:53,712 --> 00:00:57,975
+it is the best of nine models in
+both loss and thirteen-task mean.
+
+24
+00:00:59,950 --> 00:01:02,575
+The read costs a fraction
+of a percent in FLOPs,
+
+25
+00:01:02,575 --> 00:01:04,050
+the same KV cache,
+
+26
+00:01:04,050 --> 00:01:05,375
+and smaller weights.
+
+27
+00:01:06,950 --> 00:01:08,038
+Store updates.
+
+28
+00:01:08,038 --> 00:01:10,000
+Keep the input on its own path.
+
+29
+00:01:10,000 --> 00:01:11,400
+Decay sets the total;
+
+30
+00:01:11,400 --> 00:01:13,000
+attention allocates it.
+

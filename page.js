@@ -158,7 +158,7 @@
     var title = h('span', { 'class': 'rt-caption' });
     var seg = segControl(D.scales.map(function (s) { return { key: s.key, label: s.label }; }), function (k) { state.scale = k; render(); }, 'Model scale');
     seg.querySelectorAll('.seg__btn').forEach(function (b) { var on = b.dataset.key === state.scale; b.setAttribute('aria-checked', on ? 'true' : 'false'); b.setAttribute('tabindex', on ? '0' : '-1'); });
-    var sw = switchControl('Δ vs Dense', function (on) { state.delta = on; render(); });
+    var sw = switchControl('Δ vs Standard', function (on) { state.delta = on; render(); });
     var card = h('div', { 'class': 'rt-card' },
       h('div', { 'class': 'rt-head' },
         h('p', { 'class': 'rt-label' }, h('b', null, 'Table 1'), ' · Main results'),
@@ -168,9 +168,9 @@
         h('ul', { 'class': 'legend', 'aria-label': 'Table key' },
           h('li', null, h('span', { 'class': 'key key--best' }, '1.23'), 'best in the row at this scale (lowest for loss and perplexity)'),
           h('li', null, h('span', { 'class': 'key key--ours', 'aria-hidden': 'true' }), 'shaded: Loopback (ours)'),
-          h('li', null, h('span', { 'class': 'key' }, 'Δ'), 'Loopback minus Dense at the same scale, computed from the table; green is better')),
+          h('li', null, h('span', { 'class': 'key' }, 'Δ'), 'Loopback minus Standard at the same scale, computed from the table; green is better')),
         title,
-        h('p', { 'class': 'rt-notes' }, 'Validation loss is next-token cross-entropy on a held-out ClimbMix shard packed as in training. Accuracies are zero-shot; HellaSwag, OpenBookQA and both ARC sets use length-normalized accuracy. The seven main tasks are PIQA, HellaSwag, WinoGrande, OpenBookQA, ARC-Easy, ARC-Challenge and LAMBADA; the thirteen-task mean adds CommonsenseQA, BoolQ, RACE, MMLU, ANLI-R1 and RTE.')));
+        h('p', { 'class': 'rt-notes' }, 'Validation loss is next-token cross-entropy on a held-out ClimbMix shard packed as in training. Accuracies are zero-shot, and every prompt starts with the beginning-of-sequence token, as in training; HellaSwag, OpenBookQA and both ARC sets use length-normalized accuracy. The mean covers all thirteen tasks; WikiText perplexity is not in it.')));
     mount.innerHTML = ''; mount.appendChild(card);
     scrollHint(scroller, hint);
 
@@ -208,7 +208,7 @@
             if (state.delta && m.family === 'ours' && dense >= 0 && met.key !== 'params') {
               var d = signed(v - vals[dense], met.fmt);
               var better = met.lower ? d.kind === 'neg' : d.kind === 'pos';
-              td.appendChild(h('span', { 'class': 'rt-delta', dataset: { sign: d.kind === 'zero' ? 'zero' : better ? 'pos' : 'neg' } }, h('span', { 'class': 'sr-only' }, ', difference from Dense: '), d.text));
+              td.appendChild(h('span', { 'class': 'rt-delta', dataset: { sign: d.kind === 'zero' ? 'zero' : better ? 'pos' : 'neg' } }, h('span', { 'class': 'sr-only' }, ', difference from Standard: '), d.text));
             }
             tr.appendChild(td);
           });
@@ -218,8 +218,8 @@
       });
       scroller.innerHTML = ''; scroller.appendChild(table); scroller.scrollLeft = 0;
       title.innerHTML = '<strong>' + s.title + '.</strong> ' + (keys.length > 2
-        ? 'Dense and eight residual rules on one topology; all looped arms share the topology, the token budget and the learning rate, and Dense keeps the same number of block applications.'
-        : 'Dense and Loopback at the same executed depth and token budget.');
+        ? 'The standard Transformer and eight residual rules; all looped arms share the topology, the token budget and the learning rate, and the standard Transformer keeps the same number of block applications.'
+        : 'The standard Transformer and Loopback at the same executed depth and token budget.');
       hint.classList.remove('is-on'); setTimeout(function () { scroller.dispatchEvent(new Event('scroll')); }, 0);
     }
     render();
@@ -240,7 +240,7 @@
         h('div', { 'class': 'rt-controls' }, h('span', { 'class': 'rt-controls__name', 'aria-hidden': 'true' }, 'Scale'), cseg)),
       chint, cscroller,
       h('div', { 'class': 'rt-foot' }, ctitle,
-        h('p', { 'class': 'rt-notes' }, 'Parameters are Transformer-only; extra forward FLOPs are relative to Dense. Training throughput and peak memory are per GPU on 8 H100s; hours are estimated from throughput. Prefill uses one H100. The underline marks the best looped rule in the column.')));
+        h('p', { 'class': 'rt-notes' }, 'Parameters are Transformer-only; extra forward FLOPs are relative to the standard Transformer. Training throughput and peak memory are per GPU on 8 H100s; hours are estimated from throughput. Prefill uses one H100. The underline marks the best looped rule in the column.')));
     cm.innerHTML = ''; cm.appendChild(ccard);
     scrollHint(cscroller, chint);
     function crender() {
@@ -251,7 +251,7 @@
       C.columns.forEach(function (c) { tr.appendChild(h('th', { scope: 'col', 'class': 'rt-model' }, c.label)); });
       table.appendChild(h('thead', null, tr));
       var tb = h('tbody');
-      // best among the looped rules per numeric column (Dense is the reference, not a competitor)
+      // best among the looped rules per numeric column (the standard Transformer is the reference, not a competitor)
       var bestOf = {};
       C.columns.forEach(function (c, ci) {
         if (!c.lower && !c.higher) { return; }
@@ -271,7 +271,7 @@
       });
       table.appendChild(tb);
       cscroller.innerHTML = ''; cscroller.appendChild(table); cscroller.scrollLeft = 0;
-      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to Dense\'s forward FLOPs and pays for the read in memory traffic: ' + (s.key === '191M' ? '25%' : s.key === '374M' ? '23%' : '16%') + ' fewer training tokens per second than Dense.';
+      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to the standard Transformer’s forward FLOPs and pays for the read in memory traffic: ' + (s.key === '191M' ? '25%' : s.key === '374M' ? '23%' : '16%') + ' fewer training tokens per second.';
       chint.classList.remove('is-on'); setTimeout(function () { cscroller.dispatchEvent(new Event('scroll')); }, 0);
     }
     crender();
