@@ -313,22 +313,10 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
 .lb-legend { display: flex; flex-wrap: wrap; gap: 0.45rem 1.1rem; font-size: 0.85rem; color: var(--text-3); margin: 0.4rem 0 0.2rem; }
 .lb-legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--sw); border: 1.5px solid var(--sb, var(--sw)); box-sizing: border-box; }
 .lb-legend .dashed::before { border-style: dashed; }
-.lb-legend-lines span::before { width: 18px; height: 3px; border-radius: 2px; border: 0; vertical-align: 3px; }
 .lb-tip { position: fixed; pointer-events: none; background: var(--tip-bg); color: var(--tip-ink); padding: 6px 9px; border-radius: 6px; font-size: 12px; font-family: var(--font-mono); opacity: 0; transition: opacity .12s; z-index: 50; white-space: nowrap; max-width: 90vw; }
-.lb-h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--text); margin: 1.4rem 0 0.6rem; }
-.lb-ledger { display: grid; grid-template-columns: minmax(150px, 1.4fr) minmax(90px, 1fr) minmax(90px, 1fr) minmax(160px, 2.2fr); gap: 0.35rem 1rem; align-items: center; font-size: 0.95rem; font-variant-numeric: tabular-nums; margin-bottom: 0.8rem; }
-.lb-lrow { display: contents; }
-.lb-lhead span { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; padding-bottom: 0.2rem; border-bottom: 1px solid var(--border); }
-.lb-lstrong span:first-child { font-weight: 700; color: var(--brand); }
-.lb-meter { display: flex; height: 12px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
-.lb-meter i { display: block; height: 100%; width: 0; background: #4A5560; transition: width .45s ease; }
-.lb-meter i + i { background: var(--c); margin-left: 2px; }
 .lb-flow path { stroke-dasharray: 5 7; animation: lbflow .5s linear infinite; }
 @keyframes lbflow { to { stroke-dashoffset: -12; } }
-.lb-formula { color: var(--text-2); margin-top: 0.6rem; overflow-x: auto; }
-.lb-note { color: var(--text-3); font-size: .95rem; margin-top: .6rem; }
-@media (max-width: 640px) { .lb-demo { padding: 1rem; } .lb-ledger { font-size: 0.8rem; gap: .35rem .5rem; grid-template-columns: minmax(0, 1.3fr) minmax(0, .8fr) minmax(0, .8fr) minmax(0, 1.4fr); }
-  .lb-ledger span { min-width: 0; overflow-wrap: anywhere; } .lb-lhead span { font-size: .7rem; } }
+@media (max-width: 640px) { .lb-demo { padding: 1rem; } }
 
 /* ---------------------------------------------------------------- bibtex, footer */
 .bib { border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface-2); overflow: hidden; }

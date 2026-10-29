@@ -1,4 +1,4 @@
-// The interactive Loopback demo (the loop stage, the three-rule ledger and the chart). Page chrome (theme, nav, lightbox,
+// The interactive Loopback demo (the loop stage). Page chrome (theme, nav, lightbox,
 // BibTeX copy, data tables) lives in page.js; both are inlined by build.py.
 // ---------------------------------------------------------------------------------------------------------------
 // Interactive demo: one token's hidden state circles the shared blocks; each application appends an update to the
@@ -11,7 +11,7 @@
   var NS = 'http://www.w3.org/2000/svg';
   var C = { ink: '#202020', muted: '#6B6B6B', faint: '#9A9A9A', grid: '#E2E2E2', border: '#4A5560', ghost: '#C4C9D0',
             blueF: '#D3E4F1', blueS: '#6F93B4', peachF: '#F1D9CD', peachS: '#C98F74', greenF: '#DFEBD3', greenS: '#6F9A5E',
-            grayF: '#EAEAEA', navy: '#0F4D92', dense: '#767676', rose: '#B64342', ramp: ['#F6CFCB', '#E9A6A1', '#CF7F7A', '#B64342'] };
+            grayF: '#EAEAEA', navy: '#0F4D92', rose: '#B64342', ramp: ['#F6CFCB', '#E9A6A1', '#CF7F7A', '#B64342'] };
   var SERIF = "'Times New Roman', Times, serif";
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function $(id) { return document.getElementById(id); }
@@ -227,65 +227,6 @@
     G.exit.setAttribute('stroke', s === n - 1 ? C.navy : C.ghost); G.exit.setAttribute('marker-end', s === n - 1 ? 'url(#lb-arrow-navy)' : 'url(#lb-arrow-faint)');
   }
 
-  // ---------- ledger and chart ----------
-  function ledger(s, B) {
-    var n = N(), scale = n + 1;
-    function row(id, inp, tot, inW, totW) { $(id + '-in').textContent = inp; $(id + '-tot').textContent = tot; $(id + '-mi').style.width = (100 * inW / scale) + '%'; $(id + '-mu').style.width = (100 * totW / scale) + '%'; }
-    row('lg-add', '1', String(s + 1), 1, s + 1);
-    row('lg-sm', '1/' + (s + 2) + ' = ' + fmt(1 / (s + 2)), fmt((s + 1) / (s + 2)), 1 / (s + 2), (s + 1) / (s + 2));
-    row('lg-lb', '1', fmt(B) + (isFinite(bound()) ? ' ≤ ' + fmt(bound()) : ''), 1, B);
-  }
-  var chart = $('lb-chart'), CH = {};
-  function chartStatic() {
-    chart.innerHTML = ''; var n = N(), W = 1000, H = 210, i;
-    var allB = []; for (i = 0; i < n; i++) allB.push(coeffs(i, false).B);
-    var panels = [{ x0: 62, x1: 470, title: 'input coefficient', ymax: 1.12 }, { x0: 560, x1: 985, title: 'total update weight B of the stored updates', ymax: isFinite(bound()) ? Math.max.apply(null, allB) * 1.14 : n * 1.06 }];
-    // header: the panel titles, then one row for the right panel's annotations (bound key on the right, off-scale note on
-    // the left), above the plot frame, so that no curve can run through them
-    CH.panels = panels; CH.title = 17; CH.ann = 32; CH.top = 41; CH.bot = 176;
-    panels.forEach(function (p, j) {
-      p.px = function (s) { return p.x0 + (p.x1 - p.x0) * (n > 1 ? s / (n - 1) : 0); };
-      p.py = function (v) { return CH.bot - (CH.bot - CH.top) * Math.min(v, p.ymax) / p.ymax; };
-      el('clipPath', { id: 'lb-clip' + j }, el('defs', {}, chart)).appendChild(el('rect', { x: p.x0 - 2, y: CH.top - 2, width: p.x1 - p.x0 + 4, height: CH.bot - CH.top + 4 }));
-      txt(chart, p.x0, CH.title, p.title, { 'font-size': 13, 'font-weight': 'bold' });
-      el('rect', { x: p.x0, y: CH.top, width: p.x1 - p.x0, height: CH.bot - CH.top, fill: 'none', stroke: C.ink, 'stroke-width': 0.8 }, chart);
-      var ticks = j === 0 ? [0, 0.5, 1] : (p.ymax <= 3 ? [0, 0.5, 1, 1.5, 2, 2.5, 3] : null);
-      if (!ticks) { ticks = []; var step = p.ymax > 20 ? 10 : p.ymax > 8 ? 4 : p.ymax > 4 ? 2 : 1; for (i = 0; i <= p.ymax + 1e-9; i += step) ticks.push(i); }
-      ticks.forEach(function (v) { if (v > p.ymax) return; var y = p.py(v); el('line', { x1: p.x0, x2: p.x1, y1: y, y2: y, stroke: C.grid, 'stroke-dasharray': '1 3' }, chart); txt(chart, p.x0 - 6, y + 4, String(v), { 'text-anchor': 'end', 'font-size': 11, fill: C.muted }); });
-      var xt = n <= 12 ? 1 : n <= 24 ? 4 : 8;
-      for (i = 0; i < n; i += xt) { var x = p.px(i); el('line', { x1: x, x2: x, y1: CH.bot, y2: CH.bot + 4, stroke: C.ink, 'stroke-width': 0.8 }, chart); txt(chart, x, CH.bot + 16, String(i), { 'text-anchor': 'middle', 'font-size': 11, fill: C.muted }); }
-      txt(chart, (p.x0 + p.x1) / 2, CH.bot + 31, 'application s', { 'text-anchor': 'middle', 'font-size': 11.5, fill: C.muted });
-      if (j === 1 && isFinite(bound())) {
-        var yb = p.py(bound());
-        el('line', { x1: p.x0, x2: p.x1, y1: yb, y2: yb, stroke: C.navy, 'stroke-width': 1, 'stroke-dasharray': '5 4' }, chart);
-        // its label as a key in the header row: a short sample of the same dashed line, then the text
-        var key = txt(chart, p.x1, CH.ann, 'visit-end total ≤ Kλ/(1−λ) = ' + fmt(bound()), { 'text-anchor': 'end', 'font-size': 11, fill: C.navy }), kw = bbox(key).w || 175;
-        el('line', { x1: p.x1 - kw - 29, x2: p.x1 - kw - 6, y1: CH.ann - 3.5, y2: CH.ann - 3.5, stroke: C.navy, 'stroke-width': 1, 'stroke-dasharray': '5 4' }, chart);
-      }
-    });
-    CH.g = el('g', {}, chart);
-    // full curves
-    CH.add = []; CH.sm = []; CH.lb = []; CH.in_sm = [];
-    for (i = 0; i < n; i++) { CH.add.push(i + 1); CH.sm.push((i + 1) / (i + 2)); CH.lb.push(coeffs(i, false).B); CH.in_sm.push(1 / (i + 2)); }
-  }
-  function chartUpdate(s) {
-    var g = CH.g; g.innerHTML = ''; var p0 = CH.panels[0], p1 = CH.panels[1], i;
-    function line(p, vals, color, width, dash, clip) {
-      var d = ''; for (i = 0; i <= s; i++) d += (i ? ' L' : 'M') + p.px(i) + ' ' + p.py(vals[i]);
-      el('path', { d: d, fill: 'none', stroke: color, 'stroke-width': width, 'stroke-dasharray': dash || null, 'stroke-linejoin': 'round', 'clip-path': clip }, g);
-      el('circle', { cx: p.px(s), cy: p.py(vals[s]), r: 4, fill: color, stroke: '#fff', 'stroke-width': 1.2, 'clip-path': clip }, g);
-    }
-    var ones = CH.add.map(function () { return 1; });
-    line(p0, ones, C.dense, 4, null, 'url(#lb-clip0)'); line(p0, ones, C.navy, 2, null, 'url(#lb-clip0)'); line(p0, CH.in_sm, C.rose, 2, null, 'url(#lb-clip0)');
-    line(p1, CH.add, C.dense, 2, null, 'url(#lb-clip1)'); line(p1, CH.sm, C.rose, 2, null, 'url(#lb-clip1)');
-    // Loopback: the within-visit reads as a thin line, the visit-end totals (what the bound is about) emphasised
-    line(p1, CH.lb, C.navy, 1.2, null, 'url(#lb-clip1)');
-    var d = '', first = true; for (i = 0; i <= s; i++) if ((i + 1) % P.K === 0 || P.lam >= 1) { d += (first ? 'M' : ' L') + p1.px(i) + ' ' + p1.py(CH.lb[i]); first = false; el('circle', { cx: p1.px(i), cy: p1.py(CH.lb[i]), r: 3.2, fill: C.navy }, g); }
-    if (d) el('path', { d: d, fill: 'none', stroke: C.navy, 'stroke-width': 2.4, 'stroke-linejoin': 'round' }, g);
-    // the addition line leaves the Loopback-scaled panel through its top edge: say so in the header row above that edge
-    for (i = 0; i <= s; i++) if (CH.add[i] > p1.ymax) { txt(g, p1.x0, CH.ann, 'residual addition: ' + (s + 1) + ', off the scale', { 'font-size': 11, fill: C.dense }); break; }
-  }
-
   // ---------- animation ----------
   var shown = { prior: [], post: [] }, running = null, playing = false, dotAngle = -Math.PI / 2;
   function ease(u) { return 1 - Math.pow(1 - u, 3); }
@@ -333,7 +274,7 @@
   function show(s, animate, done) {
     P.s = Math.max(0, Math.min(N() - 1, s));
     var k = P.s % P.K, fin = coeffs(P.s, false);
-    setBlockHighlight(k); readout(fin);
+    setBlockHighlight(k); readout();
     var target = L.blockPos[k].a;
     if (!animate) { shown.prior = fin.prior.slice(); shown.post = fin.post.slice(); dotAngle = target; if (P.s === N() - 1) drawDot(0, exitPoint(1)); else drawDot(dotAngle); drawDynamic(shown.prior, shown.post, P.s); if (done) done(); return; }
     while (target < dotAngle - Math.PI) target += 2 * Math.PI; while (target > dotAngle + Math.PI) target -= 2 * Math.PI;
@@ -349,14 +290,13 @@
     while (target <= dotAngle) target += 2 * Math.PI;
     var steps = [dotStep(target, 340), { dur: 10, end: function () { setBlockHighlight(k); } }, pulseStep(k, 240), flyStep(s, 380), tweenStep(pre, 300), readerPulse(260)];
     if (visitEnd) { var bd = badgeStep(900, 'visit ' + (v + 1) + ' ends: every stored weight × λ = ' + fmt(P.lam, 2)), tw = tweenStep(fin, 520); steps.push({ dur: 900, start: function () { bd.start(); }, tick: function (e, u) { bd.tick(e, u); if (u > 0.25) tw.tick(ease(Math.min(1, (u - 0.25) / 0.6)), 0); }, end: function () { bd.end(); tw.end(); } }); }
-    steps.push({ dur: 10, end: function () { readout(fin); } });
+    steps.push({ dur: 10, end: readout });
     if (s === N() - 1) { var tTop = -Math.PI / 2; while (tTop <= target) tTop += 2 * Math.PI; steps.push(wait(120), dotStep(tTop, 300), { dur: 380, tick: function (e) { drawDot(0, exitPoint(e)); } }); }
     steps.push(wait(260));
     timeline(steps, done);
   }
-  function readout(c) {
+  function readout() {
     var n = N(); $('so').value = P.s; $('smax').value = n - 1; $('s').max = n - 1; $('s').value = P.s;
-    ledger(P.s, c.B); chartUpdate(P.s);
   }
   function stop() { playing = false; $('btn-play').innerHTML = '&#9654; Play'; }
   function play() {
@@ -375,10 +315,10 @@
     $('ko').value = P.K; $('ro').value = P.R; $('lamo').value = P.lam.toFixed(2); $('gaino').value = P.gain.toFixed(1); $('speedo').value = P.speed.toFixed(2).replace(/0$/, '') + '×';
     rebuildFocus();
   }
-  function rebuild(keepS) { layout(); drawRing(); chartStatic(); show(keepS ? Math.min(P.s, N() - 1) : 0, false); }
+  function rebuild(keepS) { layout(); drawRing(); show(keepS ? Math.min(P.s, N() - 1) : 0, false); }
   ['k', 'r', 'lam', 'gain'].forEach(function (id) { $(id).addEventListener('input', function () { stop(); cancel(); readParams(); rebuild(true); }); });
   $('speed').addEventListener('input', function () { readParams(); });
-  $('focus').addEventListener('change', function () { P.focus = +$('focus').value; chartStatic(); show(P.s, true); });
+  $('focus').addEventListener('change', function () { P.focus = +$('focus').value; show(P.s, true); });
   $('s').addEventListener('input', function () { stop(); cancel(); show(+$('s').value, true); });
   $('btn-play').addEventListener('click', play);
   $('btn-step').addEventListener('click', function () { stop(); cancel(); if (P.s >= N() - 1) show(0, true); else advance(); });

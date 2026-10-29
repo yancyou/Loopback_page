@@ -14,7 +14,6 @@ def read(name):
 FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n'
          '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;600&display=swap">\n')
-MATHJAX = '<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>\n'   # deferred: the page's own scripts run first
 # the saved light/dark choice is applied before the first paint (page.js keeps it in localStorage 'lb-theme')
 THEME = '<script>try{var t=localStorage.getItem("lb-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}</script>\n'
 SITE = 'https://yancyou.github.io/Loopback_page/'   # GitHub Pages address once the repository is public
@@ -37,7 +36,7 @@ if TRACK in body:
                 '<script>(function(){var t=document.querySelector("track[data-vtt]"),s=document.getElementById("lb-vtt");'
                 'if(t&&s&&window.Blob&&window.URL){t.src=URL.createObjectURL(new Blob([s.textContent.trim()+"\\n"],{type:"text/vtt"}));}})();</script>\n')
     artifact_body = body.replace(TRACK, '<track kind="captions" srclang="en" label="English" data-vtt="inline">')
-artifact = title + THEME + FONTS + style + artifact_body + captions + MATHJAX + scripts
+artifact = title + THEME + FONTS + style + artifact_body + captions + scripts
 open(os.path.join(HERE, "artifact.html"), "w", encoding="utf-8").write(artifact)
 page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
@@ -51,6 +50,6 @@ page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta property="og:image:width" content="1920">\n<meta property="og:image:height" content="1080">\n'
         '<meta name="twitter:card" content="summary_large_image">\n'
         f'<meta name="twitter:image" content="{SITE}videos/loopback_promo_poster.jpg">\n'
-        + THEME + title + FONTS + style + '</head>\n<body>\n' + body + MATHJAX + scripts + '</body>\n</html>\n')
+        + THEME + title + FONTS + style + '</head>\n<body>\n' + body + scripts + '</body>\n</html>\n')
 open(os.path.join(HERE, "index.html"), "w", encoding="utf-8").write(page)
 print("artifact.html", len(artifact), "bytes; index.html", len(page), "bytes")
