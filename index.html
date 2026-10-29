@@ -14,7 +14,6 @@
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://yancyou.github.io/Loopback_page/videos/loopback_promo_poster.jpg">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230f4d92%27/%3E%3Cpath d=%27M22.5 11.5 A7 7 0 1 0 23 16%27 fill=%27none%27 stroke=%27%23fff%27 stroke-width=%272.4%27 stroke-linecap=%27round%27/%3E%3Cpath d=%27M19.5 9.2 L23.6 11.2 L21.2 15.1 Z%27 fill=%27%23fff%27/%3E%3C/svg%3E">
 <script>try{var t=localStorage.getItem("lb-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}</script>
 <title>Loopback Transformer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -125,7 +124,6 @@ button { font: inherit; color: inherit; }
 .nav__inner { display: flex; align-items: center; gap: 12px; min-height: 60px; }
 .nav__brand { display: inline-flex; align-items: center; gap: 9px; font: 700 1rem/1 var(--font-display); color: var(--text); white-space: nowrap; }
 .nav__brand:hover { text-decoration: none; color: var(--brand); }
-.nav__mark { width: 26px; height: 26px; flex: none; }
 .nav__links { display: flex; align-items: center; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .nav__links::-webkit-scrollbar { display: none; }
 .nav__links a { padding: 8px 11px; border-radius: 999px; color: var(--text-3); font: 500 .9375rem/1 var(--font-body); white-space: nowrap; }
@@ -141,8 +139,7 @@ button { font: inherit; color: inherit; }
 .hero { position: relative; padding-block: clamp(2rem, 5vw, 3.5rem) clamp(2.5rem, 5vw, 3.75rem); text-align: center; overflow: hidden; }
 .hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 70% at 50% 0%, var(--brand-soft), transparent 70%); pointer-events: none; }
 .hero > .wrap { position: relative; }
-.hero__kicker { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.1rem; padding: 6px 12px 6px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-3); font: 600 .78rem/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; }
-.hero__kicker svg { width: 18px; height: 18px; }
+.hero__kicker { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.1rem; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-3); font: 600 .78rem/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; }
 .title { font-size: clamp(2.1rem, 5.2vw, 3.5rem); font-weight: 800; line-height: 1.08; max-width: 22ch; margin-inline: auto; }
 .title .grad { background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .subtitle { margin: .9rem auto 0; max-width: 40ch; font: 500 clamp(1.15rem, 2.2vw, 1.5rem)/1.35 var(--font-display); color: var(--text-3); text-wrap: balance; }
@@ -394,7 +391,6 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
 <nav class="nav" aria-label="Page sections">
   <div class="wrap nav__inner">
     <a class="nav__brand" href="#top" aria-label="Loopback Transformer, top of page">
-      <svg class="nav__mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--brand)"/><path d="M22.5 11.5 A7 7 0 1 0 23 16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M19.5 9.2 L23.6 11.2 L21.2 15.1 Z" fill="#fff"/></svg>
       Loopback
     </a>
     <div class="nav__links">
@@ -410,7 +406,7 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
 <main id="main">
 <header class="hero" id="top">
   <div class="wrap">
-    <span class="hero__kicker"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M22.5 11.5 A7 7 0 1 0 23 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M19.5 9.2 L23.6 11.2 L21.2 15.1 Z" fill="currentColor"/></svg>Preprint &middot; 2026</span>
+    <span class="hero__kicker">Preprint &middot; 2026</span>
     <h1 class="title"><span class="grad">Loopback</span> Transformer</h1>
     <p class="subtitle">Towards a Unified View of Residual Looped Transformers</p>
     <p class="authors">
@@ -437,10 +433,10 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
       </span>
     </div>
     <figure class="hero__video" id="video">
-      <video controls playsinline preload="metadata" poster="videos/loopback_promo_poster_hero.jpg" aria-label="Loopback Transformer overview video with narration and captions, 96 seconds">
+      <video controls playsinline preload="metadata" poster="videos/loopback_promo_poster_hero.jpg" aria-label="Loopback Transformer overview video with narration and captions, 2 minutes 14 seconds">
         <source src="videos/loopback_promo.mp4" type="video/mp4">
       </video>
-      <figcaption><strong>Loopback in 96 seconds.</strong> Why sharing weights leaves update reuse open, three ways a loop can reuse its updates, the recipe, the results from 191M to 3B, extra loops at inference, and what the read costs.</figcaption>
+      <figcaption><strong>Loopback in two minutes.</strong> The question the paper asks, residual connections as depth memory, the Loopback design, and the results: 191M to 3B, nine designs at three scales, math and code at 1.4B and 3B, extra loops at inference, ablations, depth at fixed parameters, and efficiency.</figcaption>
     </figure>
   </div>
 </header>

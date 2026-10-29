@@ -7,6 +7,7 @@ voice conversion changes only who it sounds like, so the clone does not pick up 
     SIGMA_CLIMB4K=1 CUDA_VISIBLE_DEVICES=0 clone_venv/bin/python vc.py source script.json --engine chatterbox [--takes 6]
     SIGMA_CLIMB4K=1 CUDA_VISIBLE_DEVICES=0 clone_venv/bin/python vc.py convert script.json --ref /path/to/sample.wav
     ... source/convert --only visits eff      # read and convert just these segments; keep the other takes
+    clone_venv/bin/python vc.py place script.json          # every previous take at its (moved) start; converts nothing
 
 --only: source reads only the listed segments; convert converts only those and takes every other segment's clip, word
 times and scores from the previous build/voiceover.wav and build/timings.json (its `say` must be unchanged), placed at
@@ -130,25 +131,27 @@ def source_chatterbox(s, takes, only=None, pins=None):
 def convert(s, ref, seeds=4, only=None):
     import warnings
     warnings.filterwarnings("ignore")
-    import numpy as np, soundfile as sf, torch, librosa
-    from huggingface_hub import hf_hub_download
-    from faster_whisper import WhisperModel
-    from transformers.models.whisper.english_normalizer import EnglishTextNormalizer
-    from chatterbox.vc import ChatterboxVC
-    from chatterbox.models.voice_encoder import VoiceEncoder
-    from safetensors.torch import load_file
-    from clone import MAX_TEMPO, POST, ffilter, score, tempo, transcribe, trim
-    dev = "cuda" if torch.cuda.is_available() else "cpu"
-    vc = ChatterboxVC.from_pretrained(dev); vc.set_target_voice(ref)
-    ve = VoiceEncoder(); ve.load_state_dict(load_file(hf_hub_download("ResembleAI/chatterbox", "ve.safetensors"))); ve.to(dev).eval()
-    emb = lambda w16: ve.embeds_from_wavs([w16], sample_rate=16000).mean(0)
-    ref_emb = emb(librosa.load(ref, sr=16000)[0])
-    norm = EnglishTextNormalizer({})
-    asr = WhisperModel("small.en", device="cpu", compute_type="int8", cpu_threads=min(16, os.cpu_count() or 1))
+    import numpy as np, soundfile as sf
     vdur = s.get("duration") or duration(os.path.join(os.path.dirname(os.path.dirname(BUILD)), "..", s["video"]))
     track = np.zeros(round(vdur * SR), np.float32)
     picked(s, only)
-    kept = kept_takes(s, only) if only else {}
+    kept = kept_takes(s, only) if only is not None else {}
+    if any(g["id"] not in kept for g in s["segments"]):        # something to convert ("place" converts nothing)
+        import torch, librosa
+        from huggingface_hub import hf_hub_download
+        from faster_whisper import WhisperModel
+        from transformers.models.whisper.english_normalizer import EnglishTextNormalizer
+        from chatterbox.vc import ChatterboxVC
+        from chatterbox.models.voice_encoder import VoiceEncoder
+        from safetensors.torch import load_file
+        from clone import MAX_TEMPO, POST, ffilter, score, tempo, transcribe, trim
+        dev = "cuda" if torch.cuda.is_available() else "cpu"
+        vc = ChatterboxVC.from_pretrained(dev); vc.set_target_voice(ref)
+        ve = VoiceEncoder(); ve.load_state_dict(load_file(hf_hub_download("ResembleAI/chatterbox", "ve.safetensors"))); ve.to(dev).eval()
+        emb = lambda w16: ve.embeds_from_wavs([w16], sample_rate=16000).mean(0)
+        ref_emb = emb(librosa.load(ref, sr=16000)[0])
+        norm = EnglishTextNormalizer({})
+        asr = WhisperModel("small.en", device="cpu", compute_type="int8", cpu_threads=min(16, os.cpu_count() or 1))
     segs, rows = [], []
     for g in s["segments"]:
         if g["id"] in kept:
@@ -204,7 +207,7 @@ def convert(s, ref, seeds=4, only=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("step", choices=["source", "convert"]); ap.add_argument("script")
+    ap.add_argument("step", choices=["source", "convert", "place"]); ap.add_argument("script")
     ap.add_argument("--voice", default="am_michael"); ap.add_argument("--ref")
     ap.add_argument("--engine", choices=["kokoro", "chatterbox"], default="kokoro"); ap.add_argument("--takes", type=int, default=6)
     ap.add_argument("--seeds", type=int, default=4, help="convert: decoder seeds tried per segment")
@@ -215,6 +218,8 @@ def main():
     pins = {k: int(v) for k, v in (p.split("=", 1) for p in a.seed)}
     if a.step == "source":
         source_chatterbox(s, a.takes, a.only, pins) if a.engine == "chatterbox" else source(s, a.voice, a.only)
+    elif a.step == "place":
+        convert(s, None, 0, [])
     else:
         if not a.ref:
             sys.exit("convert needs --ref")

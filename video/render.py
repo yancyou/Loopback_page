@@ -7,19 +7,19 @@
 The silent render is the input of voiceover/make_av.py, which writes the published ../videos/loopback_promo.mp4 with sound.
 Captions are drawn into the frames: run voiceover/vc.py (or clone.py, synth.py) first, so voiceover/build/timings.json holds the
 word times; each phrase of a segment's `display` text becomes a cue whose words appear at the times of the matching
-spoken words. The title and outro segments get none (their words are on screen). Posters are drawn without captions.
+spoken words. The title gets none (its words are on screen). Posters are drawn without captions.
 
 The page draws every frame as a pure function of t (renderAt), so frames are exact and the output is reproducible.
-Needs Playwright (Chromium), network access for Google Fonts and MathJax from cdnjs, and ffmpeg with libx264.
+Needs Playwright (Chromium), network access for Google Fonts, and ffmpeg with libx264.
 """
 import argparse, asyncio, difflib, json, os, re, shutil, subprocess, sys
 from playwright.async_api import async_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FPS, DUR = 30, 96.4                 # DUR must match promo.html
-POSTER_T, HERO_T = 4.2, 28.5        # title card (og:image); the three-rules frame shown before play
+FPS, DUR = 30, 133.7                # DUR must match promo.html
+POSTER_T, HERO_T = 4.2, 53.3        # title card (og:image); the finished five-scale results, shown before play
 VO = os.path.join(HERE, "voiceover")
-NO_CAPTIONS = {"title", "outro"}
+NO_CAPTIONS = {"title"}
 
 def wordmap(dw, ws):
     """For each display word, the index of the spoken word it appears with. Words that agree in their letters and digits
@@ -97,7 +97,7 @@ def main():
         sheet.save(os.path.join(a.tmp, "contact.png"))
         print("preview:", paths, "-> contact.png")
         return
-    n = int(DUR * FPS)
+    n = round(DUR * FPS)                 # int() would drop a frame when DUR * FPS lands just under a whole number
     asyncio.run(frames([i / FPS for i in range(n)], a.tmp, "f", cues()))
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(a.tmp, "f%05d.png"),
                     "-c:v", "libx264", "-preset", "slow", "-crf", "20", "-profile:v", "high", "-level:v", "4.1", "-x264-params", "ref=4",

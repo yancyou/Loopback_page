@@ -8,128 +8,154 @@ towards a unified view of
 residual looped Transformers.
 
 3
-00:00:07,000 --> 00:00:10,770
-Looped Transformers apply the
-same blocks again and again.
+00:00:07,000 --> 00:00:10,670
+Looped Transformers reduce
+parameters by reusing shared blocks,
 
 4
-00:00:11,560 --> 00:00:12,750
-Sharing fixes the weights,
+00:00:10,940 --> 00:00:14,810
+but sharing alone does not decide
+how repeated computation is reused.
 
 5
-00:00:12,960 --> 00:00:15,270
-but not how each update is reused.
+00:00:16,900 --> 00:00:20,510
+Addition lets the total
+update weight grow with depth,
 
 6
-00:00:17,500 --> 00:00:20,170
-Addition gives every update weight one,
+00:00:20,520 --> 00:00:25,050
+and a joint softmax makes the
+input compete with the updates.
 
 7
-00:00:20,380 --> 00:00:22,450
-so the total grows with depth.
+00:00:27,450 --> 00:00:30,060
+Loopback stores each block's update,
 
 8
-00:00:23,240 --> 00:00:25,680
-A joint softmax shares one unit of weight,
+00:00:30,290 --> 00:00:32,560
+keeps the input on its own path,
 
 9
-00:00:25,680 --> 00:00:27,210
-so the input shrinks.
+00:00:32,850 --> 00:00:37,240
+and lets decay set the total weight
+while attention allocates it.
 
 10
-00:00:27,980 --> 00:00:30,210
-Loopback keeps the input at one;
-
-11
-00:00:30,620 --> 00:00:31,730
-decay sets the total,
-
-12
-00:00:32,080 --> 00:00:33,710
-and attention allocates it.
-
-13
-00:00:36,000 --> 00:00:36,790
-The recipe:
-
-14
-00:00:37,120 --> 00:00:38,030
-store updates,
-
-15
-00:00:38,440 --> 00:00:39,270
-not outputs;
-
-16
-00:00:39,660 --> 00:00:41,630
-keep the input on its own path;
-
-17
-00:00:42,120 --> 00:00:43,590
-let decay set the total,
-
-18
-00:00:43,940 --> 00:00:45,390
-and attention allocate it.
-
-19
-00:00:46,500 --> 00:00:49,810
+00:00:39,250 --> 00:00:42,960
 From 191M to 3B parameters,
 
-20
-00:00:50,480 --> 00:00:54,170
-Loopback reaches lower validation
-loss than the standard Transformer,
+11
+00:00:43,370 --> 00:00:45,535
+Loopback reaches lower loss and a higher
 
-21
-00:00:54,340 --> 00:00:57,330
+12
+00:00:45,535 --> 00:00:48,350
+thirteen-task average than
+the standard Transformer,
+
+13
+00:00:48,350 --> 00:00:51,780
 with 40–75% of its parameters.
 
-22
-00:00:59,000 --> 00:01:00,970
-At 374M,
+14
+00:00:54,550 --> 00:00:58,720
+Against the standard Transformer
+and seven looped residual designs,
 
-23
-00:01:01,340 --> 00:01:06,250
-it is the best of nine models in
-both loss and thirteen-task average.
+15
+00:00:59,110 --> 00:01:01,684
+Loopback has the lowest
+loss and the highest
 
-24
-00:01:07,500 --> 00:01:10,590
+16
+00:01:01,684 --> 00:01:04,700
+thirteen-task average at
+all three scales tested.
+
+17
+00:01:07,700 --> 00:01:08,850
+At larger scale,
+
+18
+00:01:08,920 --> 00:01:11,970
+it also predicts math and
+code solutions better,
+
+19
+00:01:12,200 --> 00:01:13,830
+and at 3B,
+
+20
+00:01:14,200 --> 00:01:19,010
+word-problem accuracy
+rises from 2.6% to 6.4%.
+
+21
+00:01:21,750 --> 00:01:24,840
 Run more loops at
 inference than in training,
 
-25
-00:01:10,960 --> 00:01:13,970
+22
+00:01:25,210 --> 00:01:28,220
 and Loopback degrades far
 less than plain addition.
 
+23
+00:01:30,950 --> 00:01:32,240
+Both controls matter:
+
+24
+00:01:32,390 --> 00:01:34,380
+without attention the loss rises,
+
+25
+00:01:34,710 --> 00:01:36,680
+without decay it rises much more,
+
 26
-00:01:17,000 --> 00:01:20,590
-The read adds under 0.1% in FLOPs;
+00:01:37,030 --> 00:01:39,160
+and the gains hold across initializations.
 
 27
-00:01:20,860 --> 00:01:21,930
-at 3B,
+00:01:41,500 --> 00:01:43,090
+At a fixed parameter budget,
 
 28
-00:01:22,620 --> 00:01:26,570
+00:01:43,580 --> 00:01:46,570
+deeper and narrower standard
+Transformers lose ground,
+
+29
+00:01:46,780 --> 00:01:49,010
+while Loopback's margin grows with depth.
+
+30
+00:01:51,200 --> 00:01:54,790
+The read adds under 0.1% in FLOPs;
+
+31
+00:01:55,060 --> 00:01:56,130
+at 3B,
+
+32
+00:01:56,820 --> 00:02:00,770
 training runs within 6% of the
 standard Transformer's speed.
 
-29
-00:01:28,400 --> 00:01:29,590
-Store updates.
+33
+00:02:02,650 --> 00:02:04,180
+Loopback stores updates,
 
-30
-00:01:30,200 --> 00:01:32,130
-Keep the input on its own path.
+34
+00:02:04,590 --> 00:02:06,700
+keeps the input on its own path,
 
-31
-00:01:32,640 --> 00:01:33,630
-Decay sets the total;
+35
+00:02:07,050 --> 00:02:09,740
+and lets decay and attention
+control their weight:
 
-32
-00:01:34,100 --> 00:01:34,950
-attention allocates it.
+36
+00:02:10,210 --> 00:02:12,100
+lower loss with fewer parameters.
 

@@ -18,9 +18,6 @@ MATHJAX = '<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2
 # the saved light/dark choice is applied before the first paint (page.js keeps it in localStorage 'lb-theme')
 THEME = '<script>try{var t=localStorage.getItem("lb-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}</script>\n'
 SITE = 'https://yancyou.github.io/Loopback_page/'   # GitHub Pages address once the repository is public
-ICON = ('<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E'
-        '%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230f4d92%27/%3E%3Cpath d=%27M22.5 11.5 A7 7 0 1 0 23 16%27 fill=%27none%27 stroke=%27%23fff%27 '
-        'stroke-width=%272.4%27 stroke-linecap=%27round%27/%3E%3Cpath d=%27M19.5 9.2 L23.6 11.2 L21.2 15.1 Z%27 fill=%27%23fff%27/%3E%3C/svg%3E">\n')
 title = "<title>Loopback Transformer</title>\n"
 style = "<style>\n" + read("style.css") + "</style>\n"
 body = read("page.html")
@@ -54,6 +51,6 @@ page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta property="og:image:width" content="1920">\n<meta property="og:image:height" content="1080">\n'
         '<meta name="twitter:card" content="summary_large_image">\n'
         f'<meta name="twitter:image" content="{SITE}videos/loopback_promo_poster.jpg">\n'
-        + ICON + THEME + title + FONTS + style + '</head>\n<body>\n' + body + MATHJAX + scripts + '</body>\n</html>\n')
+        + THEME + title + FONTS + style + '</head>\n<body>\n' + body + MATHJAX + scripts + '</body>\n</html>\n')
 open(os.path.join(HERE, "index.html"), "w", encoding="utf-8").write(page)
 print("artifact.html", len(artifact), "bytes; index.html", len(page), "bytes")

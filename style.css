@@ -102,7 +102,6 @@ button { font: inherit; color: inherit; }
 .nav__inner { display: flex; align-items: center; gap: 12px; min-height: 60px; }
 .nav__brand { display: inline-flex; align-items: center; gap: 9px; font: 700 1rem/1 var(--font-display); color: var(--text); white-space: nowrap; }
 .nav__brand:hover { text-decoration: none; color: var(--brand); }
-.nav__mark { width: 26px; height: 26px; flex: none; }
 .nav__links { display: flex; align-items: center; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .nav__links::-webkit-scrollbar { display: none; }
 .nav__links a { padding: 8px 11px; border-radius: 999px; color: var(--text-3); font: 500 .9375rem/1 var(--font-body); white-space: nowrap; }
@@ -118,8 +117,7 @@ button { font: inherit; color: inherit; }
 .hero { position: relative; padding-block: clamp(2rem, 5vw, 3.5rem) clamp(2.5rem, 5vw, 3.75rem); text-align: center; overflow: hidden; }
 .hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 70% at 50% 0%, var(--brand-soft), transparent 70%); pointer-events: none; }
 .hero > .wrap { position: relative; }
-.hero__kicker { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.1rem; padding: 6px 12px 6px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-3); font: 600 .78rem/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; }
-.hero__kicker svg { width: 18px; height: 18px; }
+.hero__kicker { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.1rem; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-3); font: 600 .78rem/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; }
 .title { font-size: clamp(2.1rem, 5.2vw, 3.5rem); font-weight: 800; line-height: 1.08; max-width: 22ch; margin-inline: auto; }
 .title .grad { background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .subtitle { margin: .9rem auto 0; max-width: 40ch; font: 500 clamp(1.15rem, 2.2vw, 1.5rem)/1.35 var(--font-display); color: var(--text-3); text-wrap: balance; }

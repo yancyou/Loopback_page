@@ -14,7 +14,7 @@ overview, the method, an interactive loop demo, and the paper's results as data-
 - `images/` — figures exported from the paper's PDFs (pdftoppm, 2400 px wide)
 - `video/` — the promo video's source: `promo.html` draws every frame as a function of time (`renderAt(t)`, 1920×1080),
   `render.py` screenshots it at 30 fps with Playwright and encodes a silent H.264 file with ffmpeg (`python3 render.py
-  --preview 3 21 43` for a few frames and a contact sheet; `python3 render.py` for the full 96 s video, with word-level captions burned in from the narration timings, and the two posters)
+  --preview 3 21 43` for a few frames and a contact sheet; `python3 render.py` for the full 134 s video, with word-level captions burned in from the narration timings, and the two posters)
 - `video/voiceover/` — the narration: `script.json` holds one sentence per scene with its time window, the words that are
   spoken and the caption wording. `vc.py source` reads each sentence with Chatterbox's built-in voice and `vc.py convert`
   converts it to the narrator's voice with ChatterboxVC (the reference recording is not part of this repository);
@@ -22,11 +22,11 @@ overview, the method, an interactive loop demo, and the paper's results as data-
   silent render (loudness-normalized AAC, WebVTT/SRT from the word timings) and `asr_check.py` compares a Whisper transcript
   with the script
 - `video/music/` — the music bed: `gen_music.py` generated the track with ACE-Step 1.5 and `cut.py` drops whole bars on the
-  beat grid to fit the video (`--drop 24 2` for the current cut); `pad.py` is the earlier synthesized placeholder. Generated
+  beat grid, or repeats them, to fit the video (`--bars 0:36 20:` plays bars 20–35 twice for the current 134 s cut); `pad.py` is the earlier synthesized placeholder. Generated
   audio stays out of git (`video/music/build/`)
 - `videos/` — `loopback_promo.mp4` (H.264 with narration and music, captions burned in), its captions
   `loopback_promo.vtt`/`.srt`, the title-card poster
-  (og:image) and the three-rules poster the hero shows before play
+  (og:image) and the results poster (the scale scene) the hero shows before play
 - `blog/` — the blog post source (see its own files)
 
 Fonts come from Google Fonts (Manrope, Noto Sans, JetBrains Mono) and MathJax from cdnjs; everything else is inline, so the
