@@ -240,7 +240,7 @@
         h('div', { 'class': 'rt-controls' }, h('span', { 'class': 'rt-controls__name', 'aria-hidden': 'true' }, 'Scale'), cseg)),
       chint, cscroller,
       h('div', { 'class': 'rt-foot' }, ctitle,
-        h('p', { 'class': 'rt-notes' }, 'Parameters are Transformer-only; extra forward FLOPs are relative to the standard Transformer. Training throughput and peak memory are per GPU on 8 H100s; hours are estimated from throughput. Prefill uses one H100. The underline marks the best looped rule in the column.')));
+        h('p', { 'class': 'rt-notes' }, 'Parameters are Transformer-only; extra forward FLOPs are relative to the standard Transformer. Training throughput and peak memory are per GPU on 8 H100s. Prefill uses one H100. The underline marks the best looped rule in the column.')));
     cm.innerHTML = ''; cm.appendChild(ccard);
     scrollHint(cscroller, chint);
     function crender() {
@@ -271,7 +271,7 @@
       });
       table.appendChild(tb);
       cscroller.innerHTML = ''; cscroller.appendChild(table); cscroller.scrollLeft = 0;
-      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to the standard Transformer’s forward FLOPs and pays for the read in memory traffic: ' + (s.key === '191M' ? '25%' : s.key === '374M' ? '23%' : '16%') + ' fewer training tokens per second.';
+      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to the standard Transformer’s forward FLOPs. The read’s cost is memory traffic, which the fused kernel streams once per read; at 3B the training-throughput gap to the standard Transformer is 6%.';
       chint.classList.remove('is-on'); setTimeout(function () { cscroller.dispatchEvent(new Event('scroll')); }, 0);
     }
     crender();

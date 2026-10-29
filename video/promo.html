@@ -8,20 +8,21 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@500;600;700&display=swap">
 <style>
 :root {
-  --navy: #0f4d92; --navy2: #1f6fb8; --teal: #0e8f81; --ink: #111a2b; --ink2: #2d3a4e; --ink3: #4f5f78; --muted: #6b7a92;
-  --line: #e1e7ef; --soft: #e8f0f9; --rose: #b64342; --grey: #767676; --dark: #4a5560;
-  --blueF: #d3e4f1; --blueS: #6f93b4; --peachF: #f1d9cd; --peachS: #c98f74; --greenF: #dfebd3; --greenS: #6f9a5e; --grayF: #eaeaea;
+  --navy: #7fb1e9; --navy2: #a8ccf4; --teal: #3cc0ad; --ink: #f4f6f9; --ink2: #d5dbe4; --ink3: #a3aebd; --muted: #7f8a99;
+  --line: #2a3340; --soft: #101722; --rose: #f07a78; --grey: #8a94a3; --dark: #c9d2de;
+  --blueF: #142a43; --blueS: #6fa0d6; --peachF: #3b261c; --peachS: #d79a7c; --greenF: #1b2a1a; --greenS: #7fae6b; --grayF: #1b2129;
 }
-html, body { margin: 0; background: #fff; }
-#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #fff; font-family: "Noto Sans", sans-serif; color: var(--ink2); }
-#glow { position: absolute; inset: 0; background: radial-gradient(55% 60% at 50% -5%, #e8f0f9 0%, rgba(232,240,249,0) 70%); }
+html, body { margin: 0; background: #06070a; }
+#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #06070a; font-family: "Noto Sans", sans-serif; color: var(--ink2); }
+#glow { position: absolute; inset: 0; background: radial-gradient(60% 55% at 50% -10%, rgba(127,177,233,.13) 0%, rgba(127,177,233,0) 70%),
+  radial-gradient(130% 100% at 50% 50%, rgba(0,0,0,0) 62%, rgba(0,0,0,.6) 100%); }
 .scene { position: absolute; inset: 0; opacity: 0; }
 .h { position: absolute; left: 0; right: 0; top: 112px; text-align: center; font: 800 62px/1.15 Manrope, sans-serif; color: var(--ink); letter-spacing: -.015em; }
 .h b { color: var(--navy); font-weight: 800; }
 .eyebrow { position: absolute; left: 0; right: 0; top: 70px; text-align: center; font: 700 22px/1 "Noto Sans", sans-serif; letter-spacing: .18em; color: var(--navy); text-transform: uppercase; }
 .brand { position: absolute; left: 72px; top: 54px; display: flex; align-items: center; gap: 14px; font: 700 26px/1 Manrope, sans-serif; color: var(--ink); opacity: 0; }
 .brand svg { width: 40px; height: 40px; }
-#bar { position: absolute; left: 0; bottom: 0; height: 7px; width: 0; background: linear-gradient(90deg, #0f4d92, #1f6fb8 50%, #0e8f81); }
+#bar { position: absolute; left: 0; bottom: 0; height: 5px; width: 0; background: linear-gradient(90deg, #7fb1e9, #a8ccf4 50%, #3cc0ad); }
 .fade { opacity: 0; }
 .caption { position: absolute; left: 0; right: 0; text-align: center; font: 500 36px/1.4 "Noto Sans", sans-serif; color: var(--ink2); }
 .caption b { color: var(--navy); font-weight: 700; }
@@ -32,7 +33,7 @@ svg text { font-family: "Noto Sans", sans-serif; }
 #t-logo { position: absolute; left: 50%; top: 170px; width: 132px; height: 132px; margin-left: -66px; }
 #t-kicker { position: absolute; left: 0; right: 0; top: 335px; text-align: center; font: 700 22px/1 "Noto Sans", sans-serif; letter-spacing: .2em; color: var(--ink3); }
 #t-title { position: absolute; left: 0; right: 0; top: 385px; text-align: center; font: 800 128px/1.05 Manrope, sans-serif; letter-spacing: -.02em; color: var(--ink); }
-.grad { background: linear-gradient(90deg, #0f4d92 0%, #1f6fb8 45%, #0e8f81 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.grad { background: linear-gradient(90deg, #9cc7f5 0%, #6fa9e6 45%, #3cc0ad 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 #t-sub { position: absolute; left: 0; right: 0; top: 548px; text-align: center; font: 500 46px/1.25 Manrope, sans-serif; color: var(--ink3); }
 #t-auth { position: absolute; left: 0; right: 0; top: 680px; text-align: center; font: 600 32px/1.5 "Noto Sans", sans-serif; color: var(--ink); }
 #t-auth sup { font-size: .6em; color: var(--ink3); }
@@ -45,15 +46,21 @@ svg text { font-family: "Noto Sans", sans-serif; }
 /* recipe */
 .step { position: absolute; left: 300px; display: flex; align-items: center; gap: 34px; font: 600 46px/1.3 "Noto Sans", sans-serif; color: var(--ink); }
 .step i { font-style: italic; font-family: "Noto Sans", serif; }
-.num { flex: none; display: grid; place-items: center; width: 74px; height: 74px; border-radius: 50%; background: var(--navy); color: #fff; font: 800 38px/1 Manrope, sans-serif; }
+.num { flex: none; display: grid; place-items: center; width: 74px; height: 74px; border-radius: 50%; background: var(--navy); color: #06070a; font: 800 38px/1 Manrope, sans-serif; }
 #r-formula { position: absolute; left: 0; right: 0; top: 720px; display: flex; justify-content: center; color: var(--ink); }
 #r-formula mjx-container { font-size: 300% !important; }
 /* tiles */
-.tile { position: absolute; top: 330px; width: 500px; height: 330px; border: 2px solid var(--line); border-radius: 26px; background: #fff; box-shadow: 0 2px 4px rgba(17,26,43,.04), 0 18px 36px -12px rgba(17,26,43,.16); padding: 44px 44px; box-sizing: border-box; }
+.tile { position: absolute; top: 330px; width: 500px; height: 330px; border: 1.5px solid #2c3746; border-radius: 26px; background: #0b0f15; padding: 44px 44px; box-sizing: border-box; }
 .tile .big { font: 800 84px/1 Manrope, sans-serif; color: var(--navy); letter-spacing: -.02em; }
 .tile .big small { font-size: .5em; letter-spacing: 0; }
 .tile .lbl { margin-top: 26px; font: 500 30px/1.4 "Noto Sans", sans-serif; color: var(--ink2); }
 .tile .lbl span { color: var(--muted); font-size: .85em; }
+.tile.w2 { width: 790px; height: 292px; padding: 36px 46px; }   /* two by two */
+.tile.w2 .lbl { margin-top: 20px; }
+.tile.w2 .lbl span { display: block; margin-top: 2px; }
+/* captions (render.py sets window.CUES from the voiceover's word times) */
+#subs { position: absolute; left: 150px; right: 150px; bottom: 34px; text-align: center; font: 700 46px/1.24 Manrope, sans-serif; color: #f4f6f9; letter-spacing: -.005em; }
+#subs span { display: inline-block; opacity: 0; }
 /* outro */
 #o-title { position: absolute; left: 0; right: 0; top: 250px; text-align: center; font: 800 112px/1.05 Manrope, sans-serif; letter-spacing: -.02em; color: var(--ink); }
 #o-lines { position: absolute; left: 0; right: 0; top: 440px; text-align: center; font: 600 50px/1.55 Manrope, sans-serif; color: var(--ink2); }
@@ -89,16 +96,14 @@ window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'loc
   <div class="scene" id="s-hook">
     <div class="h fade" id="hk-h">Looped Transformers apply the <b>same blocks</b> again and again</div>
     <svg id="hk-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
-    <div class="caption fade" id="hk-cap" style="top:930px">Sharing fixes the weights. It does not decide <b>how each update is reused</b>.</div>
   </div>
 
   <!-- 3 rules -->
   <div class="scene" id="s-rules">
     <div class="h fade" id="ru-h">One interface, three ways to <b>reuse the updates</b></div>
     <div class="panel fade" id="ru-p0" style="left:110px"><h4>Residual addition</h4><p>Every stored update keeps weight 1.</p><svg width="540" height="330" id="ru-c0"></svg><div class="lab" id="ru-l0"></div></div>
-    <div class="panel fade" id="ru-p1" style="left:690px"><h4>Joint softmax <span style="font-weight:600;color:#6b7a92;font-size:.72em">(AttnRes)</span></h4><p>Input and updates share one unit of weight.</p><svg width="540" height="330" id="ru-c1"></svg><div class="lab" id="ru-l1"></div></div>
-    <div class="panel fade" id="ru-p2" style="left:1270px"><h4 style="color:#0f4d92">Loopback</h4><p>Input stays at 1; decay sets the total, attention allocates it.</p><svg width="540" height="330" id="ru-c2"></svg><div class="lab" id="ru-l2"></div></div>
-    <div class="caption fade" id="ru-cap" style="top:968px;font-size:32px">Addition grows without bound; the joint softmax shrinks the input. <b>Loopback keeps both under control.</b></div>
+    <div class="panel fade" id="ru-p1" style="left:690px"><h4>Joint softmax <span style="font-weight:600;color:#7f8a99;font-size:.72em">(AttnRes)</span></h4><p>Input and updates share one unit of weight.</p><svg width="540" height="330" id="ru-c1"></svg><div class="lab" id="ru-l1"></div></div>
+    <div class="panel fade" id="ru-p2" style="left:1270px"><h4 style="color:#7fb1e9">Loopback</h4><p>Input stays at 1; decay sets the total, attention allocates it.</p><svg width="540" height="330" id="ru-c2"></svg><div class="lab" id="ru-l2"></div></div>
   </div>
 
   <!-- 4 recipe -->
@@ -109,33 +114,39 @@ window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'loc
     <div class="step fade" id="rc-2" style="top:430px"><span class="num">2</span><span>Keep the shared stack's input on its own path, at weight 1.</span></div>
     <div class="step fade" id="rc-3" style="top:560px"><span class="num">3</span><span>Decay sets the total update weight; attention allocates it.</span></div>
     <div id="r-formula" class="fade">\( \displaystyle \boldsymbol h_{s+1}=\boldsymbol h_0+\sum_{i\le s} c_{s,i}\,\boldsymbol\delta_i,\qquad \sum_{i\le s} c_{s,i}=B_s \)</div>
-    <div class="note fade" id="rc-n" style="top:935px">At every visit end <i>B</i><sub><i>s</i></sub> &le; <i>K&lambda;</i>/(1&minus;<i>&lambda;</i>). Zero queries give the decay-only loop; &lambda; = 1 with zero queries gives ordinary addition.</div>
+    <div class="note fade" id="rc-n" style="top:845px">At every visit end <i>B</i><sub><i>s</i></sub> &le; <i>K&lambda;</i>/(1&minus;<i>&lambda;</i>). Zero queries give the decay-only loop; &lambda; = 1 with zero queries gives ordinary addition.</div>
   </div>
 
   <!-- 5 scale -->
   <div class="scene" id="s-scale">
     <div class="h fade" id="sc-h">Lower loss with <b>40&ndash;75%</b> of the parameters, 191M to 3B</div>
     <svg id="sc-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
-    <div class="note fade" id="sc-n" style="top:972px">Same executed depth and training tokens at every scale &middot; held-out ClimbMix validation loss</div>
+    <div class="note fade" id="sc-n" style="top:212px">Same executed depth and training tokens at every scale &middot; held-out ClimbMix validation loss</div>
   </div>
 
   <!-- 6 nine rules -->
   <div class="scene" id="s-nine">
     <div class="h fade" id="nn-h">Best of <b>nine models</b> at 374M, 32 layers</div>
     <svg id="nn-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
-    <div class="caption fade" id="nn-cap" style="top:968px;font-size:32px">Also the highest thirteen-task mean and the best WikiText perplexity of the nine.</div>
   </div>
 
-  <!-- 7 efficiency -->
+  <!-- 7 more loops at inference -->
+  <div class="scene" id="s-visits">
+    <div class="h fade" id="vi-h">Extra loops at inference: Loopback degrades <b>far less</b></div>
+    <div class="note fade" id="vi-n" style="top:212px">No retraining &middot; extra visits reuse the last trained visit's queries &middot; held-out ClimbMix validation loss</div>
+    <svg id="vi-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+  </div>
+
+  <!-- 8 efficiency -->
   <div class="scene" id="s-eff">
     <div class="h fade" id="ef-h">The read costs memory traffic, <b>not FLOPs</b></div>
-    <div class="tile fade" id="ef-1" style="left:170px"><div class="big">+0.08%</div><div class="lbl">extra forward FLOPs<br><span>at 374M; same blocks per token</span></div></div>
-    <div class="tile fade" id="ef-2" style="left:710px"><div class="big">Same</div><div class="lbl">KV cache as Standard<br><span>same executed depth and heads</span></div></div>
-    <div class="tile fade" id="ef-3" style="left:1250px"><div class="big">23&ndash;44%</div><div class="lbl">smaller bf16 weights<br><span>4.16 vs 5.43 GiB at 3B</span></div></div>
-    <div class="note fade" id="ef-n" style="top:740px">A fused Triton kernel streams the stored updates once per read: 19&ndash;33% step-time overhead.</div>
+    <div class="tile w2 fade" id="ef-1" style="left:152px;top:244px"><div class="big">+0.04&ndash;0.08%</div><div class="lbl">extra forward FLOPs<span>191M&ndash;778M; same blocks per token</span></div></div>
+    <div class="tile w2 fade" id="ef-2" style="left:978px;top:244px"><div class="big">6%</div><div class="lbl">training-throughput gap at 3B<span>fused Triton kernel; same eight H100s and batch layout<br>Loopback 23.4k vs Standard 24.8k tokens/s per GPU</span></div></div>
+    <div class="tile w2 fade" id="ef-3" style="left:152px;top:564px"><div class="big">Same</div><div class="lbl">KV cache as the standard Transformer<span>same executed depth and heads</span></div></div>
+    <div class="tile w2 fade" id="ef-4" style="left:978px;top:564px"><div class="big">23&ndash;44%</div><div class="lbl">smaller bf16 weights<span>0.20 vs 0.36 GiB at 191M &middot; 4.16 vs 5.43 GiB at 3B</span></div></div>
   </div>
 
-  <!-- 8 outro -->
+  <!-- 9 outro -->
   <div class="scene" id="s-outro">
     <div id="o-title" class="fade"><span class="grad">Loopback</span> Transformer</div>
     <div id="o-lines" class="fade">Store updates. Keep the input on its own path.<br><b>Decay sets the total. Attention allocates it.</b></div>
@@ -143,16 +154,18 @@ window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'loc
     <div id="o-aff" class="fade">University of Wisconsin&ndash;Madison &nbsp;&middot;&nbsp; UC Santa Barbara &nbsp;&middot;&nbsp; Caltech &nbsp;&middot;&nbsp; Microsoft</div>
   </div>
 
+  <div id="subs"></div>
   <div id="bar"></div>
 </div>
 
 <script>
 'use strict';
-var DUR = 74;
-var SC = { title: [0, 5.5], hook: [5.5, 14], rules: [14, 30], recipe: [30, 39], scale: [39, 51], nine: [51, 59.5], eff: [59.5, 66.5], outro: [66.5, 74] };
+var DUR = 96.4;
+var SC = { title: [0, 6.5], hook: [6.5, 17], rules: [17, 35.5], recipe: [35.5, 46], scale: [46, 58.5], nine: [58.5, 67], visits: [67, 76.5],
+           eff: [76.5, 87.9], outro: [87.9, 96.4] };
 var NS = 'http://www.w3.org/2000/svg';
-var C = { navy: '#0f4d92', teal: '#0e8f81', ink: '#111a2b', ink2: '#2d3a4e', ink3: '#4f5f78', muted: '#6b7a92', line: '#e1e7ef', grid: '#edf1f6',
-          rose: '#b64342', grey: '#767676', dark: '#4a5560', blueF: '#d3e4f1', blueS: '#6f93b4', peachF: '#f1d9cd', peachS: '#c98f74', grayF: '#eaeaea', band: '#f3f6fa' };
+var C = { navy: '#7fb1e9', teal: '#3cc0ad', ink: '#f4f6f9', ink2: '#d5dbe4', ink3: '#a3aebd', muted: '#7f8a99', line: '#2a3340', grid: '#1a212b',
+          rose: '#f07a78', grey: '#8a94a3', dark: '#c9d2de', blueF: '#142a43', blueS: '#6fa0d6', peachF: '#3b261c', peachS: '#d79a7c', grayF: '#1b2129', band: '#0d1218' };
 function $(id) { return document.getElementById(id); }
 function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
 function prog(t, a, b) { return clamp((t - a) / (b - a), 0, 1); }
@@ -185,17 +198,17 @@ var HK = { cx: 560, cy: 585, r: 215, K: 4, R: 3 };
   el('rect', { x: 850, y: 335, width: 120, height: 74, rx: 12, fill: C.grayF, stroke: C.dark, 'stroke-width': 2.5 }, g);
   txt(g, 910, 382, 'C', { 'text-anchor': 'middle', 'font-size': 32, 'font-weight': 700, fill: C.ink });
   txt(g, 910, 440, 'coda', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted });
-  el('line', { x1: 650, y1: 372, x2: 846, y2: 372, stroke: '#9aa6b6', 'stroke-width': 2.5, 'stroke-dasharray': '6 7', 'marker-end': 'url(#arrg)' }, g);
+  el('line', { x1: 650, y1: 372, x2: 846, y2: 372, stroke: '#5b6777', 'stroke-width': 2.5, 'stroke-dasharray': '6 7', 'marker-end': 'url(#arrg)' }, g);
   var defs = el('defs', {}, s);
   var m = el('marker', { id: 'arr', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 8, markerHeight: 8, orient: 'auto-start-reverse' }, defs);
   el('path', { d: 'M0 0 L10 5 L0 10 z', fill: C.dark }, m);
   var m2 = el('marker', { id: 'arrg', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 8, markerHeight: 8, orient: 'auto-start-reverse' }, defs);
-  el('path', { d: 'M0 0 L10 5 L0 10 z', fill: '#9aa6b6' }, m2);
+  el('path', { d: 'M0 0 L10 5 L0 10 z', fill: '#5b6777' }, m2);
   // ring
-  el('circle', { cx: HK.cx, cy: HK.cy, r: HK.r, fill: 'none', stroke: '#c9d2de', 'stroke-width': 3 }, g);
+  el('circle', { cx: HK.cx, cy: HK.cy, r: HK.r, fill: 'none', stroke: '#2f3a48', 'stroke-width': 3 }, g);
   for (var a = 0; a < 4; a++) {  // direction chevrons between blocks
     var ang = -Math.PI / 2 + (a + .5) * Math.PI / 2, x = HK.cx + HK.r * Math.cos(ang), y = HK.cy + HK.r * Math.sin(ang);
-    el('path', { d: 'M-9 -9 L5 0 L-9 9', fill: 'none', stroke: '#b4bfcc', 'stroke-width': 3.5, 'stroke-linecap': 'round', transform: 'translate(' + x + ' ' + y + ') rotate(' + ((ang + Math.PI / 2) * 180 / Math.PI) + ')' }, g);
+    el('path', { d: 'M-9 -9 L5 0 L-9 9', fill: 'none', stroke: '#4a5666', 'stroke-width': 3.5, 'stroke-linecap': 'round', transform: 'translate(' + x + ' ' + y + ') rotate(' + ((ang + Math.PI / 2) * 180 / Math.PI) + ')' }, g);
   }
   HK.blocks = [];
   for (var k = 0; k < HK.K; k++) {
@@ -208,7 +221,7 @@ var HK = { cx: 560, cy: 585, r: 215, K: 4, R: 3 };
   }
   txt(g, HK.cx, HK.cy - 6, 'K = 4 shared blocks', { 'text-anchor': 'middle', 'font-size': 26, fill: C.ink3 });
   HK.visit = txt(g, HK.cx, HK.cy + 34, 'visit 1 of 3', { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.navy });
-  HK.tok = el('circle', { r: 15, fill: C.navy, stroke: '#fff', 'stroke-width': 4 }, g);
+  HK.tok = el('circle', { r: 15, fill: C.navy, stroke: '#06070a', 'stroke-width': 4 }, g);
   // history grid
   var hx = 1090, hy = 330, cw = 150, ch = 112, gap = 18;
   txt(g, hx + 2 * (cw + gap) - gap / 2, hy - 34, 'history of updates, one card per application', { 'text-anchor': 'middle', 'font-size': 24, fill: C.muted });
@@ -217,7 +230,7 @@ var HK = { cx: 560, cy: 585, r: 215, K: 4, R: 3 };
     txt(g, hx - 24, hy + v * (ch + gap) + ch / 2 + 9, 'visit ' + (v + 1), { 'text-anchor': 'end', 'font-size': 24, fill: C.muted });
     for (var j = 0; j < HK.K; j++) {
       var x0 = hx + j * (cw + gap), y0 = hy + v * (ch + gap);
-      el('rect', { x: x0, y: y0, width: cw, height: ch, rx: 12, fill: 'none', stroke: '#d5dce6', 'stroke-width': 2, 'stroke-dasharray': '7 7' }, g);
+      el('rect', { x: x0, y: y0, width: cw, height: ch, rx: 12, fill: 'none', stroke: '#2a3340', 'stroke-width': 2, 'stroke-dasharray': '7 7' }, g);
       var cg = el('g', { opacity: 0 }, g);
       el('rect', { x: x0, y: y0, width: cw, height: ch, rx: 12, fill: j % 2 ? C.peachF : C.blueF, stroke: j % 2 ? C.peachS : C.blueS, 'stroke-width': 2.5 }, cg);
       var ct = txt(cg, x0 + cw / 2, y0 + ch / 2 + 12, '', { 'text-anchor': 'middle', 'font-size': 34, 'font-style': 'italic', fill: C.ink });
@@ -249,7 +262,6 @@ function renderHook(t) {
     c.g.setAttribute('opacity', p);
     c.g.setAttribute('transform', 'translate(' + (c.x * (1 - (.85 + .15 * p))) + ' ' + (c.y * (1 - (.85 + .15 * p))) + ') scale(' + (.85 + .15 * p) + ')');
   });
-  appear($('hk-cap'), t, r[1] - 2.2, .6);
 }
 
 /* ---------------------------------------------------------------- scene 3: three rules */
@@ -260,13 +272,13 @@ RU.charts = [0, 1, 2].map(function (p) {
   if (p === 2) {
     for (var v = 0; v < 3; v++) {
       var bx = RU.x0 + 54 + v * RU.K * (RU.bw + RU.gap) - 4;
-      el('rect', { x: bx, y: RU.y0, width: RU.K * (RU.bw + RU.gap) - 1, height: RU.ch, fill: v % 2 ? '#fff' : C.band }, s);
+      el('rect', { x: bx, y: RU.y0, width: RU.K * (RU.bw + RU.gap) - 1, height: RU.ch, fill: v % 2 ? '#06070a' : C.band }, s);
       txt(s, bx + (RU.K * (RU.bw + RU.gap)) / 2, RU.y0 + 26, 'visit ' + (v + 1), { 'text-anchor': 'middle', 'font-size': 19, fill: C.muted });
     }
   }
   [0, .5, 1].forEach(function (yv) {
     var y = RU.y0 + RU.ch - yv * RU.ch;
-    el('line', { x1: RU.x0, x2: RU.W - 6, y1: y, y2: y, stroke: yv === 0 ? '#9aa6b6' : C.grid, 'stroke-width': yv === 0 ? 2 : 1.5 }, s);
+    el('line', { x1: RU.x0, x2: RU.W - 6, y1: y, y2: y, stroke: yv === 0 ? '#3a4656' : C.grid, 'stroke-width': yv === 0 ? 2 : 1.5 }, s);
     txt(s, RU.x0 - 8, y + 7, yv === .5 ? '0.5' : String(yv), { 'text-anchor': 'end', 'font-size': 19, fill: C.muted, class: 'mono' });
   });
   o.input = el('rect', { x: RU.x0 + 10, y: RU.y0, width: RU.bw + 6, height: 0, rx: 4, fill: C.dark }, s);
@@ -274,7 +286,7 @@ RU.charts = [0, 1, 2].map(function (p) {
   txt(s, RU.x0 + 54 + 6 * (RU.bw + RU.gap), RU.y0 + RU.ch + 30, 'stored updates, oldest → newest', { 'text-anchor': 'middle', 'font-size': 20, fill: C.muted });
   for (var i = 0; i < RU.n; i++) {
     var x = RU.x0 + 54 + i * (RU.bw + RU.gap);
-    o.ghosts.push(el('rect', { x: x - 1, y: 0, width: RU.bw + 2, height: 0, rx: 4, fill: 'none', stroke: '#9aa6b6', 'stroke-width': 2, 'stroke-dasharray': '4 4', opacity: 0 }, s));
+    o.ghosts.push(el('rect', { x: x - 1, y: 0, width: RU.bw + 2, height: 0, rx: 4, fill: 'none', stroke: '#6b7787', 'stroke-width': 2, 'stroke-dasharray': '4 4', opacity: 0 }, s));
     o.bars.push(el('rect', { x: x, y: RU.y0 + RU.ch, width: RU.bw, height: 0, rx: 4, fill: [C.grey, C.rose, C.navy][p] }, s));
   }
   return o;
@@ -318,12 +330,12 @@ function renderRules(t) {
   var A = RU.charts[0];
   setBar(A.input, 1, true);
   A.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? 1 : i === n - 1 ? easeOut(grow) : 0, i < n); });
-  $('ru-l0').innerHTML = 'input 1 &middot; total ' + (u === 0 ? 0 : n) + '<br><span style="color:#b64342">grows with depth</span>';
+  $('ru-l0').innerHTML = 'input 1 &middot; total ' + (u === 0 ? 0 : n) + '<br><span style="color:#f07a78">grows with depth</span>';
   // joint softmax
   var S = RU.charts[1], ws = 1 / (n + 1);
   setBar(S.input, u === 0 ? 1 : ws, true);
   S.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? ws : i === n - 1 ? ws * easeOut(grow) : 0, i < n); });
-  $('ru-l1').innerHTML = 'input 1/' + (u === 0 ? 1 : n + 1) + ' &middot; total ' + (u === 0 ? '0' : fmt2(n / (n + 1))) + '<br><span style="color:#b64342">the input shrinks</span>';
+  $('ru-l1').innerHTML = 'input 1/' + (u === 0 ? 1 : n + 1) + ' &middot; total ' + (u === 0 ? '0' : fmt2(n / (n + 1))) + '<br><span style="color:#f07a78">the input shrinks</span>';
   // Loopback
   var L = RU.charts[2], c0 = priorWeights(n, tl.dec), ca = attnWeights(RU.n), B = c0.reduce(function (a, b) { return a + b; }, 0);
   setBar(L.input, 1, true);
@@ -337,12 +349,11 @@ function renderRules(t) {
     gh.setAttribute('height', c0[i] ? c0[i] * RU.ch : 0); gh.setAttribute('y', RU.y0 + RU.ch - (c0[i] || 0) * RU.ch);
   });
   var atEnd = tl.dec >= 1;
-  $('ru-l2').innerHTML = 'input 1 &middot; total ' + (u === 0 ? '0.00' : fmt2(B)) + (atEnd ? ' &le; 1.33' : '') + '<br><span style="color:#0e8f81">' +
+  $('ru-l2').innerHTML = 'input 1 &middot; total ' + (u === 0 ? '0.00' : fmt2(B)) + (atEnd ? ' &le; 1.33' : '') + '<br><span style="color:#3cc0ad">' +
     (realloc > .02 ? 'attention moves weight; same total' : tl.dec > 0 ? 'visit end: every weight ×λ, λ = 1/4' : 'each new update enters at weight 1') + '</span>';
   var dim = ease(prog(t, r[0] + 12, r[0] + 12.6));
   $('ru-p0').style.opacity = Math.min(parseFloat($('ru-p0').style.opacity) || 0, 1 - .55 * dim);
   $('ru-p1').style.opacity = Math.min(parseFloat($('ru-p1').style.opacity) || 0, 1 - .55 * dim);
-  appear($('ru-cap'), t, r[0] + 12, .6);
 }
 
 /* ---------------------------------------------------------------- scene 4: recipe */
@@ -368,26 +379,26 @@ var SCL = [
   txt(g, X0, 300, 'Parameters relative to Standard', { 'font-size': 26, 'font-weight': 600, fill: C.ink });
   [0, 25, 50, 75, 100].forEach(function (v) {
     var y = Y0 - v / ymax * Hc;
-    el('line', { x1: X0, x2: X0 + W, y1: y, y2: y, stroke: v ? C.grid : '#9aa6b6', 'stroke-width': v ? 1.5 : 2 }, g);
+    el('line', { x1: X0, x2: X0 + W, y1: y, y2: y, stroke: v ? C.grid : '#3a4656', 'stroke-width': v ? 1.5 : 2 }, g);
     txt(g, X0 - 12, y + 8, v + '%', { 'text-anchor': 'end', 'font-size': 21, fill: C.muted, class: 'mono' });
   });
   SCALE_BARS = [];
   SCL.forEach(function (d, i) {
     var cx = X0 + 76 + i * 152;
-    var bd = el('rect', { x: cx - 62, y: Y0, width: 56, height: 0, rx: 5, fill: '#9aa3ad' }, g);
+    var bd = el('rect', { x: cx - 62, y: Y0, width: 56, height: 0, rx: 5, fill: '#566170' }, g);
     var bl = el('rect', { x: cx + 6, y: Y0, width: 56, height: 0, rx: 5, fill: C.navy }, g);
     var lb = txt(g, cx + 34, Y0, d.pct, { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.navy, opacity: 0 });
     txt(g, cx, Y0 + 40, d.s, { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 600, fill: C.ink2 });
     SCALE_BARS.push({ bd: bd, bl: bl, lb: lb, d: d, Y0: Y0, Hc: Hc, ymax: ymax });
   });
-  el('rect', { x: X0 + 470, y: 286, width: 22, height: 22, rx: 4, fill: '#9aa3ad' }, g); txt(g, X0 + 502, 305, 'Standard', { 'font-size': 23, fill: C.ink2 });
+  el('rect', { x: X0 + 470, y: 286, width: 22, height: 22, rx: 4, fill: '#566170' }, g); txt(g, X0 + 502, 305, 'Standard', { 'font-size': 23, fill: C.ink2 });
   el('rect', { x: X0 + 630, y: 286, width: 22, height: 22, rx: 4, fill: C.navy }, g); txt(g, X0 + 662, 305, 'Loopback', { 'font-size': 23, fill: C.ink2 });
   // right: loss change
   var RX = 1180, RW = 560, zeroX = RX + RW, scale = RW / 0.045;
   txt(g, RX, 300, 'Validation loss, Loopback minus Standard', { 'font-size': 26, 'font-weight': 600, fill: C.ink });
   [-0.04, -0.03, -0.02, -0.01, 0].forEach(function (v) {
     var x = zeroX + v * scale;
-    el('line', { x1: x, x2: x, y1: 340, y2: 860, stroke: v ? C.grid : '#9aa6b6', 'stroke-width': v ? 1.5 : 2 }, g);
+    el('line', { x1: x, x2: x, y1: 340, y2: 860, stroke: v ? C.grid : '#3a4656', 'stroke-width': v ? 1.5 : 2 }, g);
     txt(g, x, 896, v === 0 ? '0' : '−' + Math.abs(v).toFixed(2), { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted, class: 'mono' });
   });
   txt(g, RX + RW / 2, 934, 'nats · lower is better', { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted });
@@ -417,7 +428,7 @@ function renderScale(t) {
     o.b.setAttribute('x', o.zeroX - w); o.b.setAttribute('width', w);
     var inside = w > 160;
     o.lb.setAttribute('x', inside ? o.zeroX - w + 16 : o.zeroX - w - 14); o.lb.setAttribute('text-anchor', inside ? 'start' : 'end');
-    o.lb.setAttribute('fill', inside ? '#fff' : '#111a2b'); o.lb.setAttribute('opacity', prog(t, r[0] + 4.4 + i * .3, r[0] + 4.9 + i * .3));
+    o.lb.setAttribute('fill', inside ? '#04110e' : '#f4f6f9'); o.lb.setAttribute('opacity', prog(t, r[0] + 4.4 + i * .3, r[0] + 4.9 + i * .3));
   });
   appear($('sc-n'), t, r[0] + 6.2, .6);
 }
@@ -439,10 +450,10 @@ var NN = [];
   NINE.forEach(function (d, i) {
     var y = Y0 + i * rh + rh / 2, ours = d[0] === 'Loopback', dense = d[0] === 'Standard';
     var row = el('g', { opacity: 0 }, g);
-    if (ours) { el('rect', { x: 150, y: y - rh / 2 + 4, width: 1530, height: rh - 8, rx: 12, fill: '#e6f3f0' }, row); }
+    if (ours) { el('rect', { x: 150, y: y - rh / 2 + 4, width: 1530, height: rh - 8, rx: 12, fill: 'rgba(60,192,173,0.13)' }, row); }
     txt(row, X0 - 30, y + 9, d[0], { 'text-anchor': 'end', 'font-size': 28, 'font-weight': ours ? 800 : 500, fill: ours ? C.teal : C.ink2 });
-    el('line', { x1: X0, x2: X0 + W, y1: y, y2: y, stroke: ours ? '#bfe3dc' : '#edf1f6', 'stroke-width': 2 }, row);
-    el('circle', { cx: xOf(d[1]), cy: y, r: ours ? 13 : 10, fill: dense ? '#fff' : ours ? C.teal : C.navy, stroke: dense ? C.dark : '#fff', 'stroke-width': dense ? 3.5 : 3 }, row);
+    el('line', { x1: X0, x2: X0 + W, y1: y, y2: y, stroke: ours ? 'rgba(60,192,173,0.38)' : '#161c25', 'stroke-width': 2 }, row);
+    el('circle', { cx: xOf(d[1]), cy: y, r: ours ? 13 : 10, fill: dense ? '#06070a' : ours ? C.teal : C.navy, stroke: dense ? C.dark : '#06070a', 'stroke-width': dense ? 3.5 : 3 }, row);
     txt(row, xOf(d[1]) + 24, y + 9, d[1].toFixed(4), { 'font-size': 24, 'font-weight': ours ? 700 : 500, fill: ours ? C.ink : C.ink3, class: 'mono' });
     txt(row, 1560, y + 9, d[2].toFixed(2), { 'text-anchor': 'middle', 'font-size': 25, 'font-weight': ours ? 700 : 500, fill: ours ? C.ink : C.ink3, class: 'mono' });
     NN.push(row);
@@ -456,15 +467,104 @@ function renderNine(t) {
     var p = easeOut(prog(t, r[0] + .8 + i * .28, r[0] + 1.3 + i * .28));
     row.setAttribute('opacity', p); row.setAttribute('transform', 'translate(' + ((1 - p) * -30) + ' 0)');
   });
-  appear($('nn-cap'), t, r[0] + 4.4, .6);
 }
 
-/* ---------------------------------------------------------------- scene 7: efficiency, 8: outro */
+/* ---------------------------------------------------------------- scene 7: more loops at inference than in training */
+// Validation loss at R' visits at inference, from the trained count up, no retraining (paper fig:scale-large-visits).
+var VIS = [
+  { title: '(a) 191M', sub: 'trained with 4 visits', X0: 265, R: [4, 5, 6, 8], lo: 2.53, hi: 3.20, ticks: [2.6, 2.8, 3.0, 3.2],
+    loop: [2.619, 2.639, 2.664, 2.679], plain: [2.680, 2.734, 2.852, 3.134], dLoop: '+0.06', dPlain: '+0.45' },
+  { title: '(b) 374M, 32 layers', sub: 'trained with 2 visits', X0: 1145, R: [2, 3, 4], lo: 2.35, hi: 2.75, ticks: [2.4, 2.5, 2.6, 2.7],
+    loop: [2.401, 2.427, 2.475], plain: [2.437, 2.535, 2.707], dLoop: '+0.07', dPlain: '+0.27' }
+];
+var VI = { W: 600, top: 400, bot: 800, padL: 60, span: 390 };
+(function buildVisits() {
+  var s = $('vi-svg'), g = el('g', { id: 'vi-g' }, s);
+  // legend
+  var lx = 640, ly = 300;
+  el('line', { x1: lx, x2: lx + 46, y1: ly, y2: ly, stroke: C.navy, 'stroke-width': 4.5, 'stroke-linecap': 'round' }, g);
+  el('circle', { cx: lx + 23, cy: ly, r: 9, fill: C.navy, stroke: '#06070a', 'stroke-width': 3 }, g);
+  txt(g, lx + 60, ly + 8, 'Loopback', { 'font-size': 23, fill: C.ink2 });
+  var px = lx + 220;
+  el('line', { x1: px, x2: px + 46, y1: ly, y2: ly, stroke: C.grey, 'stroke-width': 4, 'stroke-linecap': 'round' }, g);
+  el('rect', { x: px + 15, y: ly - 8, width: 16, height: 16, fill: '#06070a', stroke: C.grey, 'stroke-width': 3.5 }, g);
+  txt(g, px + 60, ly + 8, 'Plain (ordinary residual addition)', { 'font-size': 23, fill: C.ink2 });
+  VIS.forEach(function (d) {
+    var X0 = d.X0, Rmin = d.R[0], Rmax = d.R[d.R.length - 1];
+    var xOf = function (R) { return X0 + VI.padL + (R - Rmin) / (Rmax - Rmin) * VI.span; };
+    var yOf = function (v) { return VI.bot - (v - d.lo) / (d.hi - d.lo) * (VI.bot - VI.top); };
+    var pg = el('g', {}, g);
+    var tt = txt(pg, X0 + VI.W / 2, 362, d.title, { 'text-anchor': 'middle', 'font-size': 28, 'font-weight': 700, fill: C.ink });
+    var ts = el('tspan', { 'font-size': 23, 'font-weight': 400, fill: C.muted }, tt); ts.textContent = '  ·  ' + d.sub;
+    // trained count: a band behind it
+    var xt = xOf(Rmin);
+    el('rect', { x: xt - 32, y: VI.top, width: 64, height: VI.bot - VI.top, rx: 10, fill: C.band }, pg);
+    txt(pg, xt, VI.top + 28, 'trained', { 'text-anchor': 'middle', 'font-size': 19, fill: C.muted });
+    d.ticks.forEach(function (v) {
+      var y = yOf(v);
+      el('line', { x1: X0, x2: X0 + VI.W, y1: y, y2: y, stroke: C.grid, 'stroke-width': 1.5 }, pg);
+      txt(pg, X0 - 12, y + 7, v.toFixed(1), { 'text-anchor': 'end', 'font-size': 21, fill: C.muted, class: 'mono' });
+    });
+    el('line', { x1: X0, x2: X0 + VI.W, y1: VI.bot, y2: VI.bot, stroke: '#3a4656', 'stroke-width': 2 }, pg);
+    el('line', { x1: X0, x2: X0, y1: VI.top, y2: VI.bot, stroke: '#3a4656', 'stroke-width': 2 }, pg);
+    var yl = txt(pg, 0, 0, 'validation loss', { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted });
+    yl.setAttribute('transform', 'translate(' + (X0 - 70) + ' ' + ((VI.top + VI.bot) / 2) + ') rotate(-90)');
+    d.R.forEach(function (R, i) {
+      txt(pg, xOf(R), VI.bot + 38, R + (i ? '' : '*'), { 'text-anchor': 'middle', 'font-size': 25, 'font-weight': i ? 500 : 700, fill: i ? C.ink2 : C.ink });
+    });
+    // series: Plain first, so Loopback draws on top
+    d.series = [['plain', C.grey, d.dPlain, C.ink3], ['loop', C.navy, d.dLoop, C.navy]].map(function (q) {
+      var vals = d[q[0]], pts = vals.map(function (v, i) { return [xOf(d.R[i]), yOf(v)]; }), up = q[0] === 'plain';
+      var path = el('path', { d: '', fill: 'none', stroke: q[1], 'stroke-width': up ? 4 : 4.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, pg);
+      var marks = pts.map(function (p) {
+        return up ? el('rect', { x: p[0] - 9, y: p[1] - 9, width: 18, height: 18, fill: '#06070a', stroke: q[1], 'stroke-width': 3.5, opacity: 0 }, pg)
+                  : el('circle', { cx: p[0], cy: p[1], r: 10, fill: q[1], stroke: '#06070a', 'stroke-width': 3, opacity: 0 }, pg);
+      });
+      // trained value: Plain above its marker, Loopback below; at the end: the rise, then the value
+      var v0 = txt(pg, pts[0][0], pts[0][1] + (up ? -22 : 37), vals[0].toFixed(3), { 'text-anchor': 'middle', 'font-size': 22, 'font-weight': 600, fill: up ? C.ink3 : C.navy, class: 'mono', opacity: 0 });
+      var e = pts[pts.length - 1];
+      var end = el('g', { opacity: 0 }, pg);
+      txt(end, e[0] + 28, e[1] + 6, q[2], { style: 'font-family: Manrope, sans-serif', 'font-size': 34, 'font-weight': 800, fill: q[3] });
+      txt(end, e[0] + 30, e[1] + 33, vals[vals.length - 1].toFixed(3), { 'font-size': 20, fill: up ? C.muted : C.navy, class: 'mono', opacity: up ? 1 : .8 });
+      return { pts: pts, path: path, marks: marks, v0: v0, end: end };
+    });
+  });
+  txt(g, 960, 890, 'loop visits at inference  (* trained count)', { 'text-anchor': 'middle', 'font-size': 23, fill: C.muted });
+})();
+function partialPath(pts, xcut) {                 // the polyline up to x = xcut
+  var d = 'M' + pts[0][0] + ' ' + pts[0][1];
+  for (var i = 1; i < pts.length; i++) {
+    var a = pts[i - 1], b = pts[i];
+    if (b[0] <= xcut) { d += ' L' + b[0] + ' ' + b[1]; continue; }
+    var f = (xcut - a[0]) / (b[0] - a[0]);
+    if (f > 0) { d += ' L' + lerp(a[0], b[0], f).toFixed(2) + ' ' + lerp(a[1], b[1], f).toFixed(2); }
+    break;
+  }
+  return d;
+}
+function renderVisits(t) {
+  var r = SC.visits;
+  appear($('vi-h'), t, r[0] + .2, .6); appear($('vi-n'), t, r[0] + .5, .6);
+  $('vi-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.2));
+  VIS.forEach(function (d, k) {
+    var t0 = r[0] + 1.7 + k * .8, t1 = t0 + 1.9, u = ease(prog(t, t0, t1));
+    var pop = easeOut(prog(t, r[0] + 1.1 + k * .2, r[0] + 1.5 + k * .2));
+    d.series.forEach(function (sr) {
+      var xa = sr.pts[0][0], xb = sr.pts[sr.pts.length - 1][0], xc = lerp(xa, xb, u);
+      sr.path.setAttribute('d', u > 0 ? partialPath(sr.pts, xc) : '');
+      sr.marks.forEach(function (m, i) { m.setAttribute('opacity', i ? clamp((xc - sr.pts[i][0] + 14) / 14, 0, 1) : pop); });
+      sr.v0.setAttribute('opacity', pop);
+      sr.end.setAttribute('opacity', easeOut(prog(t, t1 - .1, t1 + .45)));
+    });
+  });
+}
+
+/* ---------------------------------------------------------------- scene 8: efficiency, 9: outro */
 function renderEff(t) {
   var r = SC.eff;
   appear($('ef-h'), t, r[0] + .2, .6);
-  appear($('ef-1'), t, r[0] + .7, .6, 40); appear($('ef-2'), t, r[0] + 1.1, .6, 40); appear($('ef-3'), t, r[0] + 1.5, .6, 40);
-  appear($('ef-n'), t, r[0] + 2.3, .6);
+  appear($('ef-1'), t, r[0] + .7, .6, 40); appear($('ef-2'), t, r[0] + 1.1, .6, 40);
+  appear($('ef-3'), t, r[0] + 1.5, .6, 40); appear($('ef-4'), t, r[0] + 1.9, .6, 40);
 }
 function renderOutro(t) {
   var r = SC.outro;
@@ -479,9 +579,30 @@ function renderTitle(t) {
   appear($('t-auth'), t, 2.3, .7); appear($('t-aff'), t, 2.7, .7);
 }
 
+/* ---------------------------------------------------------------- burned-in captions */
+// window.CUES (render.py): [{start, end, last, words: [[text, t], ...]}], one per spoken phrase. Each word fades up when it
+// is spoken and stays white; the word being spoken is in the accent colour. Title and outro carry their words on screen.
+var subsCue = null;
+function renderSubs(t) {
+  var cues = window.CUES || [], box = $('subs'), cue = null, i;
+  for (i = 0; i < cues.length; i++) { if (t >= cues[i].start && t < cues[i].end) { cue = cues[i]; break; } }
+  if (cue !== subsCue) {
+    box.textContent = ''; subsCue = cue;
+    if (cue) { cue.words.forEach(function (w, k) { if (k) { box.appendChild(document.createTextNode(' ')); } var sp = document.createElement('span'); sp.textContent = w[0]; box.appendChild(sp); }); }
+  }
+  if (!cue) { return; }
+  var out = 1 - prog(t, cue.end - .22, cue.end), spans = box.querySelectorAll('span');
+  for (i = 0; i < spans.length; i++) {
+    var w0 = cue.words[i][1], w1 = i + 1 < spans.length ? cue.words[i + 1][1] : cue.last, p = easeOut(prog(t, w0 - .05, w0 + .13));
+    spans[i].style.opacity = p * out;
+    spans[i].style.transform = 'translateY(' + ((1 - p) * 12) + 'px)';
+    spans[i].style.color = t >= w0 - .05 && t < w1 ? C.navy : C.ink;
+  }
+}
+
 /* ---------------------------------------------------------------- frame */
 var SCENES = [['title', renderTitle], ['hook', renderHook], ['rules', renderRules], ['recipe', renderRecipe], ['scale', renderScale],
-              ['nine', renderNine], ['eff', renderEff], ['outro', renderOutro]];
+              ['nine', renderNine], ['visits', renderVisits], ['eff', renderEff], ['outro', renderOutro]];
 function renderAt(t) {
   SCENES.forEach(function (s) {
     var r = SC[s[0]], node = $('s-' + s[0]);
@@ -490,6 +611,7 @@ function renderAt(t) {
     if (o > 0) { s[1](t); }
   });
   $('brand').style.opacity = Math.min(prog(t, SC.hook[0], SC.hook[0] + .6), 1 - prog(t, SC.outro[0] - .5, SC.outro[0]));
+  renderSubs(t);
   $('bar').style.width = (t / DUR * 1920) + 'px';
 }
 window.renderAt = renderAt;

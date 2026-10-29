@@ -7,6 +7,10 @@ so the targets hold for the stereo file people hear; then 48 kHz AAC 160k, muxed
 (+faststart) into `out`. Also writes <out stem>.vtt and .srt: one cue per display chunk, from the first word to the last
 word (+0.15 s, never into the next cue) of the matching say chunk in build/timings.json; a chunk over 84 characters,
 or one that does not wrap into 2 lines of 42, is split at the space nearest its middle, times shared by character count.
+With a "music" entry in script.json ({"path": ..., "gap_db": -6, "fade_in": 1.5, "fade_out": 4}) the voice first passes a
+gentle gate (pauses down at most 12 dB) and the music bed is cut to the video, faded, set gap_db below the voice's
+loudness and ducked under it by a sidechain compressor (about 12 dB while someone speaks); the two-pass loudnorm then
+runs on the mix.
 Standard library only; needs ffmpeg and ffprobe.
 """
 import argparse, json, os, re, subprocess, sys
@@ -15,6 +19,8 @@ from synth import BUILD, chunks, duration, load, repo
 LN = "loudnorm=I=-16:TP=-1.5:LRA=11"
 UPMIX = "pan=stereo|c0=c0|c1=c0"
 PAD, MAXLEN, LINE = 0.15, 84, 42
+GATE = "agate=threshold=0.006:ratio=2:range=0.25:attack=5:release=150"           # -44 dBFS; pauses lose at most 12 dB
+DUCK = "sidechaincompress=threshold=0.02:ratio=8:attack=30:release=600"          # music under the voice
 
 def ffjson(args):
     """Run ffmpeg and return the last JSON object it prints (loudnorm's print_format=json report)."""
@@ -75,15 +81,30 @@ def main():
     if os.path.abspath(out) == os.path.abspath(video):
         sys.exit("out must not be the input video")
     cs = cues(s, tm)
-    m = ffjson(["-i", wav, "-af", f"{UPMIX},{LN}:print_format=json", "-f", "null", "-"])
-    print(f"measured (stereo): I {m['input_i']} LUFS, TP {m['input_tp']} dBTP, LRA {m['input_lra']} LU, thresh {m['input_thresh']}")
-    if m["input_i"] == "-inf":
+    v = ffjson(["-i", wav, "-af", f"{UPMIX},{LN}:print_format=json", "-f", "null", "-"])
+    if v["input_i"] == "-inf":
         sys.exit("voiceover.wav is silent")
+    ins, graph = ["-i", wav], lambda k: f"[{k}:a]{UPMIX}"          # k: the voice's input index
+    if s.get("music"):
+        mu = s["music"]; mpath = repo(mu["path"])
+        if not os.path.exists(mpath):
+            sys.exit(f"{mu['path']} not found")
+        mm = ffjson(["-i", mpath, "-af", f"{LN}:print_format=json", "-f", "null", "-"])
+        dur, fi, fo = tm["video_duration"], mu.get("fade_in", 1.5), mu.get("fade_out", 4.0)
+        gain = float(v["input_i"]) + mu.get("gap_db", -6.0) - float(mm["input_i"])
+        ins += ["-i", mpath]
+        graph = lambda k: (f"[{k}:a]{UPMIX},{GATE},aresample=48000,asplit=2[v][sc];"
+                           f"[{k + 1}:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{dur},asetpts=N/SR/TB,"
+                           f"volume={gain:.2f}dB,afade=t=in:d={fi},afade=t=out:st={dur - fo}:d={fo}[m];"
+                           f"[m][sc]{DUCK}[md];[v][md]amix=inputs=2:normalize=0:duration=first")
+        print(f"music: {mu['path']} at {gain:+.1f} dB ({mu.get('gap_db', -6.0)} dB under the voice in the pauses), ducked under speech")
+    m = ffjson([*ins, "-filter_complex", f"{graph(0)},{LN}:print_format=json", "-f", "null", "-"])
+    print(f"measured: I {m['input_i']} LUFS, TP {m['input_tp']} dBTP, LRA {m['input_lra']} LU, thresh {m['input_thresh']}")
     apply = (f"{LN}:measured_I={m['input_i']}:measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}"
              f":measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true:print_format=json")
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    r = ffjson(["-y", "-i", video, "-i", wav, "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy",
-                "-af", f"{UPMIX},{apply},aresample=48000", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2",
+    r = ffjson(["-y", "-i", video, *ins, "-filter_complex", f"{graph(1)},{apply},aresample=48000[out]",
+                "-map", "0:v:0", "-map", "[out]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
                 "-movflags", "+faststart", out])
     print(f"applied: {r['normalization_type']} normalization")
     stem = os.path.splitext(out)[0]

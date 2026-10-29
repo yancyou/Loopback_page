@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Loopback Transformer: a looped Transformer that stores block updates, keeps the input on its own path, and lets decay set the total update weight while attention allocates it. Lower loss than dense controls at 191M to 1.4B with 40-68% of the parameters.">
+<meta name="description" content="Loopback Transformer: a looped Transformer that stores block updates, keeps the input on its own path, and lets decay set the total update weight while attention allocates it. Lower validation loss than standard Transformers from 191M to 3B with 40-75% of their Transformer parameters, at matched training tokens and executed depth.">
 <meta name="color-scheme" content="light dark">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Loopback Transformer: Towards a Unified View of Residual Looped Transformers">
@@ -295,6 +295,11 @@ button { font: inherit; color: inherit; }
 .tbl .tname { display: inline-block; margin-top: 2px; color: var(--text-muted); font: 500 .72rem/1.3 var(--font-body); }
 .tbl--mem th, .tbl--mem td { text-align: center; vertical-align: top; }
 .tbl--mem th:first-child, .tbl--mem td:first-child { text-align: left; }
+.tbl th.grp { text-align: center; color: var(--text-2); }
+.tbl--math thead tr + tr th:first-child { text-align: right; }
+.tbl th.lb, .tbl td.lb { background: var(--accent-soft); }
+.tbl td.delta { color: var(--pos); font-weight: 600; }
+.tbl tr.sep td { border-top: 2px solid var(--border); }
 .tbl-foot { margin: 10px 0 0; font-size: .85rem; color: var(--text-3); }
 .card { border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface); box-shadow: var(--shadow-sm); padding: clamp(16px, 2.4vw, 22px); min-width: 0; }
 .card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
@@ -432,11 +437,10 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
       </span>
     </div>
     <figure class="hero__video" id="video">
-      <video controls playsinline preload="metadata" poster="videos/loopback_promo_poster_hero.jpg" aria-label="Loopback Transformer overview video with narration, 74 seconds">
+      <video controls playsinline preload="metadata" poster="videos/loopback_promo_poster_hero.jpg" aria-label="Loopback Transformer overview video with narration and captions, 96 seconds">
         <source src="videos/loopback_promo.mp4" type="video/mp4">
-        <track kind="captions" src="videos/loopback_promo.vtt" srclang="en" label="English">
       </video>
-      <figcaption><strong>Loopback in about a minute, with narration.</strong> Why sharing weights leaves update reuse open, three ways a loop can reuse its updates, the recipe, and the results from 191M to 3B.</figcaption>
+      <figcaption><strong>Loopback in 96 seconds.</strong> Why sharing weights leaves update reuse open, three ways a loop can reuse its updates, the recipe, the results from 191M to 3B, extra loops at inference, and what the read costs.</figcaption>
     </figure>
   </div>
 </header>
@@ -475,7 +479,7 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
     <div class="contrib-grid">
       <article class="contrib">
         <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1.5"/><rect x="3" y="15" width="18" height="5" rx="1.5"/><path d="M8 9v6M16 9v6M12 9v6"/></svg></div>
-        <div><h3>One interface for residual rules</h3><p>Addition, Attention Residuals, Hyper-Connections, mHC, Hyperloop and recurrent depth readers all write a value, carry old memory forward and read it to form the next state. Unrolled, every earlier update gets an explicit coefficient, and two couplings become visible.</p></div>
+        <div><h3>Residual designs as depth memory</h3><p>Linear attention and related recurrent models supply memory-update rules that carry over from token sequences to network depth. Read this way, every residual design writes, retains and reads a depth memory, which shows what each block writes and how its contribution is kept. It also exposes two couplings: weighting a full block output reweights its input, and a joint softmax makes the input and the updates compete for one unit of weight.</p></div>
       </article>
       <article class="contrib">
         <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h5"/><path d="M15 12h5"/><path d="M9 12c0-3 2-5 5-5h1"/><path d="M9 12c0 3 2 5 5 5h1"/><path d="M14 5l2 2-2 2M14 15l2 2-2 2"/></svg></div>
@@ -509,14 +513,14 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
     </div>
     <div class="fig-stack">
       <figure class="fig" id="fig-3">
-        <div class="fig__head"><span class="fig__label"><b>Figure 3</b> &middot; Three residual rules, one interface</span><button type="button" class="fig__zoom" data-zoom="fig-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
-        <div class="fig__media"><img src="images/fig1_unified_view.png" alt="Three residual rules for a looped stack: addition, an explicit depth history, and multiple memory streams" loading="lazy" data-zoom="fig-3"></div>
-        <figcaption class="fig__caption"><strong>Three ways a looped stack reuses its updates.</strong> (a) Ordinary addition carries every update with weight one. (b) An explicit depth history reads the input and earlier updates with learned coefficients. (c) Hyper-connection families carry several memory streams. All three are instances of one write&ndash;transport&ndash;read interface; Loopback is the instance that stores updates, keeps the input on its own path, and lets decay set the total weight that attention allocates.</figcaption>
+        <div class="fig__head"><span class="fig__label"><b>Figure 3</b> &middot; Three residual pathways</span><button type="button" class="fig__zoom" data-zoom="fig-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
+        <div class="fig__media"><img src="images/fig1_unified_view.png" alt="Three residual pathways for the same shared blocks: addition, a reader over the input and earlier updates, and multiple streams" loading="lazy" data-zoom="fig-3"></div>
+        <figcaption class="fig__caption"><strong>Same shared blocks, three residual pathways.</strong> Repeated colors mark shared blocks emitting net updates. (a) Ordinary addition. (b) A reader <i>R<sub>s</sub></i> aggregates the input and the updates computed so far, from an explicit history or a fixed-size recurrent memory; Loopback is an explicit-history reader that keeps the input on its own path and lets decay set the total weight that attention allocates. (c) Multiple streams with an input read, transport, a write and a final readout, as in the hyper-connection family.</figcaption>
       </figure>
       <figure class="fig" id="fig-4">
         <div class="fig__head"><span class="fig__label"><b>Figure 4</b> &middot; Loopback on a two-visit loop</span><button type="button" class="fig__zoom" data-zoom="fig-4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
         <div class="fig__media"><img src="images/fig2_loopback.png" alt="Loopback: shared blocks with causal history reads; decay sets the prior and the total; attention allocates the total" loading="lazy" data-zoom="fig-4"></div>
-        <figcaption class="fig__caption"><strong>Loopback on a two-visit loop.</strong> (a) Each shared-block application appends its update and reads the history. (b) Decay sets the prior and the total weight. (c) Attention reallocates the total across the raw updates; the input enters with coefficient one and is not decayed again before the coda.</figcaption>
+        <figcaption class="fig__caption"><strong>Loopback separates input, decay and allocation.</strong> (a) Shared blocks with a causal history read after every application. (b) Visit-end decay sets the prior and the total weight. (c) Attention redistributes that total over the raw updates, keeping the input coefficient at one.</figcaption>
       </figure>
     </div>
   </div>
@@ -601,89 +605,85 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
     </details>
 
     <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
-      <span class="eyebrow">Depth</span>
-      <h3 id="depth">Depth at fixed parameters</h3>
-      <p class="lead">Each scale keeps its total parameters and tokens and trades width for depth from 16 to 64 layers, with every rule trained at every depth. The standard Transformer loses ground as it gets deeper and narrower; reusing blocks blunts that penalty, and Loopback&rsquo;s margin over the standard Transformer grows with depth, from 0.003 to 0.073 at 374M and from 0.002 to 0.028 at 778M.</p>
+      <span class="eyebrow">Larger scale</span>
+      <h3 id="large">1.4B and 3B</h3>
+      <p class="lead">At 1.4B and 3B, Loopback uses [3 &rarr; 8&times;2 &rarr; 6] and [6 &rarr; 6&times;2 &rarr; 6], matching the standard Transformer&rsquo;s 25 and 24 executed layers with 68% and 75% of its Transformer parameters. The same 20-TPP checkpoints are evaluated on general benchmarks, on mathematical and code tasks, and with one additional loop visit at inference.</p>
     </div>
     <div class="fig-stack">
       <figure class="fig" id="fig-5">
-        <div class="fig__head"><span class="fig__label"><b>Figure 5</b> &middot; Depth at fixed parameters</span><button type="button" class="fig__zoom" data-zoom="fig-5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
-        <div class="fig__media"><img src="images/fig_depth_sweep.png" alt="Validation loss against depth from 16 to 64 layers at fixed parameters for the standard Transformer and eight looped rules at 374M and 778M" loading="lazy" data-zoom="fig-5"></div>
-        <figcaption class="fig__caption"><strong>Depth at fixed parameters.</strong> ClimbMix validation loss after 20 TPP as each scale trades width for depth at fixed total parameters and tokens. Looped rules make two visits through a shared stack that stores 56&ndash;58% of the standard Transformer&rsquo;s Transformer parameters.</figcaption>
+        <div class="fig__head"><span class="fig__label"><b>Figure 5</b> &middot; General benchmarks at 1.4B and 3B</span><button type="button" class="fig__zoom" data-zoom="fig-5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
+        <div class="fig__media"><img src="images/fig_scale_large_general.png" alt="Transformer parameters, validation loss and thirteen-task mean accuracy of the standard Transformer and Loopback at 1.4B and 3B" loading="lazy" data-zoom="fig-5"></div>
+        <figcaption class="fig__caption"><strong>Fewer parameters, lower loss and a higher thirteen-task mean at 1.4B and 3B.</strong> Loopback uses 32% and 25% fewer Transformer parameters. Bars use the left parameter axis; connected points use the right metric axis; 3B error bars show one bootstrap standard error. Training tokens and executed depth are matched within each scale, with one run per arm at 20 TPP. Loopback also has lower WikiText perplexity, 20.29 against 21.09 at 1.4B and 16.74 against 17.28 at 3B. Individual tasks are mixed: Loopback is ahead on nine and eleven of the thirteen, and Table 1 lists every task.</figcaption>
       </figure>
     </div>
 
-    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
-      <span class="eyebrow">Reasoning text</span>
-      <h3 id="math">Mathematical and code text</h3>
-      <p class="lead">Validation loss averages over web text. On the reference solutions of GSM8K, MATH-500, HumanEval and MBPP, given their problems, Loopback has the lowest loss at every scale, and its margin over the standard Transformer is 1.3&ndash;2.4 times its validation-loss margin. At 3B, five-shot word-problem accuracy also separates the pair: Loopback solves 6.4% of the problems against 2.6%.</p>
+    <div class="section__head" style="margin-top:clamp(2rem,4vw,3rem)">
+      <span class="eyebrow">Code and mathematics</span>
+      <h3 id="math">Code and mathematical evaluation</h3>
+      <p class="lead">Reference-solution loss on GSM8K, MATH-500, HumanEval and MBPP measures how well a model predicts a worked solution given the problem, and five-shot numeric-answer accuracy on six word-problem sets checks final answers. At matched training tokens and executed depth, Loopback has lower solution loss on all four datasets at both large scales, and at 3B its word-problem accuracy rises from 2.6% to 6.4%. In the nine-design comparisons at 191M and 374M, Loopback also has the lowest four-set mean.</p>
     </div>
     <div class="card card--table">
-      <h3>Reference-solution loss</h3>
-      <p>Teacher-forced loss of the reference solution given the problem, in nats per token (lower is better); every prompt starts with the beginning-of-sequence token. 374M is the 32-layer shape of Table 1; the paper also compares all nine rules at 191M and 374M.</p>
-      <div class="tbl-wrap"><table class="tbl tbl--t2">
-        <thead><tr><th>Scale</th><th>Model</th><th>GSM8K</th><th>MATH-500</th><th>HumanEval</th><th>MBPP</th><th>Mean</th></tr></thead>
+      <h3>Mathematical and code evaluation at 1.4B and 3B</h3>
+      <p>Reference-solution loss is teacher-forced loss in nats per solution token (lower is better), not generation or code-execution accuracy. Word problems give the mean five-shot numeric-answer accuracy over six sets. &Delta; is Loopback minus Standard, in nats for loss and percentage points for accuracy; green favors Loopback. Training tokens and depth are matched, with one run per arm.</p>
+      <div class="tbl-wrap"><table class="tbl tbl--math">
+        <thead>
+          <tr><th rowspan="2">Reference-solution loss</th><th colspan="3" class="grp">1.4B</th><th colspan="3" class="grp">3B</th></tr>
+          <tr><th>Standard</th><th class="lb">Loopback</th><th>&Delta;</th><th>Standard</th><th class="lb">Loopback</th><th>&Delta;</th></tr>
+        </thead>
         <tbody>
-          <tr><td>191M</td><td>Standard</td><td>1.822</td><td class="best">1.967</td><td class="best">1.827</td><td>2.021</td><td>1.909</td></tr>
-          <tr class="ours"><td></td><td>Loopback</td><td class="best">1.768</td><td>1.972</td><td>1.842</td><td class="best">2.018</td><td class="best">1.900</td></tr>
-          <tr><td>374M</td><td>Standard</td><td>1.600</td><td>1.755</td><td>1.518</td><td>1.690</td><td>1.641</td></tr>
-          <tr class="ours"><td></td><td>Loopback</td><td class="best">1.529</td><td class="best">1.707</td><td class="best">1.447</td><td class="best">1.643</td><td class="best">1.582</td></tr>
-          <tr><td>1.4B</td><td>Standard</td><td>1.275</td><td>1.421</td><td>1.065</td><td>1.282</td><td>1.261</td></tr>
-          <tr class="ours"><td></td><td>Loopback</td><td class="best">1.227</td><td class="best">1.391</td><td class="best">1.035</td><td class="best">1.235</td><td class="best">1.222</td></tr>
-          <tr><td>3B</td><td>Standard</td><td>1.143</td><td>1.289</td><td>0.906</td><td>1.104</td><td>1.110</td></tr>
-          <tr class="ours"><td></td><td>Loopback</td><td class="best">1.086</td><td class="best">1.259</td><td class="best">0.868</td><td class="best">1.078</td><td class="best">1.073</td></tr>
+          <tr><td>GSM8K</td><td>1.275</td><td class="best lb">1.227</td><td class="delta">&minus;0.048</td><td>1.143</td><td class="best lb">1.086</td><td class="delta">&minus;0.057</td></tr>
+          <tr><td>MATH-500</td><td>1.421</td><td class="best lb">1.391</td><td class="delta">&minus;0.030</td><td>1.289</td><td class="best lb">1.259</td><td class="delta">&minus;0.030</td></tr>
+          <tr><td>HumanEval</td><td>1.065</td><td class="best lb">1.035</td><td class="delta">&minus;0.030</td><td>0.906</td><td class="best lb">0.868</td><td class="delta">&minus;0.038</td></tr>
+          <tr><td>MBPP</td><td>1.282</td><td class="best lb">1.235</td><td class="delta">&minus;0.047</td><td>1.104</td><td class="best lb">1.078</td><td class="delta">&minus;0.026</td></tr>
+          <tr class="sep"><td>Four-set mean</td><td>1.261</td><td class="best lb">1.222</td><td class="delta">&minus;0.039</td><td>1.110</td><td class="best lb">1.073</td><td class="delta">&minus;0.037</td></tr>
+          <tr class="sep"><td>Word problems (%) &uarr;</td><td>2.0</td><td class="best lb">2.6</td><td class="delta">+0.6</td><td>2.6</td><td class="best lb">6.4</td><td class="delta">+3.8</td></tr>
         </tbody>
       </table></div>
     </div>
-
-    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
-      <span class="eyebrow">Efficiency</span>
-      <h3 id="efficiency">Compute and efficiency</h3>
-      <p class="lead">All models execute the same blocks per token, so the read adds under 0.1% to forward FLOPs. It adds memory traffic, which the fused Triton kernel streams once per read; the KV cache is the standard Transformer&rsquo;s, and the stored weights are smaller.</p>
-    </div>
-    <ul class="kpis" aria-label="Efficiency numbers">
-      <li class="kpi"><span class="kpi__value">&lt;0.1% extra FLOPs</span><span class="kpi__label">the history read costs <strong>+0.08%</strong> of the standard Transformer&rsquo;s forward FLOPs at 191M and 374M and <strong>+0.04%</strong> at 778M (24 layers)</span></li>
-      <li class="kpi"><span class="kpi__value">33% &rarr; 19% step-time overhead</span><span class="kpi__label">with the fused kernel, from 191M to 778M: <strong>167k vs 222k</strong> and <strong>63k vs 75k</strong> training tokens per second per GPU</span></li>
-      <li class="kpi"><span class="kpi__value">23&ndash;44% less weight memory</span><span class="kpi__label">bf16 weights including embeddings: <strong>0.20 vs 0.36 GiB</strong> at 191M, <strong>4.16 vs 5.43 GiB</strong> at 3B</span></li>
-      <li class="kpi"><span class="kpi__value">Same KV cache</span><span class="kpi__label">executed depth and heads are the standard Transformer&rsquo;s, so the cache per 4,096-token sequence matches: <strong>240 MiB</strong> at 191M to <strong>1,152 MiB</strong> at 3B</span></li>
-    </ul>
-    <div id="compute-table" data-widget="compute">
-      <div class="card"><strong>Table 2: compute and efficiency.</strong> Parameters, extra FLOPs, training throughput, hours per 20 TPP, peak memory and prefill throughput of the residual rules at 191M, 374M and 778M (24 layers). The interactive table needs JavaScript.</div>
-    </div>
-    <div class="fig-stack fig-stack--after">
-      <figure class="fig fig--narrow" id="fig-6">
-        <div class="fig__head"><span class="fig__label"><b>Figure 6</b> &middot; Throughput and quality versus FLOPs at 374M</span><button type="button" class="fig__zoom" data-zoom="fig-6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
-        <div class="fig__media"><img src="images/fig_efficiency.png" alt="Training throughput and validation loss against forward FLOPs for the residual rules at 374M with 24 layers" loading="lazy" data-zoom="fig-6"></div>
-        <figcaption class="fig__caption"><strong>Compute and efficiency at 374M, 24 layers.</strong> Loopback and AttnRes run fused read kernels. (a) Per-GPU training throughput on eight H100s; bar labels give hours for the 20-TPP budget. (b) Validation loss versus forward FLOPs per token in excess of the standard Transformer&rsquo;s. Table 2 gives the other rules at all three measured scales.</figcaption>
-      </figure>
-      <div class="card card--table">
-        <h3>Persistent inference memory</h3>
-        <p>Analytical bf16 storage for all weights, including embeddings and the vocabulary head, plus the KV cache at 4,096 tokens. Totals exclude temporary activations and workspaces.</p>
-        <div class="tbl-wrap"><table class="tbl tbl--t2">
-          <thead><tr><th>Scale</th><th>Model</th><th>Params (M)</th><th>Weights (GiB)</th><th>KV / seq. (MiB)</th><th>1 seq. (GiB)</th><th>8 seq. (GiB)</th></tr></thead>
+    <details class="more" id="math-nine">
+      <summary>All nine designs at 191M and 374M</summary>
+      <div>
+        <p>Teacher-forced reference-solution loss in nats per token for the 191M models and the 374M 32-layer models of Table 1. Paired bootstrap standard errors of the differences between rules are at most 0.003 on the mean. Underlined: lowest loss in each row.</p>
+        <div class="tbl-wrap"><table class="tbl tbl--nine">
+          <thead><tr><th>Reference solutions</th><th>Standard</th><th>Plain</th><th>mHC</th><th>HC</th><th>iHC</th><th>Hyperloop</th><th>MHAR</th><th>AttnRes</th><th class="lb">Loopback</th></tr></thead>
           <tbody>
-            <tr><td>191M, 20 layers</td><td>Standard</td><td>190.74</td><td>0.36</td><td>240</td><td>0.59</td><td>2.23</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>105.80</td><td class="best">0.20</td><td>240</td><td class="best">0.43</td><td class="best">2.07</td></tr>
-            <tr><td>374M, 24 layers</td><td>Standard</td><td>373.87</td><td>0.70</td><td>384</td><td>1.07</td><td>3.70</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>245.42</td><td class="best">0.46</td><td>384</td><td class="best">0.83</td><td class="best">3.46</td></tr>
-            <tr><td>778M, 24 layers</td><td>Standard</td><td>777.86</td><td>1.45</td><td>576</td><td>2.01</td><td>5.95</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>551.36</td><td class="best">1.03</td><td>576</td><td class="best">1.59</td><td class="best">5.53</td></tr>
-            <tr><td>1.4B, 25 layers</td><td>Standard</td><td>1,415.68</td><td>2.64</td><td>800</td><td>3.42</td><td>8.89</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>1,004.64</td><td class="best">1.87</td><td>800</td><td class="best">2.65</td><td class="best">8.12</td></tr>
-            <tr><td>3B, 24 layers</td><td>Standard</td><td>2,914.67</td><td>5.43</td><td>1,152</td><td>6.55</td><td>14.43</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>2,235.19</td><td class="best">4.16</td><td>1,152</td><td class="best">5.29</td><td class="best">13.16</td></tr>
+            <tr class="sub"><th colspan="10">191M, 20 layers</th></tr>
+            <tr><td>GSM8K</td><td>1.822</td><td>1.865</td><td>1.795</td><td>1.801</td><td>1.826</td><td>1.833</td><td>1.826</td><td>1.797</td><td class="best lb">1.768</td></tr>
+            <tr><td>MATH-500</td><td>1.967</td><td>2.028</td><td class="best">1.961</td><td>1.999</td><td>2.023</td><td>2.024</td><td>1.994</td><td>1.962</td><td class="lb">1.972</td></tr>
+            <tr><td>HumanEval</td><td class="best">1.827</td><td>1.935</td><td>1.861</td><td>1.900</td><td>1.924</td><td>1.905</td><td>1.897</td><td>1.895</td><td class="lb">1.842</td></tr>
+            <tr><td>MBPP</td><td>2.021</td><td>2.118</td><td>2.028</td><td>2.042</td><td>2.081</td><td>2.074</td><td>2.076</td><td>2.064</td><td class="best lb">2.018</td></tr>
+            <tr class="sep"><td>Mean</td><td>1.909</td><td>1.987</td><td>1.911</td><td>1.935</td><td>1.964</td><td>1.959</td><td>1.948</td><td>1.929</td><td class="best lb">1.900</td></tr>
+            <tr class="sub"><th colspan="10">374M, 32 layers</th></tr>
+            <tr><td>GSM8K</td><td>1.600</td><td>1.612</td><td>1.564</td><td>1.596</td><td>1.554</td><td>1.552</td><td>1.592</td><td>1.563</td><td class="best lb">1.529</td></tr>
+            <tr><td>MATH-500</td><td>1.755</td><td>1.755</td><td>1.740</td><td>1.747</td><td>1.728</td><td>1.737</td><td>1.746</td><td>1.734</td><td class="best lb">1.707</td></tr>
+            <tr><td>HumanEval</td><td>1.518</td><td>1.520</td><td>1.487</td><td>1.514</td><td>1.495</td><td>1.493</td><td>1.503</td><td>1.481</td><td class="best lb">1.447</td></tr>
+            <tr><td>MBPP</td><td>1.690</td><td>1.707</td><td>1.664</td><td>1.684</td><td>1.661</td><td>1.680</td><td>1.691</td><td>1.675</td><td class="best lb">1.643</td></tr>
+            <tr class="sep"><td>Mean</td><td>1.641</td><td>1.648</td><td>1.614</td><td>1.635</td><td>1.610</td><td>1.615</td><td>1.633</td><td>1.613</td><td class="best lb">1.582</td></tr>
           </tbody>
         </table></div>
       </div>
+    </details>
+
+    <div class="section__head" style="margin-top:clamp(2rem,4vw,3rem)">
+      <span class="eyebrow">Extra visits</span>
+      <h3 id="visits">Robustness to additional visits</h3>
+      <p class="lead">Shared weights allow extra visits at inference, but too much recurrence can degrade predictions, a problem known as overthinking. Without retraining, and with the extra destinations reusing the last trained visit&rsquo;s queries, Loopback&rsquo;s loss rises less than the plain loop&rsquo;s at every tested count, up to twice the trained count. At eight visits the 191M loss rises by 0.060 for Loopback against 0.454 for the plain loop; at four visits the 374M increases are 0.074 against 0.270. At 3B, one extra visit raises Loopback&rsquo;s thirteen-task mean from 49.45% to 50.17%.</p>
+    </div>
+    <div class="fig-stack">
+      <figure class="fig" id="fig-6">
+        <div class="fig__head"><span class="fig__label"><b>Figure 6</b> &middot; Extra loop visits at inference</span><button type="button" class="fig__zoom" data-zoom="fig-6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
+        <div class="fig__media"><img src="images/fig_scale_large_visits.png" alt="Validation loss against loop visits at inference for Loopback and the plain loop at 191M and 374M, and the thirteen-task mean of Loopback at 3B with one extra visit" loading="lazy" data-zoom="fig-6"></div>
+        <figcaption class="fig__caption"><strong>Run past its trained visit count, Loopback degrades far less than the plain loop.</strong> (a&ndash;b) Validation loss in nats per token; (c) thirteen-task mean accuracy. Asterisks mark trained visit counts; the dashed line is the fixed-depth standard Transformer at 3B, where the plain loop was not evaluated. Axis ranges differ across panels.</figcaption>
+      </figure>
     </div>
 
     <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
       <span class="eyebrow">Ablations</span>
-      <h3 id="ablations">What the two controls contribute</h3>
-      <p class="lead">Decay supplies most of the gain over the plain loop and learned allocation adds a further improvement at both scales. At 191M, uniform allocation at decay's total weight recovers 78% of decay's gain, against 20% for its recency profile at the plain total. Initialization does not change the ordering: without retuning learning rates, Loopback has the lowest loss under all three schemes at 191M and under two of the three at 374M.</p>
+      <h3 id="ablations">Decay, attention and initialization</h3>
+      <p class="lead">Decay controls the accumulated update weight, and attention allocates it by content. The complete design has the lowest loss at both scales: removing attention raises loss by 0.0033 and 0.0028 nats at 191M and 374M, and removing decay raises it by 0.0434 and 0.0337. Under three weight initializations at both scales, with learning rates held fixed, Loopback stays below the standard Transformer and the plain loop in all six settings and has the lowest loss in five.</p>
     </div>
-    <div class="card-grid card-grid--2">
-      <div class="card">
+    <div class="card-grid">
+      <div class="card card--table">
         <h3>Decay and attention at two scales</h3>
         <p>Validation loss. Fixed allocation uses zero queries; the last row is the standard Transformer at the same depth and tokens. 374M is the 24-layer shape.</p>
         <div class="tbl-wrap"><table class="tbl tbl--t2">
@@ -697,22 +697,9 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
           </tbody>
         </table></div>
       </div>
-      <div class="card">
-        <h3>Decay controls at 191M</h3>
-        <p>Which part of decay matters: its recency profile, or the total weight it sets. All rows use zero queries.</p>
-        <div class="tbl-wrap"><table class="tbl">
-          <thead><tr><th>Rule</th><th>Loss</th><th>Gain over Plain</th><th>Share of decay's gain</th></tr></thead>
-          <tbody>
-            <tr><td>Plain (<i>&lambda;</i> = 1)</td><td>2.6802</td><td>0.0000</td><td>0%</td></tr>
-            <tr><td>Recency only</td><td>2.6687</td><td>0.0115</td><td>20%</td></tr>
-            <tr><td>Total only</td><td>2.6350</td><td>0.0452</td><td>78%</td></tr>
-            <tr><td>Decay only (<i>&lambda;</i> = 1/4)</td><td class="best">2.6220</td><td class="best">0.0582</td><td>100%</td></tr>
-          </tbody>
-        </table></div>
-      </div>
-      <div class="card span-2">
+      <div class="card card--table">
         <h3>Weight initialization at 191M and 374M</h3>
-        <p>Validation loss under three initializations without retuning learning rates; mHC is the strongest baseline of Table 1. The green number under each Loopback loss is its difference from the standard Transformer.</p>
+        <p>Validation loss under three initializations, with learning rates held fixed; mHC is the closest looped baseline of Table 1. N(0, 0.02<sup>2</sup>) draws linear and embedding weights at a fixed scale; GPT-2 also scales attention-output and MLP down-projections by 1/&radic;(2<i>D</i>), with <i>D</i> the executed depth; PyTorch uses Kaiming-uniform linear weights and N(0, 1) embeddings. Hyperloop reports that its advantage over the standard Transformer does not survive GPT-2 initialization with retuned learning rates, which motivates this check. The green number under each Loopback loss is its difference from the standard Transformer.</p>
         <div class="tbl-wrap"><table class="tbl">
           <thead><tr><th>Model</th><th>Params (M)</th><th>N(0, 0.02<sup>2</sup>)</th><th>GPT-2</th><th>PyTorch</th></tr></thead>
           <tbody>
@@ -729,10 +716,31 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
           </tbody>
         </table></div>
       </div>
-      <figure class="fig fig--narrow span-2" id="fig-7">
-        <div class="fig__head"><span class="fig__label"><b>Figure 7</b> &middot; Eleven depth-memory readers</span><button type="button" class="fig__zoom" data-zoom="fig-7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
-        <div class="fig__media"><img src="images/fig_memory_readers.png" alt="Validation-loss reduction over the plain loop for eleven linear-attention and recurrent readers of the loop's history, reading updates or states, at 191M and 374M" loading="lazy" data-zoom="fig-7"></div>
-        <figcaption class="fig__caption"><strong>Reading updates beats reading states, and none of the readers reaches Loopback.</strong> Validation-loss reduction over the plain loop at (a) 191M and (b) 374M with 24 layers, for the update interface (solid) and the state interface (hatched) of eleven recurrent and linear-attention cores (linear attention, RetNet, GLA, Mamba-2, HGRN-2, DeltaNet, Gated DeltaNet, KDA, RWKV-7, Mesa and a LaCT-inspired reader) adapted to read the loop&rsquo;s history. All improve on the plain loop but trail the standard Transformer and Loopback; updates are a useful starting point, not a complete residual design.</figcaption>
+    </div>
+
+    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
+      <span class="eyebrow">Depth</span>
+      <h3 id="depth">Depth at fixed parameters</h3>
+      <p class="lead">At 374M and 778M, every configuration trains from scratch with the training tokens and total parameters held fixed while width is traded for depth from 16 to 64 layers; looped rules keep two visits. The standard Transformer loses ground as it gets deeper and narrower: it is best at 24 layers and, at 64, is 0.076 worse at 374M and 0.035 worse at 778M. Among the looped rules, Loopback is lowest at nine of the ten points, and its optimum moves from 24 layers at 374M to 48 at 778M; its margin over the standard Transformer grows with depth, from 0.003 to 0.073 at 374M and from 0.002 to 0.028 at 778M.</p>
+    </div>
+    <div class="fig-stack">
+      <figure class="fig" id="fig-7">
+        <div class="fig__head"><span class="fig__label"><b>Figure 7</b> &middot; Depth at fixed parameters</span><button type="button" class="fig__zoom" data-zoom="fig-7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
+        <div class="fig__media"><img src="images/fig_depth_sweep.png" alt="Validation loss against depth from 16 to 64 layers at fixed parameters for the standard Transformer and eight looped rules at 374M and 778M" loading="lazy" data-zoom="fig-7"></div>
+        <figcaption class="fig__caption"><strong>Depth at fixed parameters.</strong> ClimbMix validation loss after 20 TPP as each scale trades width for depth at fixed total parameters and tokens. Looped rules make two visits through a shared stack that stores 56&ndash;58% of the standard Transformer&rsquo;s Transformer parameters.</figcaption>
+      </figure>
+    </div>
+
+    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
+      <span class="eyebrow">Depth-memory readers</span>
+      <h3 id="memory-readers">Linear attention and recurrent memory as loop readers</h3>
+      <p class="lead">Nine recurrent cores, Mesa and a LaCT-inspired reader are adapted to read the loop&rsquo;s history at visit boundaries, leaving token attention unchanged. Each reads either cumulative visit states or whole-visit updates, and both interfaces start as the plain loop. Reading updates gives the lower validation loss in all 22 family&ndash;scale comparisons, and every update reader improves on the plain loop, but the best still trail Loopback by 0.0302 nats at 191M and 0.0285 at 374M. Fixed-state recurrent cores remain attractive for longer loops: they take each new write without rereading the history, in a state that does not grow with the visit count.</p>
+    </div>
+    <div class="fig-stack">
+      <figure class="fig fig--narrow" id="fig-8">
+        <div class="fig__head"><span class="fig__label"><b>Figure 8</b> &middot; Eleven depth-memory readers</span><button type="button" class="fig__zoom" data-zoom="fig-8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
+        <div class="fig__media"><img src="images/fig_memory_readers.png" alt="Validation-loss reduction over the plain loop for eleven linear-attention and recurrent readers of the loop&rsquo;s history, reading updates or states, at 191M and 374M" loading="lazy" data-zoom="fig-8"></div>
+        <figcaption class="fig__caption"><strong>Reading updates beats reading states, and no reader reaches Loopback.</strong> ClimbMix validation-loss reduction over the plain loop at (a) 191M and (b) 374M with 24 layers, for the update interface (solid) and the state interface (hatched) of each reader: linear attention, RetNet, GLA, Mamba-2, HGRN-2, DeltaNet, Gated DeltaNet, KDA, RWKV-7, Mesa and a LaCT-inspired reader. The standard Transformer and Loopback are references.</figcaption>
       </figure>
     </div>
     <details class="more" id="readers">
@@ -763,23 +771,44 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
     </details>
 
     <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
-      <span class="eyebrow">Beyond looping</span>
-      <h3 id="dense-memory">Linear-attention residuals in standard Transformers</h3>
-      <p class="lead">The memory interface does not require looping. Following Depth Memory, the 191M standard Transformer gets a per-token memory along depth: each sublayer reads it before running and writes its update afterward, while the residual stream keeps ordinary addition. Every memory lowers validation loss by 0.044&ndash;0.074 and is below mHC and Block AttnRes in their published placements; the least-squares LDM is lowest. Like Loopback, these memories store updates.</p>
+      <span class="eyebrow">Efficiency</span>
+      <h3 id="efficiency">Compute, throughput and memory</h3>
+      <p class="lead">At matched executed depth, Loopback adds only 0.04&ndash;0.08% forward FLOPs: the extra operations normalize and score the stored updates, form their weighted sum, and apply decay and mixture replacement, with no Q/K/V projections or extra block evaluations. The fused implementation keeps the training-throughput gap to the standard Transformer at 6% at 3B, on the same eight H100 GPUs with the same batch layout. The KV cache is the standard Transformer&rsquo;s, and the stored weights are smaller.</p>
     </div>
-    <div class="card card--table">
-      <h3>Depth memories in the 191M standard Transformer</h3>
-      <p>Validation loss. Rows set the update rule and columns the forgetting factor: none, fixed (RetNet&rsquo;s schedule), a learned constant, or input-dependent, with one value per group (scalar) or per group and key dimension (vector). Small names mark the published rule a cell reproduces; underlined: best in the row. Memories add 1.7&ndash;1.8% Transformer parameters.</p>
-      <div class="tbl-wrap"><table class="tbl tbl--mem">
-        <thead><tr><th rowspan="2">Update rule</th><th rowspan="2">None</th><th rowspan="2">Fixed</th><th colspan="2">Learned constant</th><th colspan="2">Input-dependent</th></tr>
-          <tr><th>scalar</th><th>vector</th><th>scalar</th><th>vector</th></tr></thead>
-        <tbody>
-          <tr><td>Outer product</td><td class="best">2.5637<br><span class="tname">Linear attention</span></td><td>2.5748<br><span class="tname">RetNet</span></td><td>2.5760</td><td>2.5754</td><td>2.5757</td><td>2.5793<br><span class="tname">GLA</span></td></tr>
-          <tr><td>Delta rule</td><td>2.5644<br><span class="tname">DeltaNet</span></td><td>&ndash;</td><td>2.5713</td><td>2.5681</td><td class="best">2.5535<br><span class="tname">Gated DeltaNet</span></td><td>2.5596<br><span class="tname">KDA</span></td></tr>
-          <tr><td>Least squares</td><td>2.5536<br><span class="tname">Mesa</span></td><td>&ndash;</td><td class="best">2.5494<br><span class="tname">LDM</span></td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td></tr>
-        </tbody>
-      </table></div>
-      <p class="tbl-foot">Without a depth memory: Standard 2.6234, mHC 2.5915, Block AttnRes 2.6128.</p>
+    <ul class="kpis" aria-label="Efficiency numbers">
+      <li class="kpi"><span class="kpi__value">+0.04&ndash;0.08% FLOPs</span><span class="kpi__label">forward FLOPs added by the read at matched executed depth: <strong>+0.08%</strong> at 191M and 374M, <strong>+0.04%</strong> at 778M (24 layers)</span></li>
+      <li class="kpi"><span class="kpi__value">6% throughput gap at 3B</span><span class="kpi__label">training throughput of the fused implementation against the standard Transformer, on the <strong>same eight H100s</strong> with the same batch layout</span></li>
+      <li class="kpi"><span class="kpi__value">23&ndash;44% less weight memory</span><span class="kpi__label">bf16 weights including embeddings: <strong>0.20 vs 0.36 GiB</strong> at 191M, <strong>4.16 vs 5.43 GiB</strong> at 3B</span></li>
+      <li class="kpi"><span class="kpi__value">Same KV cache</span><span class="kpi__label">executed depth and heads are the standard Transformer&rsquo;s, so the cache per 4,096-token sequence matches: <strong>240 MiB</strong> at 191M to <strong>1,152 MiB</strong> at 3B</span></li>
+    </ul>
+    <div id="compute-table" data-widget="compute">
+      <div class="card"><strong>Table 2: compute and efficiency.</strong> Parameters, extra FLOPs, training throughput, peak memory and prefill throughput of the residual rules at 191M, 374M and 778M (24 layers). The interactive table needs JavaScript.</div>
+    </div>
+    <div class="fig-stack fig-stack--after">
+      <figure class="fig fig--narrow" id="fig-9">
+        <div class="fig__head"><span class="fig__label"><b>Figure 9</b> &middot; Throughput and quality versus FLOPs at 374M</span><button type="button" class="fig__zoom" data-zoom="fig-9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
+        <div class="fig__media"><img src="images/fig_efficiency.png" alt="Training throughput and validation loss against forward FLOPs for the residual rules at 374M with 24 layers" loading="lazy" data-zoom="fig-9"></div>
+        <figcaption class="fig__caption"><strong>Compute and efficiency at 374M, 24 layers.</strong> Loopback and AttnRes run fused read kernels. (a) Per-GPU training throughput on eight H100s; bar labels give hours for the 20-TPP budget. (b) Validation loss versus forward FLOPs per token in excess of the standard Transformer&rsquo;s. Table 2 gives the other rules at all three measured scales.</figcaption>
+      </figure>
+      <div class="card card--table">
+        <h3>Persistent inference memory</h3>
+        <p>Analytical bf16 storage for all weights, including embeddings and the vocabulary head, plus the KV cache at 4,096 tokens. Totals exclude temporary activations and workspaces.</p>
+        <div class="tbl-wrap"><table class="tbl tbl--t2">
+          <thead><tr><th>Scale</th><th>Model</th><th>Params (M)</th><th>Weights (GiB)</th><th>KV / seq. (MiB)</th><th>1 seq. (GiB)</th><th>8 seq. (GiB)</th></tr></thead>
+          <tbody>
+            <tr><td>191M, 20 layers</td><td>Standard</td><td>190.74</td><td>0.36</td><td>240</td><td>0.59</td><td>2.23</td></tr>
+            <tr class="ours"><td></td><td>Loopback</td><td>105.80</td><td class="best">0.20</td><td>240</td><td class="best">0.43</td><td class="best">2.07</td></tr>
+            <tr><td>374M, 24 layers</td><td>Standard</td><td>373.87</td><td>0.70</td><td>384</td><td>1.07</td><td>3.70</td></tr>
+            <tr class="ours"><td></td><td>Loopback</td><td>245.42</td><td class="best">0.46</td><td>384</td><td class="best">0.83</td><td class="best">3.46</td></tr>
+            <tr><td>778M, 24 layers</td><td>Standard</td><td>777.86</td><td>1.45</td><td>576</td><td>2.01</td><td>5.95</td></tr>
+            <tr class="ours"><td></td><td>Loopback</td><td>551.36</td><td class="best">1.03</td><td>576</td><td class="best">1.59</td><td class="best">5.53</td></tr>
+            <tr><td>1.4B, 25 layers</td><td>Standard</td><td>1,415.68</td><td>2.64</td><td>800</td><td>3.42</td><td>8.89</td></tr>
+            <tr class="ours"><td></td><td>Loopback</td><td>1,004.64</td><td class="best">1.87</td><td>800</td><td class="best">2.65</td><td class="best">8.12</td></tr>
+            <tr><td>3B, 24 layers</td><td>Standard</td><td>2,914.67</td><td>5.43</td><td>1,152</td><td>6.55</td><td>14.43</td></tr>
+            <tr class="ours"><td></td><td>Loopback</td><td>2,235.19</td><td class="best">4.16</td><td>1,152</td><td class="best">5.29</td><td class="best">13.16</td></tr>
+          </tbody>
+        </table></div>
+      </div>
     </div>
   </div>
 </section>
@@ -830,7 +859,7 @@ window.LOOPBACK_DATA = {
     { key: 'attnres',   name: 'AttnRes',   family: 'attn' },
     { key: 'loopback',  name: 'Loopback',  family: 'ours',    note: 'ours' }
   ],
-  families: { control: 'Control', plain: 'Loop', hc: 'Hyper-connection family', attn: 'Attention family', ours: 'Ours' },
+  families: { control: 'Baseline', plain: 'Loop', hc: 'Hyper-connection family', attn: 'Attention family', ours: 'Ours' },
   // metric groups, in row order. lower: lower is better. mark: whether a best-per-row mark is computed. fmt: decimals.
   groups: [
     { name: 'Setting', metrics: [
@@ -850,7 +879,7 @@ window.LOOPBACK_DATA = {
   ],
   // per-scale values; the arrays follow the model order listed in `models` for that scale
   scales: [
-    { key: '191M', label: '191M', title: '191M, 20 layers, [2 → 4×4 → 2], 40.0% of the control, 3.82B tokens (20 TPP)', topology: '[2 → 4×4 → 2]', blocks: 20,
+    { key: '191M', label: '191M', title: '191M, 20 layers, [2 → 4×4 → 2], 40.0% of the standard Transformer’s parameters, 3.82B tokens (20 TPP)', topology: '[2 → 4×4 → 2]', blocks: 20,
       models: ['dense', 'plain', 'mhc', 'hc', 'ihc', 'hyperloop', 'mhar', 'attnres', 'loopback'],
       values: {
         params:         [141.59, 56.64, 56.93, 56.65, 57.04, 56.79, 56.64, 56.66, 56.65],
@@ -871,7 +900,7 @@ window.LOOPBACK_DATA = {
         wikitext:       [46.30, 50.30, 45.86, 47.52, 48.72, 47.87, 48.30, 47.01, 45.74],
         mean13:         [38.28, 36.64, 38.30, 38.15, 38.40, 38.31, 38.30, 38.19, 38.64]
       } },
-    { key: '374M', label: '374M', title: '374M, 32 layers, [2 → 14×2 → 2], 56.3% of the control, 7.47B tokens (20 TPP)', topology: '[2 → 14×2 → 2]', blocks: 32,
+    { key: '374M', label: '374M', title: '374M, 32 layers, [2 → 14×2 → 2], 56.3% of the standard Transformer’s parameters, 7.47B tokens (20 TPP)', topology: '[2 → 14×2 → 2]', blocks: 32,
       models: ['dense', 'plain', 'mhc', 'hc', 'ihc', 'hyperloop', 'mhar', 'attnres', 'loopback'],
       values: {
         params:         [323.02, 181.70, 181.87, 181.71, 182.52, 181.79, 181.70, 181.75, 181.72],
@@ -892,7 +921,7 @@ window.LOOPBACK_DATA = {
         wikitext:       [34.79, 34.57, 33.34, 34.05, 33.69, 33.45, 34.23, 33.59, 32.61],
         mean13:         [39.18, 40.84, 40.70, 40.17, 40.64, 40.28, 40.65, 40.19, 40.89]
       } },
-    { key: '778M', label: '778M', title: '778M, 48 layers, [3 → 21×2 → 3], 56.3% of the control, 15.60B tokens (20 TPP)', topology: '[3 → 21×2 → 3]', blocks: 48,
+    { key: '778M', label: '778M', title: '778M, 48 layers, [3 → 21×2 → 3], 56.3% of the standard Transformer’s parameters, 15.60B tokens (20 TPP)', topology: '[3 → 21×2 → 3]', blocks: 48,
       models: ['dense', 'plain', 'mhc', 'hc', 'ihc', 'hyperloop', 'mhar', 'attnres', 'loopback'],
       values: {
         params:         [708.68, 398.63, 398.84, 398.65, 400.11, 398.74, 398.64, 398.73, 398.68],
@@ -913,7 +942,7 @@ window.LOOPBACK_DATA = {
         wikitext:       [26.39, 26.78, 25.68, 26.49, 25.84, 26.01, 26.35, 25.95, 25.33],
         mean13:         [43.04, 42.78, 43.07, 43.17, 43.14, 43.23, 43.09, 43.50, 43.58]
       } },
-    { key: '1.4B', label: '1.4B', title: '1.4B, 25 layers, [3 → 8×2 → 6], 68.0% of the control, 28.31B tokens (20 TPP)', topology: '[3 → 8×2 → 6]', blocks: 25,
+    { key: '1.4B', label: '1.4B', title: '1.4B, 25 layers, [3 → 8×2 → 6], 68.0% of the standard Transformer’s parameters, 28.31B tokens (20 TPP)', topology: '[3 → 8×2 → 6]', blocks: 25,
       models: ['dense', 'loopback'],
       values: {
         params:         [1284.61, 873.57],
@@ -934,7 +963,7 @@ window.LOOPBACK_DATA = {
         wikitext:       [21.09, 20.29],
         mean13:         [46.33, 46.50]
       } },
-    { key: '3B', label: '3B', title: '3B, 24 layers, [6 → 6×2 → 6], 75.0% of the control, 59.77B tokens (20 TPP)', topology: '[6 → 6×2 → 6]', blocks: 24,
+    { key: '3B', label: '3B', title: '3B, 24 layers, [6 → 6×2 → 6], 75.0% of the standard Transformer’s parameters, 59.77B tokens (20 TPP)', topology: '[6 → 6×2 → 6]', blocks: 24,
       models: ['dense', 'loopback'],
       values: {
         params:         [2718.06, 2038.58],
@@ -957,40 +986,39 @@ window.LOOPBACK_DATA = {
       } }
   ],
   // Table 2: compute and efficiency (Transformer-only parameters; extra forward FLOPs relative to the standard Transformer; per-GPU training
-  // throughput and peak memory; hours estimated from throughput; prefill on one H100)
+  // throughput and peak memory; prefill on one H100)
   compute: {
     columns: [
       { key: 'params', label: 'Params (M)', fmt: 2 },
       { key: 'flops', label: 'Extra FLOPs', text: true },
       { key: 'tps', label: 'Train tok/s/GPU', text: true, higher: true },
-      { key: 'hours', label: 'Hours per 20 TPP', fmt: 1, lower: true },
       { key: 'mem', label: 'Peak GiB/GPU', fmt: 0, lower: true },
       { key: 'prefill', label: 'Prefill tok/s', text: true, higher: true }
     ],
     scales: [
       { key: '191M', title: '191M, [2 → 4×4 → 2], 3.82B tokens, 16 sequences per GPU', rows: [
-        ['dense',     141.59, '—',   '222k', 0.6, 38, '885k'],
-        ['plain',     56.64,  '+0.00%', '226k', 0.6, 38, '886k'],
-        ['mhc',       56.93,  '+0.15%', '169k', 0.8, 42, '594k'],
-        ['hc',        56.65,  '+0.07%', '186k', 0.7, 42, '671k'],
-        ['ihc',       57.04,  '+0.17%', '116k', 1.1, 67, '370k'],
-        ['hyperloop', 56.79,  '+0.08%', '186k', 0.7, 42, '743k'],
-        ['mhar',      56.64,  '+0.01%', '204k', 0.6, 41, '810k'],
-        ['loopback',  56.65,  '+0.08%', '167k', 0.8, 42, '601k'] ] },
+        ['dense',     141.59, '—',   '222k', 38, '885k'],
+        ['plain',     56.64,  '+0.00%', '226k', 38, '886k'],
+        ['mhc',       56.93,  '+0.15%', '169k', 42, '594k'],
+        ['hc',        56.65,  '+0.07%', '186k', 42, '671k'],
+        ['ihc',       57.04,  '+0.17%', '116k', 67, '370k'],
+        ['hyperloop', 56.79,  '+0.08%', '186k', 42, '743k'],
+        ['mhar',      56.64,  '+0.01%', '204k', 41, '810k'],
+        ['loopback',  56.65,  '+0.08%', '167k', 42, '601k'] ] },
       { key: '374M', title: '374M, [2 → 10×2 → 2], 7.47B tokens, 8 sequences per GPU', rows: [
-        ['dense',     308.33, '—',   '128k', 2.0, 26, '492k'],
-        ['plain',     179.86, '+0.00%', '130k', 2.0, 26, '491k'],
-        ['mhc',       180.06, '+0.05%', '115k', 2.3, 29, '422k'],
-        ['hc',        179.87, '+0.02%', '120k', 2.2, 30, '439k'],
-        ['ihc',       180.53, '+0.15%', '68k',  3.8, 52, '220k'],
-        ['hyperloop', 179.96, '+0.03%', '120k', 2.2, 29, '457k'],
-        ['mhar',      179.86, '+0.00%', '126k', 2.1, 27, '480k'],
-        ['loopback',  179.88, '+0.08%', '98k',  2.6, 32, '352k'] ] },
+        ['dense',     308.33, '—',   '128k', 26, '492k'],
+        ['plain',     179.86, '+0.00%', '130k', 26, '491k'],
+        ['mhc',       180.06, '+0.05%', '115k', 29, '422k'],
+        ['hc',        179.87, '+0.02%', '120k', 30, '439k'],
+        ['ihc',       180.53, '+0.15%', '68k',  52, '220k'],
+        ['hyperloop', 179.96, '+0.03%', '120k', 29, '457k'],
+        ['mhar',      179.86, '+0.00%', '126k', 27, '480k'],
+        ['loopback',  179.88, '+0.08%', '98k',  32, '352k'] ] },
       { key: '778M', title: '778M, [2 → 8×2 → 6], 15.60B tokens, 8 sequences per GPU', rows: [
-        ['dense',    679.55, '—',   '75k', 7.2, 38, '269k'],
-        ['plain',    453.04, '+0.00%', '76k', 7.2, 37, '269k'],
-        ['mhc',      453.33, '+0.04%', '68k', 7.9, 42, '240k'],
-        ['loopback', 453.06, '+0.04%', '63k', 8.6, 44, '217k'] ] }
+        ['dense',    679.55, '—',   '75k', 38, '269k'],
+        ['plain',    453.04, '+0.00%', '76k', 37, '269k'],
+        ['mhc',      453.33, '+0.04%', '68k', 42, '240k'],
+        ['loopback', 453.06, '+0.04%', '63k', 44, '217k'] ] }
     ]
   }
 };
@@ -1238,7 +1266,7 @@ window.LOOPBACK_DATA = {
         h('div', { 'class': 'rt-controls' }, h('span', { 'class': 'rt-controls__name', 'aria-hidden': 'true' }, 'Scale'), cseg)),
       chint, cscroller,
       h('div', { 'class': 'rt-foot' }, ctitle,
-        h('p', { 'class': 'rt-notes' }, 'Parameters are Transformer-only; extra forward FLOPs are relative to the standard Transformer. Training throughput and peak memory are per GPU on 8 H100s; hours are estimated from throughput. Prefill uses one H100. The underline marks the best looped rule in the column.')));
+        h('p', { 'class': 'rt-notes' }, 'Parameters are Transformer-only; extra forward FLOPs are relative to the standard Transformer. Training throughput and peak memory are per GPU on 8 H100s. Prefill uses one H100. The underline marks the best looped rule in the column.')));
     cm.innerHTML = ''; cm.appendChild(ccard);
     scrollHint(cscroller, chint);
     function crender() {
@@ -1269,7 +1297,7 @@ window.LOOPBACK_DATA = {
       });
       table.appendChild(tb);
       cscroller.innerHTML = ''; cscroller.appendChild(table); cscroller.scrollLeft = 0;
-      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to the standard Transformer’s forward FLOPs and pays for the read in memory traffic: ' + (s.key === '191M' ? '25%' : s.key === '374M' ? '23%' : '16%') + ' fewer training tokens per second.';
+      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to the standard Transformer’s forward FLOPs. The read’s cost is memory traffic, which the fused kernel streams once per read; at 3B the training-throughput gap to the standard Transformer is 6%.';
       chint.classList.remove('is-on'); setTimeout(function () { cscroller.dispatchEvent(new Event('scroll')); }, 0);
     }
     crender();

@@ -272,6 +272,11 @@ button { font: inherit; color: inherit; }
 .tbl .tname { display: inline-block; margin-top: 2px; color: var(--text-muted); font: 500 .72rem/1.3 var(--font-body); }
 .tbl--mem th, .tbl--mem td { text-align: center; vertical-align: top; }
 .tbl--mem th:first-child, .tbl--mem td:first-child { text-align: left; }
+.tbl th.grp { text-align: center; color: var(--text-2); }
+.tbl--math thead tr + tr th:first-child { text-align: right; }
+.tbl th.lb, .tbl td.lb { background: var(--accent-soft); }
+.tbl td.delta { color: var(--pos); font-weight: 600; }
+.tbl tr.sep td { border-top: 2px solid var(--border); }
 .tbl-foot { margin: 10px 0 0; font-size: .85rem; color: var(--text-3); }
 .card { border: 1px solid var(--border); border-radius: var(--r-card); background: var(--surface); box-shadow: var(--shadow-sm); padding: clamp(16px, 2.4vw, 22px); min-width: 0; }
 .card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }

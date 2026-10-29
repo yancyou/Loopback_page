@@ -1,126 +1,136 @@
 WEBVTT
 
 title-1
-00:00:00.450 --> 00:00:01.925
+00:00:00.500 --> 00:00:01.580
 Loopback Transformer:
 
 title-2
-00:00:01.925 --> 00:00:05.150
+00:00:01.580 --> 00:00:04.890
 towards a unified view of
 residual looped Transformers.
 
 hook-3
-00:00:05.950 --> 00:00:09.200
+00:00:07.000 --> 00:00:10.770
 Looped Transformers apply the
 same blocks again and again.
 
 hook-4
-00:00:09.238 --> 00:00:10.850
+00:00:11.560 --> 00:00:12.750
 Sharing fixes the weights,
 
 hook-5
-00:00:10.850 --> 00:00:13.225
+00:00:12.960 --> 00:00:15.270
 but not how each update is reused.
 
 rules-6
-00:00:14.450 --> 00:00:16.650
+00:00:17.500 --> 00:00:20.170
 Addition gives every update weight one,
 
 rules-7
-00:00:16.650 --> 00:00:18.763
+00:00:20.380 --> 00:00:22.450
 so the total grows with depth.
 
 rules-8
-00:00:18.763 --> 00:00:21.325
+00:00:23.240 --> 00:00:25.680
 A joint softmax shares one unit of weight,
 
 rules-9
-00:00:21.325 --> 00:00:23.075
+00:00:25.680 --> 00:00:27.210
 so the input shrinks.
 
 rules-10
-00:00:23.100 --> 00:00:25.000
+00:00:27.980 --> 00:00:30.210
 Loopback keeps the input at one;
 
 rules-11
-00:00:25.000 --> 00:00:26.425
+00:00:30.620 --> 00:00:31.730
 decay sets the total,
 
 rules-12
-00:00:26.425 --> 00:00:28.200
+00:00:32.080 --> 00:00:33.710
 and attention allocates it.
 
 recipe-13
-00:00:30.450 --> 00:00:31.312
+00:00:36.000 --> 00:00:36.790
 The recipe:
 
 recipe-14
-00:00:31.312 --> 00:00:32.137
+00:00:37.120 --> 00:00:38.030
 store updates,
 
 recipe-15
-00:00:32.137 --> 00:00:33.275
+00:00:38.440 --> 00:00:39.270
 not outputs;
 
 recipe-16
-00:00:33.275 --> 00:00:35.387
+00:00:39.660 --> 00:00:41.630
 keep the input on its own path;
 
 recipe-17
-00:00:35.387 --> 00:00:36.725
+00:00:42.120 --> 00:00:43.590
 let decay set the total,
 
 recipe-18
-00:00:36.725 --> 00:00:38.375
+00:00:43.940 --> 00:00:45.390
 and attention allocate it.
 
 scale-19
-00:00:39.450 --> 00:00:43.288
+00:00:46.500 --> 00:00:49.810
 From 191M to 3B parameters,
 
 scale-20
-00:00:43.288 --> 00:00:47.575
+00:00:50.480 --> 00:00:54.170
 Loopback reaches lower validation
 loss than the standard Transformer,
 
 scale-21
-00:00:47.575 --> 00:00:50.775
+00:00:54.340 --> 00:00:57.330
 with 40–75% of its parameters.
 
 nine-22
-00:00:51.450 --> 00:00:53.712
+00:00:59.000 --> 00:01:00.970
 At 374M,
 
 nine-23
-00:00:53.712 --> 00:00:57.975
+00:01:01.340 --> 00:01:06.250
 it is the best of nine models in
-both loss and thirteen-task mean.
+both loss and thirteen-task average.
 
-eff-24
-00:00:59.950 --> 00:01:02.575
-The read costs a fraction
-of a percent in FLOPs,
+visits-24
+00:01:07.500 --> 00:01:10.590
+Run more loops at
+inference than in training,
 
-eff-25
-00:01:02.575 --> 00:01:04.050
-the same KV cache,
+visits-25
+00:01:10.960 --> 00:01:13.970
+and Loopback degrades far
+less than plain addition.
 
 eff-26
-00:01:04.050 --> 00:01:05.375
-and smaller weights.
+00:01:17.000 --> 00:01:20.590
+The read adds under 0.1% in FLOPs;
 
-outro-27
-00:01:06.950 --> 00:01:08.038
-Store updates.
+eff-27
+00:01:20.860 --> 00:01:21.930
+at 3B,
 
-outro-28
-00:01:08.038 --> 00:01:10.000
-Keep the input on its own path.
+eff-28
+00:01:22.620 --> 00:01:26.570
+training runs within 6% of the
+standard Transformer's speed.
 
 outro-29
-00:01:10.000 --> 00:01:11.400
-Decay sets the total;
+00:01:28.400 --> 00:01:29.590
+Store updates.
 
 outro-30
-00:01:11.400 --> 00:01:13.000
+00:01:30.200 --> 00:01:32.130
+Keep the input on its own path.
+
+outro-31
+00:01:32.640 --> 00:01:33.630
+Decay sets the total;
+
+outro-32
+00:01:34.100 --> 00:01:34.950
 attention allocates it.

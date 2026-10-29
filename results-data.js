@@ -16,7 +16,7 @@ window.LOOPBACK_DATA = {
     { key: 'attnres',   name: 'AttnRes',   family: 'attn' },
     { key: 'loopback',  name: 'Loopback',  family: 'ours',    note: 'ours' }
   ],
-  families: { control: 'Control', plain: 'Loop', hc: 'Hyper-connection family', attn: 'Attention family', ours: 'Ours' },
+  families: { control: 'Baseline', plain: 'Loop', hc: 'Hyper-connection family', attn: 'Attention family', ours: 'Ours' },
   // metric groups, in row order. lower: lower is better. mark: whether a best-per-row mark is computed. fmt: decimals.
   groups: [
     { name: 'Setting', metrics: [
@@ -36,7 +36,7 @@ window.LOOPBACK_DATA = {
   ],
   // per-scale values; the arrays follow the model order listed in `models` for that scale
   scales: [
-    { key: '191M', label: '191M', title: '191M, 20 layers, [2 → 4×4 → 2], 40.0% of the control, 3.82B tokens (20 TPP)', topology: '[2 → 4×4 → 2]', blocks: 20,
+    { key: '191M', label: '191M', title: '191M, 20 layers, [2 → 4×4 → 2], 40.0% of the standard Transformer’s parameters, 3.82B tokens (20 TPP)', topology: '[2 → 4×4 → 2]', blocks: 20,
       models: ['dense', 'plain', 'mhc', 'hc', 'ihc', 'hyperloop', 'mhar', 'attnres', 'loopback'],
       values: {
         params:         [141.59, 56.64, 56.93, 56.65, 57.04, 56.79, 56.64, 56.66, 56.65],
@@ -57,7 +57,7 @@ window.LOOPBACK_DATA = {
         wikitext:       [46.30, 50.30, 45.86, 47.52, 48.72, 47.87, 48.30, 47.01, 45.74],
         mean13:         [38.28, 36.64, 38.30, 38.15, 38.40, 38.31, 38.30, 38.19, 38.64]
       } },
-    { key: '374M', label: '374M', title: '374M, 32 layers, [2 → 14×2 → 2], 56.3% of the control, 7.47B tokens (20 TPP)', topology: '[2 → 14×2 → 2]', blocks: 32,
+    { key: '374M', label: '374M', title: '374M, 32 layers, [2 → 14×2 → 2], 56.3% of the standard Transformer’s parameters, 7.47B tokens (20 TPP)', topology: '[2 → 14×2 → 2]', blocks: 32,
       models: ['dense', 'plain', 'mhc', 'hc', 'ihc', 'hyperloop', 'mhar', 'attnres', 'loopback'],
       values: {
         params:         [323.02, 181.70, 181.87, 181.71, 182.52, 181.79, 181.70, 181.75, 181.72],
@@ -78,7 +78,7 @@ window.LOOPBACK_DATA = {
         wikitext:       [34.79, 34.57, 33.34, 34.05, 33.69, 33.45, 34.23, 33.59, 32.61],
         mean13:         [39.18, 40.84, 40.70, 40.17, 40.64, 40.28, 40.65, 40.19, 40.89]
       } },
-    { key: '778M', label: '778M', title: '778M, 48 layers, [3 → 21×2 → 3], 56.3% of the control, 15.60B tokens (20 TPP)', topology: '[3 → 21×2 → 3]', blocks: 48,
+    { key: '778M', label: '778M', title: '778M, 48 layers, [3 → 21×2 → 3], 56.3% of the standard Transformer’s parameters, 15.60B tokens (20 TPP)', topology: '[3 → 21×2 → 3]', blocks: 48,
       models: ['dense', 'plain', 'mhc', 'hc', 'ihc', 'hyperloop', 'mhar', 'attnres', 'loopback'],
       values: {
         params:         [708.68, 398.63, 398.84, 398.65, 400.11, 398.74, 398.64, 398.73, 398.68],
@@ -99,7 +99,7 @@ window.LOOPBACK_DATA = {
         wikitext:       [26.39, 26.78, 25.68, 26.49, 25.84, 26.01, 26.35, 25.95, 25.33],
         mean13:         [43.04, 42.78, 43.07, 43.17, 43.14, 43.23, 43.09, 43.50, 43.58]
       } },
-    { key: '1.4B', label: '1.4B', title: '1.4B, 25 layers, [3 → 8×2 → 6], 68.0% of the control, 28.31B tokens (20 TPP)', topology: '[3 → 8×2 → 6]', blocks: 25,
+    { key: '1.4B', label: '1.4B', title: '1.4B, 25 layers, [3 → 8×2 → 6], 68.0% of the standard Transformer’s parameters, 28.31B tokens (20 TPP)', topology: '[3 → 8×2 → 6]', blocks: 25,
       models: ['dense', 'loopback'],
       values: {
         params:         [1284.61, 873.57],
@@ -120,7 +120,7 @@ window.LOOPBACK_DATA = {
         wikitext:       [21.09, 20.29],
         mean13:         [46.33, 46.50]
       } },
-    { key: '3B', label: '3B', title: '3B, 24 layers, [6 → 6×2 → 6], 75.0% of the control, 59.77B tokens (20 TPP)', topology: '[6 → 6×2 → 6]', blocks: 24,
+    { key: '3B', label: '3B', title: '3B, 24 layers, [6 → 6×2 → 6], 75.0% of the standard Transformer’s parameters, 59.77B tokens (20 TPP)', topology: '[6 → 6×2 → 6]', blocks: 24,
       models: ['dense', 'loopback'],
       values: {
         params:         [2718.06, 2038.58],
@@ -143,40 +143,39 @@ window.LOOPBACK_DATA = {
       } }
   ],
   // Table 2: compute and efficiency (Transformer-only parameters; extra forward FLOPs relative to the standard Transformer; per-GPU training
-  // throughput and peak memory; hours estimated from throughput; prefill on one H100)
+  // throughput and peak memory; prefill on one H100)
   compute: {
     columns: [
       { key: 'params', label: 'Params (M)', fmt: 2 },
       { key: 'flops', label: 'Extra FLOPs', text: true },
       { key: 'tps', label: 'Train tok/s/GPU', text: true, higher: true },
-      { key: 'hours', label: 'Hours per 20 TPP', fmt: 1, lower: true },
       { key: 'mem', label: 'Peak GiB/GPU', fmt: 0, lower: true },
       { key: 'prefill', label: 'Prefill tok/s', text: true, higher: true }
     ],
     scales: [
       { key: '191M', title: '191M, [2 → 4×4 → 2], 3.82B tokens, 16 sequences per GPU', rows: [
-        ['dense',     141.59, '—',   '222k', 0.6, 38, '885k'],
-        ['plain',     56.64,  '+0.00%', '226k', 0.6, 38, '886k'],
-        ['mhc',       56.93,  '+0.15%', '169k', 0.8, 42, '594k'],
-        ['hc',        56.65,  '+0.07%', '186k', 0.7, 42, '671k'],
-        ['ihc',       57.04,  '+0.17%', '116k', 1.1, 67, '370k'],
-        ['hyperloop', 56.79,  '+0.08%', '186k', 0.7, 42, '743k'],
-        ['mhar',      56.64,  '+0.01%', '204k', 0.6, 41, '810k'],
-        ['loopback',  56.65,  '+0.08%', '167k', 0.8, 42, '601k'] ] },
+        ['dense',     141.59, '—',   '222k', 38, '885k'],
+        ['plain',     56.64,  '+0.00%', '226k', 38, '886k'],
+        ['mhc',       56.93,  '+0.15%', '169k', 42, '594k'],
+        ['hc',        56.65,  '+0.07%', '186k', 42, '671k'],
+        ['ihc',       57.04,  '+0.17%', '116k', 67, '370k'],
+        ['hyperloop', 56.79,  '+0.08%', '186k', 42, '743k'],
+        ['mhar',      56.64,  '+0.01%', '204k', 41, '810k'],
+        ['loopback',  56.65,  '+0.08%', '167k', 42, '601k'] ] },
       { key: '374M', title: '374M, [2 → 10×2 → 2], 7.47B tokens, 8 sequences per GPU', rows: [
-        ['dense',     308.33, '—',   '128k', 2.0, 26, '492k'],
-        ['plain',     179.86, '+0.00%', '130k', 2.0, 26, '491k'],
-        ['mhc',       180.06, '+0.05%', '115k', 2.3, 29, '422k'],
-        ['hc',        179.87, '+0.02%', '120k', 2.2, 30, '439k'],
-        ['ihc',       180.53, '+0.15%', '68k',  3.8, 52, '220k'],
-        ['hyperloop', 179.96, '+0.03%', '120k', 2.2, 29, '457k'],
-        ['mhar',      179.86, '+0.00%', '126k', 2.1, 27, '480k'],
-        ['loopback',  179.88, '+0.08%', '98k',  2.6, 32, '352k'] ] },
+        ['dense',     308.33, '—',   '128k', 26, '492k'],
+        ['plain',     179.86, '+0.00%', '130k', 26, '491k'],
+        ['mhc',       180.06, '+0.05%', '115k', 29, '422k'],
+        ['hc',        179.87, '+0.02%', '120k', 30, '439k'],
+        ['ihc',       180.53, '+0.15%', '68k',  52, '220k'],
+        ['hyperloop', 179.96, '+0.03%', '120k', 29, '457k'],
+        ['mhar',      179.86, '+0.00%', '126k', 27, '480k'],
+        ['loopback',  179.88, '+0.08%', '98k',  32, '352k'] ] },
       { key: '778M', title: '778M, [2 → 8×2 → 6], 15.60B tokens, 8 sequences per GPU', rows: [
-        ['dense',    679.55, '—',   '75k', 7.2, 38, '269k'],
-        ['plain',    453.04, '+0.00%', '76k', 7.2, 37, '269k'],
-        ['mhc',      453.33, '+0.04%', '68k', 7.9, 42, '240k'],
-        ['loopback', 453.06, '+0.04%', '63k', 8.6, 44, '217k'] ] }
+        ['dense',    679.55, '—',   '75k', 38, '269k'],
+        ['plain',    453.04, '+0.00%', '76k', 37, '269k'],
+        ['mhc',      453.33, '+0.04%', '68k', 42, '240k'],
+        ['loopback', 453.06, '+0.04%', '63k', 44, '217k'] ] }
     ]
   }
 };

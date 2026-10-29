@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 video/_frames/
 video/voiceover/build/
+video/music/build/

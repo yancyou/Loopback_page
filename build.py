@@ -30,19 +30,21 @@ scripts = ("<script>\n" + read("results-data.js") + "</script>\n"
 
 # The artifact host serves no .vtt, so the preview carries the captions inline and hands the track a same-origin blob URL;
 # index.html keeps the file (videos/loopback_promo.vtt) for GitHub Pages.
+# (Only when the page has a caption track: the current video burns its captions into the frames.)
 TRACK = '<track kind="captions" src="videos/loopback_promo.vtt" srclang="en" label="English">'
-assert body.count(TRACK) == 1, "the hero video's caption track moved"
-vtt = read(os.path.join("videos", "loopback_promo.vtt"))
-assert "</script" not in vtt
-captions = ('<script type="text/vtt" id="lb-vtt">\n' + vtt + '</script>\n'
-            '<script>(function(){var t=document.querySelector("track[data-vtt]"),s=document.getElementById("lb-vtt");'
-            'if(t&&s&&window.Blob&&window.URL){t.src=URL.createObjectURL(new Blob([s.textContent.trim()+"\\n"],{type:"text/vtt"}));}})();</script>\n')
-artifact_body = body.replace(TRACK, '<track kind="captions" srclang="en" label="English" data-vtt="inline">')
+captions, artifact_body = "", body
+if TRACK in body:
+    vtt = read(os.path.join("videos", "loopback_promo.vtt"))
+    assert "</script" not in vtt
+    captions = ('<script type="text/vtt" id="lb-vtt">\n' + vtt + '</script>\n'
+                '<script>(function(){var t=document.querySelector("track[data-vtt]"),s=document.getElementById("lb-vtt");'
+                'if(t&&s&&window.Blob&&window.URL){t.src=URL.createObjectURL(new Blob([s.textContent.trim()+"\\n"],{type:"text/vtt"}));}})();</script>\n')
+    artifact_body = body.replace(TRACK, '<track kind="captions" srclang="en" label="English" data-vtt="inline">')
 artifact = title + THEME + FONTS + style + artifact_body + captions + MATHJAX + scripts
 open(os.path.join(HERE, "artifact.html"), "w", encoding="utf-8").write(artifact)
 page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-        '<meta name="description" content="Loopback Transformer: a looped Transformer that stores block updates, keeps the input on its own path, and lets decay set the total update weight while attention allocates it. Lower loss than dense controls at 191M to 1.4B with 40-68% of the parameters.">\n'
+        '<meta name="description" content="Loopback Transformer: a looped Transformer that stores block updates, keeps the input on its own path, and lets decay set the total update weight while attention allocates it. Lower validation loss than standard Transformers from 191M to 3B with 40-75% of their Transformer parameters, at matched training tokens and executed depth.">\n'
         '<meta name="color-scheme" content="light dark">\n'
         '<meta property="og:type" content="website">\n'
         '<meta property="og:title" content="Loopback Transformer: Towards a Unified View of Residual Looped Transformers">\n'
