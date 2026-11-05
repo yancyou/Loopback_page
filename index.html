@@ -206,10 +206,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .prior-card figcaption { margin: 8px 4px 0; color: #4a5560; font-size: .85rem; line-height: 1.5; text-wrap: pretty; }
 .prior-card figcaption i { font-family: var(--font-display); font-size: 1.05em; }
 
-.hero__video { margin: clamp(2.5rem, 5vw, 3.75rem) 0 0; border-radius: 18px; background: #05080d; box-shadow: var(--shadow-lg); overflow: hidden; }
-.hero__video video { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; background: #05080d; }
-.hero__video figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding: 13px 18px 15px; background: #0b1017; color: #aab4c2; font-size: .9rem; line-height: 1.5; text-wrap: pretty; }
-.hero__video figcaption strong { color: #f2f4f7; font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; }
+.hero__video { margin: clamp(2.5rem, 5vw, 3.75rem) 0 0; border-radius: 18px; background: var(--paper); border: 1px solid var(--border); box-shadow: var(--shadow-lg); overflow: hidden; }
+.hero__video video { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; background: #faf9f6; }   /* the video is drawn on the light paper in both themes, like the figures */
+.hero__video figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding: 13px 18px 15px; background: var(--surface-2); border-top: 1px solid var(--border); color: var(--text-3); font-size: .9rem; line-height: 1.5; text-wrap: pretty; }
+.hero__video figcaption strong { color: var(--text); font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; }
 
 /* headline numbers under the hero */
 .headline { margin-top: clamp(2.5rem, 5vw, 3.5rem); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border); list-style: none; padding: 0; }
@@ -921,7 +921,7 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
 </main>
 
 <footer class="foot">
-  <div class="wrap"><span class="foot__brand">Loopback Transformer</span><span>University of Wisconsin&ndash;Madison &middot; UC Santa Barbara &middot; Caltech &middot; Microsoft</span><span>Every number on this page is from the paper.</span></div>
+  <div class="wrap"><span class="foot__brand">Loopback Transformer</span><span>University of Wisconsin&ndash;Madison &middot; University of California, Santa Barbara &middot; California Institute of Technology &middot; Microsoft</span><span>Every number on this page is from the paper.</span></div>
 </footer>
 
 <dialog class="lightbox" id="lightbox" aria-labelledby="lightbox-title">
