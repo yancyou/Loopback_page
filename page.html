@@ -1,9 +1,7 @@
 <a class="sr-only" href="#main">Skip to content</a>
 <nav class="nav" aria-label="Page sections">
   <div class="wrap nav__inner">
-    <a class="nav__brand" href="#top" aria-label="Loopback Transformer, top of page">
-      Loopback
-    </a>
+    <a class="nav__brand" href="#top" aria-label="Loopback Transformer, top of page">Loopback <small>Transformer</small></a>
     <div class="nav__links">
       <a href="#abstract">Abstract</a><a href="#contributions">Contributions</a><a href="#method">Method</a><a href="#demo">Demo</a><a href="#results">Results</a><a href="#bibtex">BibTeX</a>
     </div>
@@ -17,10 +15,11 @@
 <main id="main">
 <header class="hero" id="top">
   <div class="wrap">
-    <span class="hero__kicker">Preprint &middot; 2026</span>
-    <h1 class="title"><span class="grad">Loopback</span> Transformer</h1>
-    <p class="subtitle">Towards a Unified View of Residual Looped Transformers</p>
-    <p class="authors">
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <h1 class="title"><span class="grad">Loopback</span> Transformer</h1>
+        <p class="subtitle">Towards a Unified View of Residual Looped Transformers</p>
+        <p class="authors">
       <span><a href="https://yancyou.github.io/" target="_blank" rel="noopener">Xuan Ouyang</a><sup>1,*</sup></span>
       <span><a href="https://zefan-cai.github.io/" target="_blank" rel="noopener">Zefan Cai</a><sup>1,*</sup></span>
       <span><a href="https://chenlong-clock.github.io/" target="_blank" rel="noopener">Chenlong Zhang</a><sup>2</sup></span>
@@ -28,14 +27,14 @@
       <span><a href="https://cseweb.ucsd.edu/~kewan/" target="_blank" rel="noopener">Ke Wan</a><sup>4</sup></span>
       <span><a href="https://junjiehu.github.io/" target="_blank" rel="noopener">Junjie Hu</a><sup>1,&#9993;</sup></span>
     </p>
-    <p class="affils">
+        <p class="affils">
       <span><sup>1</sup>University of Wisconsin&ndash;Madison</span>
       <span><sup>2</sup>University of California, Santa Barbara</span>
       <span><sup>3</sup>California Institute of Technology</span>
       <span><sup>4</sup>Microsoft</span>
     </p>
-    <p class="note">(<sup>*</sup>Equal contribution, <sup>&#9993;</sup>Corresponding author)</p>
-    <div class="links">
+        <p class="note">(<sup>*</sup>Equal contribution, <sup>&#9993;</sup>Corresponding author)</p>
+        <div class="links">
       <span class="pill pill--soon" aria-disabled="true" title="The arXiv link goes live at release">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h8l6 6v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V9h5.5L13 3.5zM8 13h8v1.6H8V13zm0 3.2h8v1.6H8v-1.6z"/></svg>Paper<span class="pill__soon">soon</span>
       </span>
@@ -43,18 +42,32 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>Code<span class="pill__soon">soon</span>
       </span>
     </div>
+      </div>
+      <figure class="prior-card" aria-labelledby="prior-cap">
+        <div class="prior-card__head"><span><b>Decay prior</b> <span class="prior-card__params"><i>K</i> = 2, <i>&lambda;</i> = 1/4</span></span><span>three iterations</span></div>
+        <svg class="prior" viewBox="0 0 510 368" role="img" aria-labelledby="prior-title prior-desc" xmlns="http://www.w3.org/2000/svg"><title id="prior-title">Loopback’s decay prior</title><desc id="prior-desc">Prior read coefficients for two shared blocks over three loop iterations with decay 1/4: after every application the new block update enters with coefficient 1, and at the end of every iteration all stored coefficients are multiplied by 1/4, so older updates fade while the total stays bounded.</desc><text class="prior__col" x="97" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">0</tspan></text><text class="prior__col" x="149" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">1</tspan></text><text class="prior__col" x="201" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">2</tspan></text><text class="prior__col" x="253" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">3</tspan></text><text class="prior__col" x="305" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">4</tspan></text><text class="prior__col" x="357" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">5</tspan></text><text class="prior__col prior__col--b" x="478" y="36" text-anchor="middle">B<tspan dy="4" font-size="11">s</tspan></text><g class="prior__row" style="--d:0"><text class="prior__row-label" x="60" y="80" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">0</tspan></text><rect class="prior__cell" x="74" y="52" width="46" height="46" rx="7" style="--o:1.000"/><text class="prior__val" x="97" y="81" text-anchor="middle">1</text><text class="prior__total" x="478" y="80" text-anchor="middle">1</text></g><g class="prior__row" style="--d:1"><text class="prior__row-label" x="60" y="132" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">1</tspan></text><rect class="prior__cell" x="74" y="104" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="97" y="133" text-anchor="middle">λ</text><rect class="prior__cell" x="126" y="104" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="149" y="133" text-anchor="middle">λ</text><text class="prior__total" x="478" y="132" text-anchor="middle">0.5</text><text class="prior__decay" x="182" y="132">× λ</text></g><g class="prior__row" style="--d:2"><text class="prior__row-label" x="60" y="184" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">2</tspan></text><rect class="prior__cell" x="74" y="156" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="97" y="185" text-anchor="middle">λ</text><rect class="prior__cell" x="126" y="156" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="149" y="185" text-anchor="middle">λ</text><rect class="prior__cell" x="178" y="156" width="46" height="46" rx="7" style="--o:1.000"/><text class="prior__val" x="201" y="185" text-anchor="middle">1</text><text class="prior__total" x="478" y="184" text-anchor="middle">1.5</text></g><g class="prior__row" style="--d:3"><text class="prior__row-label" x="60" y="236" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">3</tspan></text><rect class="prior__cell" x="74" y="208" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="97" y="237" text-anchor="middle">λ²</text><rect class="prior__cell" x="126" y="208" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="149" y="237" text-anchor="middle">λ²</text><rect class="prior__cell" x="178" y="208" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="201" y="237" text-anchor="middle">λ</text><rect class="prior__cell" x="230" y="208" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="253" y="237" text-anchor="middle">λ</text><text class="prior__total" x="478" y="236" text-anchor="middle">0.625</text><text class="prior__decay" x="286" y="236">× λ</text></g><g class="prior__row" style="--d:4"><text class="prior__row-label" x="60" y="288" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">4</tspan></text><rect class="prior__cell" x="74" y="260" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="97" y="289" text-anchor="middle">λ²</text><rect class="prior__cell" x="126" y="260" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="149" y="289" text-anchor="middle">λ²</text><rect class="prior__cell" x="178" y="260" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="201" y="289" text-anchor="middle">λ</text><rect class="prior__cell" x="230" y="260" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="253" y="289" text-anchor="middle">λ</text><rect class="prior__cell" x="282" y="260" width="46" height="46" rx="7" style="--o:1.000"/><text class="prior__val" x="305" y="289" text-anchor="middle">1</text><text class="prior__total" x="478" y="288" text-anchor="middle">1.625</text></g><g class="prior__row" style="--d:5"><text class="prior__row-label" x="60" y="340" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">5</tspan></text><rect class="prior__cell" x="74" y="312" width="46" height="46" rx="7" style="--o:0.120"/><text class="prior__val prior__val--light" x="97" y="341" text-anchor="middle">λ³</text><rect class="prior__cell" x="126" y="312" width="46" height="46" rx="7" style="--o:0.120"/><text class="prior__val prior__val--light" x="149" y="341" text-anchor="middle">λ³</text><rect class="prior__cell" x="178" y="312" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="201" y="341" text-anchor="middle">λ²</text><rect class="prior__cell" x="230" y="312" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="253" y="341" text-anchor="middle">λ²</text><rect class="prior__cell" x="282" y="312" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="305" y="341" text-anchor="middle">λ</text><rect class="prior__cell" x="334" y="312" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="357" y="341" text-anchor="middle">λ</text><text class="prior__total" x="478" y="340" text-anchor="middle">0.656</text><text class="prior__decay" x="390" y="340">× λ</text></g></svg>
+        <figcaption id="prior-cap">Each read after a block application gives the new update weight 1; at the end of every loop iteration all stored weights shrink by <i>&lambda;</i>, so the total <i>B</i> stays below <i>K&lambda;</i>/(1&minus;<i>&lambda;</i>) = 2/3. Attention then reallocates that total by content.</figcaption>
+      </figure>
+    </div>
     <figure class="hero__video" id="video">
-      <video controls playsinline preload="metadata" poster="videos/loopback_promo_poster_hero.jpg" aria-label="Loopback Transformer overview video with narration and captions, 2 minutes 14 seconds">
+      <video controls playsinline preload="metadata" poster="videos/loopback_promo_poster_hero.jpg" aria-label="Loopback Transformer overview video with narration and captions, 2 minutes 22 seconds">
         <source src="videos/loopback_promo.mp4" type="video/mp4">
       </video>
-      <figcaption><strong>Loopback in two minutes.</strong> The question the paper asks, residual connections as depth memory, the Loopback design, and the results: 191M to 3B, nine designs at three scales, math and code at 1.4B and 3B, extra loops at inference, ablations, depth at fixed parameters, and efficiency.</figcaption>
+      <figcaption><strong>Loopback in 2:22.</strong> The depth-memory view of residual connections, the design, and the paper&rsquo;s main results, narrated and captioned.</figcaption>
     </figure>
+    <ul class="headline" aria-label="Headline numbers">
+      <li><span class="headline__value"><em>40&ndash;75%</em></span><span class="headline__label">of the standard Transformer&rsquo;s Transformer parameters: <strong>56.65 vs 141.59M</strong> at 191M, <strong>2,038.58 vs 2,718.06M</strong> at 3B</span></li>
+      <li><span class="headline__value"><em>5</em> of 5</span><span class="headline__label">scales with lower ClimbMix validation loss: <strong>&minus;0.005, &minus;0.039, &minus;0.024, &minus;0.021, &minus;0.016</strong> from 191M to 3B</span></li>
+      <li><span class="headline__value"><em>+0.17&ndash;1.71</em></span><span class="headline__label">points on the thirteen-task zero-shot mean at all five scales, from <strong>46.50 vs 46.33</strong> at 1.4B to <strong>40.89 vs 39.18</strong> at 374M</span></li>
+      <li><span class="headline__value"><em>1st</em> of 9</span><span class="headline__label">designs at 191M, 374M and 778M: lowest loss and highest thirteen-task mean against Standard, Plain Loop, mHC, HC, iHC, Hyperloop, MHAR and AttnRes</span></li>
+    </ul>
   </div>
 </header>
 
 <section class="section section--tint" id="overview" aria-labelledby="overview-title">
   <div class="wrap">
     <div class="section__head">
+      <span class="section__index"><b>01</b> Overview</span>
       <h2 id="overview-title">Performance overview</h2>
       <p class="lead">At the same training tokens and executed depth, Loopback reaches lower validation loss than the standard Transformer from 191M to 3B, with 40&ndash;75% of its Transformer parameters.</p>
     </div>
@@ -75,30 +88,30 @@
 
 <section class="section" id="abstract" aria-labelledby="abstract-title">
   <div class="wrap wrap--text">
-    <div class="section__head"><h2 id="abstract-title">Abstract</h2></div>
-    <p class="abstract prose">Looped Transformers reduce parameter count by repeatedly applying shared blocks, but parameter sharing alone does not determine how the results of repeated computation are reused. Building on the depth-memory view of residual connections, we analyze how the choice of stored representations and their weighting shapes the reuse of computation across depth. A block&rsquo;s full output contains both its input and its new update, so weighting that output also reweights the history already carried by the input. Reading individual updates while keeping the shared stack&rsquo;s input on a separate path exposes distinct controls over input strength, total update weight, and allocation across updates. Guided by this analysis, we develop the Loopback Transformer, which stores individual block updates and keeps the shared stack&rsquo;s input on a separate path. Geometric decay controls total update weight and supplies a recency prior, while attention learns how to allocate that weight. On ClimbMix, Loopback achieves lower validation loss than standard Transformer baselines using approximately 40&ndash;75% of their Transformer parameters (excluding token embeddings and the output head) across reference scales from 191M to 3B, with training tokens and executed depth matched. It also achieves higher mean accuracy across thirteen downstream tasks at 1.4B and 3B. At 191M, 374M, and 778M, it achieves the lowest validation loss and highest thirteen-task mean accuracy against the standard Transformer baseline and seven looped residual designs.</p>
+    <div class="section__head"><span class="section__index"><b>02</b> Abstract</span><h2 id="abstract-title" class="sr-only">Abstract</h2></div>
+    <p class="abstract prose">Looped Transformers reduce parameter count by repeatedly applying shared blocks, but parameter sharing alone does not determine how the results of repeated computation are reused. We take the depth-memory view of residual connections and analyze which representation is stored after each block application and how later reads weight it. A full block output contains both its input and its new update, so weighting that output also reweights the history already carried by the input. Reading individual updates instead, with the shared stack&rsquo;s input kept on a separate path, gives separate controls over input strength, total update weight, and allocation across updates. The Loopback Transformer implements these controls: geometric decay sets the total update weight and supplies a recency prior, and attention learns how to allocate that weight. On ClimbMix, Loopback reaches lower validation loss than standard Transformer baselines with 40&ndash;75% of their Transformer parameters (excluding token embeddings and the output head) at reference scales from 191M to 3B, with training tokens and executed depth matched. It also has higher mean accuracy over thirteen downstream tasks at 1.4B and 3B. At 191M, 374M, and 778M, it has the lowest validation loss and the highest thirteen-task mean among the standard Transformer and seven looped residual designs.</p>
   </div>
 </section>
 
 <section class="section section--tint" id="contributions" aria-labelledby="contrib-title">
   <div class="wrap">
-    <div class="section__head"><h2 id="contrib-title">Key contributions</h2></div>
+    <div class="section__head"><span class="section__index"><b>03</b> Contributions</span><h2 id="contrib-title">Key contributions</h2></div>
     <div class="contrib-grid">
       <article class="contrib">
-        <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1.5"/><rect x="3" y="15" width="18" height="5" rx="1.5"/><path d="M8 9v6M16 9v6M12 9v6"/></svg></div>
-        <div><h3>Residual designs as depth memory</h3><p>Linear attention and related recurrent models supply memory-update rules that carry over from token sequences to network depth. Read this way, every residual design writes, retains and reads a depth memory, which shows what each block writes and how its contribution is kept. It also exposes two couplings: weighting a full block output reweights its input, and a joint softmax makes the input and the updates compete for one unit of weight.</p></div>
+        <span class="contrib__n" aria-hidden="true">1</span>
+        <div><h3>Residual designs as depth memory</h3><p>Linear attention and related recurrent models supply memory-update rules; adapted from token sequences to network depth, they describe what each block writes and how its contribution is transported and read. The view exposes two couplings: weighting a full block output also reweights the input it carries, and a joint softmax makes the input and the block updates compete for a fixed total weight.</p></div>
       </article>
       <article class="contrib">
-        <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h5"/><path d="M15 12h5"/><path d="M9 12c0-3 2-5 5-5h1"/><path d="M9 12c0 3 2 5 5 5h1"/><path d="M14 5l2 2-2 2M14 15l2 2-2 2"/></svg></div>
-        <div><h3>Store updates, keep the input on its own path</h3><p>Loopback appends each block&rsquo;s update rather than its output, so the input is never written back, and it reads the shared stack&rsquo;s input at coefficient one, so a softmax never shrinks it.</p></div>
+        <span class="contrib__n" aria-hidden="true">2</span>
+        <div><h3>Store updates, keep the input on its own path</h3><p>Loopback adds a weighted sum of block updates to the original loop input. It stores each block&rsquo;s update rather than its output, so the input is never written back, and it reads the loop input at coefficient one, so a softmax never shrinks it.</p></div>
       </article>
       <article class="contrib">
-        <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16"/><path d="M5 8l7-4 7 4"/><rect x="3" y="16" width="5" height="4" rx="1"/><rect x="9.5" y="13" width="5" height="7" rx="1"/><rect x="16" y="10" width="5" height="10" rx="1"/></svg></div>
-        <div><h3>Decay sets the total, attention allocates it</h3><p>A factor <i>&lambda;</i> at every visit end sets a recency prior whose total is bounded by <i>K&lambda;/(1&minus;&lambda;)</i>; a destination query redistributes that total. Zero queries give the decay-only loop.</p></div>
+        <span class="contrib__n" aria-hidden="true">3</span>
+        <div><h3>Decay sets the total, attention allocates it</h3><p>Geometric decay keeps the total update weight bounded as loop iterations increase at a fixed stack size: a factor <i>&lambda;</i> at the end of every iteration sets a recency prior whose total stays below <i>K&lambda;/(1&minus;&lambda;)</i>. Attention adjusts each update&rsquo;s weight by its content while preserving that total; zero queries give the decay-only loop.</p></div>
       </article>
       <article class="contrib">
-        <div class="contrib__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="M4 16l5-5 4 3 7-8"/><path d="M16 6h4v4"/></svg></div>
-        <div><h3>Fewer parameters, lower loss</h3><p>Against standard Transformers of the same executed depth and token budget, Loopback reaches lower validation loss from 191M to 3B with 40&ndash;75% of their Transformer parameters, and the lowest loss and highest thirteen-task mean of nine models at 191M, 374M and 778M.</p></div>
+        <span class="contrib__n" aria-hidden="true">4</span>
+        <div><h3>Fewer parameters, lower loss</h3><p>On ClimbMix, Loopback reaches lower validation loss and higher zero-shot task means than matched-depth standard Transformers at five scales from 191M to 3B, with 40&ndash;75% of their Transformer parameters, and the lowest loss and highest thirteen-task mean of nine designs at 191M, 374M and 778M.</p></div>
       </article>
     </div>
   </div>
@@ -107,27 +120,27 @@
 <section class="section" id="method" aria-labelledby="method-title">
   <div class="wrap">
     <div class="section__head">
-      <span class="eyebrow">Method</span>
+      <span class="section__index"><b>04</b> Method</span>
       <h2 id="method-title">From residual addition to a controllable read</h2>
       <p class="lead">Three moves separate the controls that ordinary addition ties together: what is stored, how the input is carried, and how the stored weight is set and allocated.</p>
     </div>
     <div class="steps-wrap">
       <ol class="steps">
         <li class="step"><div><h4>One interface for residual rules</h4><p>Addition, Attention Residuals, Hyper-Connections, mHC, Hyperloop and recurrent depth readers all write a value, carry old memory forward, and read it to form the next hidden state. Unrolling the interface gives every earlier update an explicit coefficient, which exposes two couplings: storing a full block output also rewrites the input it contains, and a joint softmax over the input and the updates ties their weights to a single unit.</p></div></li>
-        <li class="step"><div><h4>Store updates, keep the input on its own path, set the total with decay</h4><p>Loopback appends each block's update <i>&delta;</i> rather than its output and keeps the shared stack's input at coefficient one. At every visit end a geometric factor <i>&lambda;</i> shrinks all stored weights, so the prior favors recent visits and the total update weight stays bounded by <i>K&lambda;/(1&minus;&lambda;)</i>.</p></div></li>
-        <li class="step"><div><h4>Attention allocates the total</h4><p>A destination query scores the normalized updates and redistributes the decay-set total across them. Zero queries recover the decay-only loop exactly; <i>&lambda;</i> = 1 with zero queries recovers ordinary addition. A fused Triton kernel streams the stored updates once per read.</p></div></li>
+        <li class="step"><div><h4>Store updates, keep the input on its own path, set the total with decay</h4><p>Loopback stores each block's update <i>&delta;</i> rather than its output and keeps the loop input at coefficient one. At the end of every loop iteration a geometric factor <i>&lambda;</i> shrinks all stored weights, so the prior favors recent iterations and the total update weight stays bounded by <i>K&lambda;/(1&minus;&lambda;)</i>.</p></div></li>
+        <li class="step"><div><h4>Attention allocates the total</h4><p>A destination query scores the normalized block updates and redistributes the decay-set total across them by content. Zero queries recover the decay-only loop exactly; <i>&lambda;</i> = 1 with zero queries recovers ordinary addition. A fused Triton kernel streams the stored updates once per read.</p></div></li>
       </ol>
     </div>
     <div class="fig-stack">
       <figure class="fig" id="fig-3">
         <div class="fig__head"><span class="fig__label"><b>Figure 3</b> &middot; Three residual pathways</span><button type="button" class="fig__zoom" data-zoom="fig-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
         <div class="fig__media"><img src="images/fig1_unified_view.png" alt="Three residual pathways for the same shared blocks: addition, a reader over the input and earlier updates, and multiple streams" loading="lazy" data-zoom="fig-3"></div>
-        <figcaption class="fig__caption"><strong>Same shared blocks, three residual pathways.</strong> Repeated colors mark shared blocks emitting net updates. (a) Ordinary addition. (b) A reader <i>R<sub>s</sub></i> aggregates the input and the updates computed so far, from an explicit history or a fixed-size recurrent memory; Loopback is an explicit-history reader that keeps the input on its own path and lets decay set the total weight that attention allocates. (c) Multiple streams with an input read, transport, a write and a final readout, as in the hyper-connection family.</figcaption>
+        <figcaption class="fig__caption"><strong>Same shared blocks, three residual pathways.</strong> Repeated colors denote shared blocks emitting block updates. (a) Addition. (b) A reader <i>R<sub>s</sub></i> aggregates the input and the updates computed so far, from an explicit history or a fixed-size recurrent memory; Loopback is an explicit-history reader that keeps the input on its own path and lets decay set the total weight that attention allocates. (c) Multiple streams with an input read, transport, a write and a final readout, as in the hyper-connection family.</figcaption>
       </figure>
       <figure class="fig" id="fig-4">
-        <div class="fig__head"><span class="fig__label"><b>Figure 4</b> &middot; Loopback on a two-visit loop</span><button type="button" class="fig__zoom" data-zoom="fig-4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
+        <div class="fig__head"><span class="fig__label"><b>Figure 4</b> &middot; Loopback on a two-iteration loop</span><button type="button" class="fig__zoom" data-zoom="fig-4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
         <div class="fig__media"><img src="images/fig2_loopback.png" alt="Loopback: shared blocks with causal history reads; decay sets the prior and the total; attention allocates the total" loading="lazy" data-zoom="fig-4"></div>
-        <figcaption class="fig__caption"><strong>Loopback separates input, decay and allocation.</strong> (a) Shared blocks with a causal history read after every application. (b) Visit-end decay sets the prior and the total weight. (c) Attention redistributes that total over the raw updates, keeping the input coefficient at one.</figcaption>
+        <figcaption class="fig__caption"><strong>Loopback separates input, decay and allocation.</strong> (a) Shared blocks with causal history reads. (b) Iteration-end decay sets the prior and the total weight. (c) Attention redistributes that total over block updates, keeping the input coefficient at one.</figcaption>
       </figure>
     </div>
   </div>
@@ -136,9 +149,9 @@
 <section class="section section--tint" id="demo" aria-labelledby="demo-title">
   <div class="wrap">
     <div class="section__head">
-      <span class="eyebrow">Interactive</span>
+      <span class="section__index"><b>05</b> Interactive</span>
       <h2 id="demo-title">One token through the loop</h2>
-      <p class="lead">Press play. The hidden state circles the shared blocks; each application appends the block's update to the history, and the reader forms the next state from the input and the stored updates. At every visit end the decay multiplies all stored weights by <i>&lambda;</i>; attention reallocates that total, and the input keeps coefficient one throughout.</p>
+      <p class="lead">Press play. The hidden state circles the shared blocks; each application appends the block's update to the history, and the reader forms the next state from the loop input and the stored updates. At the end of every iteration the decay multiplies all stored weights by <i>&lambda;</i>; attention reallocates that total, and the input keeps coefficient one throughout.</p>
     </div>
     <div class="lb-demo">
       <div class="lb-transport">
@@ -155,9 +168,9 @@
       </div>
       <div class="lb-controls">
         <div class="lb-ctl"><label for="k">Shared blocks K <output id="ko">4</output></label><input id="k" type="range" min="2" max="8" value="4"></div>
-        <div class="lb-ctl"><label for="r">Visits R <output id="ro">4</output></label><input id="r" type="range" min="1" max="6" value="4"></div>
+        <div class="lb-ctl"><label for="r">Iterations R <output id="ro">4</output></label><input id="r" type="range" min="1" max="6" value="4"></div>
         <div class="lb-ctl"><label for="lam">Decay &lambda; <output id="lamo">0.25</output></label><input id="lam" type="range" min="0.05" max="1" step="0.05" value="0.25"></div>
-        <div class="lb-ctl"><label for="focus">Attention favors visit</label><select id="focus"><option value="0">none (zero queries)</option></select></div>
+        <div class="lb-ctl"><label for="focus">Attention favors iteration</label><select id="focus"><option value="0">none (zero queries)</option></select></div>
         <div class="lb-ctl"><label for="gain">Score strength <output id="gaino">2.0</output></label><input id="gain" type="range" min="0" max="5" step="0.1" value="2"></div>
       </div>
     </div>
@@ -167,17 +180,27 @@
 <section class="section" id="results" aria-labelledby="results-title">
   <div class="wrap">
     <div class="section__head">
+      <span class="section__index"><b>06</b> Results</span>
       <h2 id="results-title">Results</h2>
       <p class="lead lead--left">Scale names give the standard Transformer&rsquo;s total parameters, and every model trains on ClimbMix at 20 tokens per parameter of that count (20 TPP) under a warmup&ndash;stable&ndash;decay schedule. Every comparison within a scale matches the training tokens and the executed depth: the looped arms share one topology, and the standard Transformer keeps the same number of block applications. Validation loss is next-token cross-entropy on a held-out ClimbMix shard packed as in training. Downstream accuracy is zero-shot on thirteen tasks with the lm-evaluation-harness, every prompt starting with the beginning-of-sequence token as in training, plus WikiText word perplexity. Transformer parameters exclude embeddings and the vocabulary head; shared weights are counted once.</p>
     </div>
 
-    <ul class="kpis" aria-label="Headline numbers">
-      <li class="kpi"><span class="kpi__value">40&ndash;75% of the parameters</span><span class="kpi__label">Transformer parameters of Loopback against the standard Transformer: <strong>56.65 vs 141.59M</strong> at 191M, <strong>2,038.58 vs 2,718.06M</strong> at 3B</span></li>
-      <li class="kpi"><span class="kpi__value">Lower loss at all five scales</span><span class="kpi__label">ClimbMix validation loss against the standard Transformer: <strong>&minus;0.005, &minus;0.039, &minus;0.024, &minus;0.021, &minus;0.016</strong> at 191M, 374M, 778M, 1.4B and 3B</span></li>
-      <li class="kpi"><span class="kpi__value">+0.17 to +1.71 points</span><span class="kpi__label">thirteen-task zero-shot mean against the standard Transformer: <strong>38.64 vs 38.28</strong>, <strong>40.89 vs 39.18</strong>, <strong>43.58 vs 43.04</strong>, <strong>46.50 vs 46.33</strong>, <strong>49.45 vs 48.56</strong></span></li>
-      <li class="kpi"><span class="kpi__value">Best of nine models</span><span class="kpi__label">lowest loss and highest thirteen-task mean at 191M, 374M and 778M, against the standard Transformer, the plain loop, mHC, HC, iHC, Hyperloop, MHAR and Attention Residuals</span></li>
-    </ul>
 
+    <div class="results-layout">
+      <nav class="toc" aria-label="Results sections">
+        <p class="toc__title">In this section</p>
+        <ol>
+          <li><a href="#results-table">Main results</a></li>
+          <li><a href="#large">1.4B and 3B</a></li>
+          <li><a href="#math">Code and math</a></li>
+          <li><a href="#visits">Extra visits</a></li>
+          <li><a href="#ablations">Ablations</a></li>
+          <li><a href="#depth">Depth</a></li>
+          <li><a href="#memory-readers">Readers</a></li>
+          <li><a href="#efficiency">Efficiency</a></li>
+        </ol>
+      </nav>
+      <div class="results-main">
     <div id="results-table" data-widget="results">
       <div class="card"><strong>Table 1: main results.</strong> Validation loss, thirteen zero-shot tasks and WikiText perplexity for the standard Transformer and eight residual rules at 191M, 374M and 778M, and for the standard Transformer and Loopback at 1.4B and 3B. The interactive table needs JavaScript.</div>
     </div>
@@ -199,10 +222,10 @@
       </div>
     </details>
 
-    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
+    <div class="section__head sub-head">
       <span class="eyebrow">Larger scale</span>
       <h3 id="large">1.4B and 3B</h3>
-      <p class="lead">At 1.4B and 3B, Loopback uses [3 &rarr; 8&times;2 &rarr; 6] and [6 &rarr; 6&times;2 &rarr; 6], matching the standard Transformer&rsquo;s 25 and 24 executed layers with 68% and 75% of its Transformer parameters. The same 20-TPP checkpoints are evaluated on general benchmarks, on mathematical and code tasks, and with one additional loop visit at inference.</p>
+      <p class="lead">At 1.4B and 3B, Loopback uses [3 &rarr; 8&times;2 &rarr; 6] and [6 &rarr; 6&times;2 &rarr; 6], matching the standard Transformer&rsquo;s 25 and 24 executed layers with 68% and 75% of its Transformer parameters. The same 20-TPP checkpoints are evaluated on general benchmarks and on mathematical and code tasks; tests of additional loop iterations also include 191M, 374M and 1.4B models for comparison with Plain Loop.</p>
     </div>
     <div class="fig-stack">
       <figure class="fig" id="fig-5">
@@ -212,7 +235,7 @@
       </figure>
     </div>
 
-    <div class="section__head" style="margin-top:clamp(2rem,4vw,3rem)">
+    <div class="section__head sub-head">
       <span class="eyebrow">Code and mathematics</span>
       <h3 id="math">Code and mathematical evaluation</h3>
       <p class="lead">Reference-solution loss on GSM8K, MATH-500, HumanEval and MBPP measures how well a model predicts a worked solution given the problem, and five-shot numeric-answer accuracy on six word-problem sets checks final answers. At matched training tokens and executed depth, Loopback has lower solution loss on all four datasets at both large scales, and at 3B its word-problem accuracy rises from 2.6% to 6.4%. In the nine-design comparisons at 191M and 374M, Loopback also has the lowest four-set mean.</p>
@@ -240,7 +263,7 @@
       <div>
         <p>Teacher-forced reference-solution loss in nats per token for the 191M models and the 374M 32-layer models of Table 1. Paired bootstrap standard errors of the differences between rules are at most 0.003 on the mean. Underlined: lowest loss in each row.</p>
         <div class="tbl-wrap"><table class="tbl tbl--nine">
-          <thead><tr><th>Reference solutions</th><th>Standard</th><th>Plain</th><th>mHC</th><th>HC</th><th>iHC</th><th>Hyperloop</th><th>MHAR</th><th>AttnRes</th><th class="lb">Loopback</th></tr></thead>
+          <thead><tr><th>Reference solutions</th><th>Standard</th><th>Plain Loop</th><th>mHC</th><th>HC</th><th>iHC</th><th>Hyperloop</th><th>MHAR</th><th>AttnRes</th><th class="lb">Loopback</th></tr></thead>
           <tbody>
             <tr class="sub"><th colspan="10">191M, 20 layers</th></tr>
             <tr><td>GSM8K</td><td>1.822</td><td>1.865</td><td>1.795</td><td>1.801</td><td>1.826</td><td>1.833</td><td>1.826</td><td>1.797</td><td class="best lb">1.768</td></tr>
@@ -259,23 +282,23 @@
       </div>
     </details>
 
-    <div class="section__head" style="margin-top:clamp(2rem,4vw,3rem)">
+    <div class="section__head sub-head">
       <span class="eyebrow">Extra visits</span>
       <h3 id="visits">Robustness to additional visits</h3>
-      <p class="lead">Shared weights allow extra visits at inference, but too much recurrence can degrade predictions, a problem known as overthinking. Without retraining, and with the extra destinations reusing the last trained visit&rsquo;s queries, Loopback&rsquo;s loss rises less than the plain loop&rsquo;s at every tested count, up to twice the trained count. At eight visits the 191M loss rises by 0.060 for Loopback against 0.454 for the plain loop; at four visits the 374M increases are 0.074 against 0.270. At 3B, one extra visit raises Loopback&rsquo;s thirteen-task mean from 49.45% to 50.17%.</p>
+      <p class="lead">Shared weights allow extra visits at inference, but excessive recurrence can degrade predictions, a problem known as overthinking. Without retraining, and with the extra destinations reusing the last trained visit&rsquo;s queries, Loopback&rsquo;s loss rises less than Plain Loop&rsquo;s at every tested count at 191M, 374M and 1.4B, up to twice the trained count. At eight visits the 191M loss rises by 0.060 for Loopback against 0.454 for Plain Loop; at four visits the 374M increases are 0.074 against 0.270, and the 1.4B increases are 0.028 against 0.248. At 3B, one extra iteration raises Loopback&rsquo;s thirteen-task mean from 49.45% to 50.17%.</p>
     </div>
     <div class="fig-stack">
       <figure class="fig" id="fig-6">
         <div class="fig__head"><span class="fig__label"><b>Figure 6</b> &middot; Extra loop visits at inference</span><button type="button" class="fig__zoom" data-zoom="fig-6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
-        <div class="fig__media"><img src="images/fig_scale_large_visits.png" alt="Validation loss against loop visits at inference for Loopback and the plain loop at 191M and 374M, and the thirteen-task mean of Loopback at 3B with one extra visit" loading="lazy" data-zoom="fig-6"></div>
-        <figcaption class="fig__caption"><strong>Run past its trained visit count, Loopback degrades far less than the plain loop.</strong> (a&ndash;b) Validation loss in nats per token; (c) thirteen-task mean accuracy. Asterisks mark trained visit counts; the dashed line is the fixed-depth standard Transformer at 3B, where the plain loop was not evaluated. Axis ranges differ across panels.</figcaption>
+        <div class="fig__media"><img src="images/fig_scale_large_visits.png" alt="Validation loss against loop visits at inference for Loopback and Plain Loop at 191M, 374M and 1.4B, and the thirteen-task mean of Loopback at 3B with one extra visit" loading="lazy" data-zoom="fig-6"></div>
+        <figcaption class="fig__caption"><strong>Run past its trained visit count, Loopback degrades far less than Plain Loop.</strong> (a&ndash;c) Validation loss in nats per token, trained at 20, 32 and 25 layers; (d) thirteen-task mean accuracy, trained at 24 layers. Asterisks mark trained visit counts; the dashed line is the fixed-depth standard Transformer at 3B, where Plain Loop was not evaluated. Axis ranges differ across panels.</figcaption>
       </figure>
     </div>
 
-    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
+    <div class="section__head sub-head">
       <span class="eyebrow">Ablations</span>
       <h3 id="ablations">Decay, attention and initialization</h3>
-      <p class="lead">Decay controls the accumulated update weight, and attention allocates it by content. The complete design has the lowest loss at both scales: removing attention raises loss by 0.0033 and 0.0028 nats at 191M and 374M, and removing decay raises it by 0.0434 and 0.0337. Under three weight initializations at both scales, with learning rates held fixed, Loopback stays below the standard Transformer and the plain loop in all six settings and has the lowest loss in five.</p>
+      <p class="lead">Decay controls the accumulated update weight, and attention allocates it by content. The complete design has the lowest loss at both scales: removing attention raises loss by 0.0033 and 0.0028 nats at 191M and 374M, and removing decay raises it by 0.0434 and 0.0337. Under three weight initializations at both scales, with learning rates held fixed, Loopback stays below the standard Transformer and Plain Loop in all six settings and has the lowest loss in five.</p>
     </div>
     <div class="card-grid">
       <div class="card card--table">
@@ -284,7 +307,7 @@
         <div class="tbl-wrap"><table class="tbl tbl--t2">
           <thead><tr><th>Decay</th><th>Allocation</th><th>191M</th><th>374M, 24 layers</th></tr></thead>
           <tbody>
-            <tr><td>off (<i>&lambda;</i> = 1)</td><td>fixed (plain loop)</td><td>2.6802</td><td>2.4415</td></tr>
+            <tr><td>off (<i>&lambda;</i> = 1)</td><td>fixed (Plain Loop)</td><td>2.6802</td><td>2.4415</td></tr>
             <tr><td>off (<i>&lambda;</i> = 1)</td><td>learned</td><td>2.6621</td><td>2.4308</td></tr>
             <tr><td>on (<i>&lambda;</i> = 1/4)</td><td>fixed</td><td>2.6220</td><td>2.3999</td></tr>
             <tr class="ours"><td>on (<i>&lambda;</i> = 1/4)</td><td>learned (Loopback)</td><td class="best">2.6187</td><td class="best">2.3971</td></tr>
@@ -300,12 +323,12 @@
           <tbody>
             <tr class="sub"><th colspan="5">191M, 20 layers</th></tr>
             <tr><td>Standard</td><td>141.59</td><td>2.6234</td><td>2.6419</td><td>2.7145</td></tr>
-            <tr><td>Plain loop</td><td>56.64</td><td>2.6802</td><td>2.6977</td><td>2.6642</td></tr>
+            <tr><td>Plain Loop</td><td>56.64</td><td>2.6802</td><td>2.6977</td><td>2.6642</td></tr>
             <tr><td>mHC</td><td>56.93</td><td>2.6250</td><td>2.6408</td><td>2.6278</td></tr>
             <tr class="ours"><td>Loopback</td><td>56.65</td><td class="best">2.6187<br><span class="gain">&minus;0.0047</span></td><td class="best">2.6178<br><span class="gain">&minus;0.0241</span></td><td class="best">2.6138<br><span class="gain">&minus;0.1007</span></td></tr>
             <tr class="sub"><th colspan="5">374M, 24 layers</th></tr>
             <tr><td>Standard</td><td>308.33</td><td>2.4198</td><td>2.4252</td><td>2.4296</td></tr>
-            <tr><td>Plain loop</td><td>179.86</td><td>2.4415</td><td>2.4272</td><td>2.4334</td></tr>
+            <tr><td>Plain Loop</td><td>179.86</td><td>2.4415</td><td>2.4272</td><td>2.4334</td></tr>
             <tr><td>mHC</td><td>180.06</td><td>2.4062</td><td class="best">2.4091</td><td>2.4093</td></tr>
             <tr class="ours"><td>Loopback</td><td>179.88</td><td class="best">2.3971<br><span class="gain">&minus;0.0227</span></td><td>2.4117<br><span class="gain">&minus;0.0135</span></td><td class="best">2.3938<br><span class="gain">&minus;0.0358</span></td></tr>
           </tbody>
@@ -313,29 +336,29 @@
       </div>
     </div>
 
-    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
+    <div class="section__head sub-head">
       <span class="eyebrow">Depth</span>
       <h3 id="depth">Depth at fixed parameters</h3>
-      <p class="lead">At 374M and 778M, every configuration trains from scratch with the training tokens and total parameters held fixed while width is traded for depth from 16 to 64 layers; looped rules keep two visits. The standard Transformer loses ground as it gets deeper and narrower: it is best at 24 layers and, at 64, is 0.076 worse at 374M and 0.035 worse at 778M. Among the looped rules, Loopback is lowest at nine of the ten points, and its best tested depth moves from 24 layers at 374M to 48 at 778M. At the sweep endpoints, its margin over the standard Transformer increases from 0.003 at 16 layers to 0.073 at 64 layers at 374M, and from 0.002 to 0.028 at 778M.</p>
+      <p class="lead">At 374M and 778M, every configuration trains from scratch with the training tokens held fixed and total parameters approximately fixed while width is traded for depth from 16 to 64 layers; the loop visits stay fixed at two. The standard Transformer loses ground as it gets deeper and narrower: it is best at 24 layers and, at 64, is 0.076 worse at 374M and 0.035 worse at 778M. Among the looped rules, Loopback is lowest at nine of the ten points, and its best tested depth moves from 24 layers at 374M to 48 at 778M. At the sweep endpoints, its margin over the standard Transformer increases from 0.003 at 16 layers to 0.073 at 64 layers at 374M, and from 0.002 to 0.028 at 778M.</p>
     </div>
     <div class="fig-stack">
       <figure class="fig" id="fig-7">
         <div class="fig__head"><span class="fig__label"><b>Figure 7</b> &middot; Depth at fixed parameters</span><button type="button" class="fig__zoom" data-zoom="fig-7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
         <div class="fig__media"><img src="images/fig_depth_sweep.png" alt="Validation loss against depth from 16 to 64 layers at fixed parameters for the standard Transformer and eight looped rules at 374M and 778M" loading="lazy" data-zoom="fig-7"></div>
-        <figcaption class="fig__caption"><strong>Depth at fixed parameters.</strong> ClimbMix validation loss after 20 TPP as each scale trades width for depth at fixed total parameters and tokens. Looped rules make two visits through a shared stack that stores 56&ndash;58% of the standard Transformer&rsquo;s Transformer parameters.</figcaption>
+        <figcaption class="fig__caption"><strong>Depth at fixed parameters.</strong> ClimbMix validation loss after 20 TPP as each scale trades width for depth at approximately fixed total parameters and fixed training tokens. Looped rules make two visits through a shared stack that stores 56&ndash;58% of the standard Transformer&rsquo;s Transformer parameters.</figcaption>
       </figure>
     </div>
 
-    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
+    <div class="section__head sub-head">
       <span class="eyebrow">Depth-memory readers</span>
       <h3 id="memory-readers">Linear attention and recurrent memory as loop readers</h3>
-      <p class="lead">Nine recurrent cores, Mesa and a LaCT-inspired reader are adapted to read the loop&rsquo;s history at visit boundaries, leaving token attention unchanged. Each reads either cumulative visit states or whole-visit updates, and both interfaces start as the plain loop. Reading updates gives the lower validation loss in all 22 family&ndash;scale comparisons, and every update reader improves on the plain loop, but the best still trail Loopback by 0.0302 nats at 191M and 0.0285 at 374M. Fixed-state recurrent cores remain attractive for longer loops: they take each new write without rereading the history, in a state that does not grow with the visit count.</p>
+      <p class="lead">Nine recurrent cores, Mesa and a LaCT-inspired reader are adapted to read the loop&rsquo;s history at visit boundaries, leaving token attention unchanged. Each reads either cumulative visit states or whole-visit updates, and both interfaces initialize to Plain Loop. Reading updates gives the lower validation loss in all 22 family&ndash;scale comparisons, and every update reader improves on Plain Loop, but the best still trail Loopback by 0.0302 nats at 191M and 0.0285 at 374M, which favors updates over states as the memory value. Fixed-state recurrent cores keep one practical advantage for long loops: each new write is absorbed without rereading the history, in a state that does not grow with the visit count; whether optimized recurrent kernels turn this into lower memory traffic or higher throughput is untested.</p>
     </div>
     <div class="fig-stack">
       <figure class="fig fig--narrow" id="fig-8">
         <div class="fig__head"><span class="fig__label"><b>Figure 8</b> &middot; Eleven depth-memory readers</span><button type="button" class="fig__zoom" data-zoom="fig-8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
-        <div class="fig__media"><img src="images/fig_memory_readers.png" alt="Validation-loss reduction over the plain loop for eleven linear-attention and recurrent readers of the loop&rsquo;s history, reading updates or states, at 191M and 374M" loading="lazy" data-zoom="fig-8"></div>
-        <figcaption class="fig__caption"><strong>Reading updates beats reading states, and no reader reaches Loopback.</strong> ClimbMix validation-loss reduction over the plain loop at (a) 191M and (b) 374M with 24 layers, for the update interface (solid) and the state interface (hatched) of each reader: linear attention, RetNet, GLA, Mamba-2, HGRN-2, DeltaNet, Gated DeltaNet, KDA, RWKV-7, Mesa and a LaCT-inspired reader. The standard Transformer and Loopback are references.</figcaption>
+        <div class="fig__media"><img src="images/fig_memory_readers.png" alt="Validation-loss reduction over Plain Loop for eleven linear-attention and recurrent readers of the loop&rsquo;s history, reading updates or states, at 191M and 374M" loading="lazy" data-zoom="fig-8"></div>
+        <figcaption class="fig__caption"><strong>Reading updates beats reading states, and no reader reaches Loopback.</strong> ClimbMix validation-loss reduction over Plain Loop at (a) 191M with 20 layers and (b) 374M with 24 layers, for the update interface (solid) and the state interface (hatched) of each reader: linear attention, RetNet, GLA, Mamba-2, HGRN-2, DeltaNet, Gated DeltaNet, KDA, RWKV-7, Mesa and a LaCT-inspired reader. The standard Transformer and Loopback are references.</figcaption>
       </figure>
     </div>
     <details class="more" id="readers">
@@ -357,7 +380,7 @@
             <tr><td>RetNet</td><td>2.6650</td><td>2.6827</td><td>2.4338</td><td>2.4396</td></tr>
             <tr><td>Linear attention</td><td>2.6697</td><td>2.6846</td><td>2.4346</td><td>2.4417</td></tr>
             <tr class="sub"><th colspan="5">Reference models</th></tr>
-            <tr><td>Plain loop</td><td colspan="2">2.6802</td><td colspan="2">2.4415</td></tr>
+            <tr><td>Plain Loop</td><td colspan="2">2.6802</td><td colspan="2">2.4415</td></tr>
             <tr><td>Standard</td><td colspan="2">2.6234</td><td colspan="2">2.4198</td></tr>
             <tr class="ours"><td>Loopback</td><td colspan="2" class="best">2.6187</td><td colspan="2" class="best">2.3971</td></tr>
           </tbody>
@@ -365,7 +388,7 @@
       </div>
     </details>
 
-    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
+    <div class="section__head sub-head">
       <span class="eyebrow">Efficiency</span>
       <h3 id="efficiency">Compute, throughput and memory</h3>
       <p class="lead">At matched executed depth, Loopback adds only 0.04&ndash;0.08% forward FLOPs: the extra operations normalize and score the stored updates, form their weighted sum, and apply decay and mixture replacement, with no Q/K/V projections or extra block evaluations. The fused implementation keeps the training-throughput gap to the standard Transformer at 6% at 3B, on the same eight H100 GPUs with the same batch layout. The KV cache is the standard Transformer&rsquo;s, and the stored weights are smaller.</p>
@@ -405,12 +428,14 @@
         </table></div>
       </div>
     </div>
+        </div>
+    </div>
   </div>
 </section>
 
 <section class="section section--tint" id="bibtex" aria-labelledby="bibtex-title">
   <div class="wrap wrap--text">
-    <div class="section__head"><h2 id="bibtex-title">BibTeX</h2></div>
+    <div class="section__head"><span class="section__index"><b>07</b> Cite</span><h2 id="bibtex-title">BibTeX</h2></div>
     <div class="bib">
       <div class="bib__bar"><span class="bib__label">arXiv preprint &middot; 2026</span><button class="bib__copy" id="copybib" type="button">Copy BibTeX</button></div>
 <pre><code id="bib">@article{ouyang2026loopback,
@@ -425,7 +450,7 @@
 </main>
 
 <footer class="foot">
-  <div class="wrap">&copy; 2026 Loopback Transformer project &middot; University of Wisconsin&ndash;Madison. Numbers are from the arXiv version of the paper.</div>
+  <div class="wrap"><span class="foot__brand">Loopback Transformer</span><span>University of Wisconsin&ndash;Madison &middot; UC Santa Barbara &middot; Caltech &middot; Microsoft</span><span>Every number on this page is from the paper.</span></div>
 </footer>
 
 <dialog class="lightbox" id="lightbox" aria-labelledby="lightbox-title">

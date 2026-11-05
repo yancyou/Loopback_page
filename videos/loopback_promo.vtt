@@ -1,162 +1,187 @@
 WEBVTT
 
 title-1
-00:00:00.500 --> 00:00:01.580
+00:00:00.500 --> 00:00:01.620
 Loopback Transformer:
 
 title-2
-00:00:01.580 --> 00:00:04.890
+00:00:01.620 --> 00:00:05.970
 towards a unified view of
 residual looped Transformers.
 
 hook-3
-00:00:07.000 --> 00:00:10.670
-Looped Transformers reduce
-parameters by reusing shared blocks,
+00:00:07.470 --> 00:00:12.480
+Looped Transformers save parameters by
+running the same blocks again and again.
 
 hook-4
-00:00:10.940 --> 00:00:14.810
-but sharing alone does not decide
-how repeated computation is reused.
+00:00:13.030 --> 00:00:17.180
+But sharing alone doesn't decide how
+all that repeated computation is reused.
 
 analysis-5
-00:00:16.900 --> 00:00:20.510
-Addition lets the total
-update weight grow with depth,
+00:00:18.820 --> 00:00:21.570
+Think of residual
+connections as depth memory.
 
 analysis-6
-00:00:20.520 --> 00:00:25.050
+00:00:22.920 --> 00:00:26.190
+Addition lets the total update
+weight keep growing with depth,
+
+analysis-7
+00:00:26.520 --> 00:00:29.970
 and a joint softmax makes the
 input compete with the updates.
 
-method-7
-00:00:27.450 --> 00:00:30.060
-Loopback stores each block's update,
-
 method-8
-00:00:30.290 --> 00:00:32.560
-keeps the input on its own path,
+00:00:31.610 --> 00:00:33.340
+Loopback decouples the two:
 
 method-9
-00:00:32.850 --> 00:00:37.240
+00:00:33.770 --> 00:00:35.700
+it stores each block's update,
+
+method-10
+00:00:36.290 --> 00:00:38.360
+keeps the input on its own path,
+
+method-11
+00:00:38.850 --> 00:00:42.440
 and lets decay set the total weight
 while attention allocates it.
 
-scale-10
-00:00:39.250 --> 00:00:42.960
-From 191M to 3B parameters,
+scale-12
+00:00:44.760 --> 00:00:45.570
+The result:
 
-scale-11
-00:00:43.370 --> 00:00:45.535
+scale-13
+00:00:45.940 --> 00:00:49.290
+from 191M to 3B parameters,
+
+scale-14
+00:00:49.780 --> 00:00:51.989
 Loopback reaches lower loss and a higher
 
-scale-12
-00:00:45.535 --> 00:00:48.350
+scale-15
+00:00:51.989 --> 00:00:55.010
 thirteen-task average than
 the standard Transformer,
 
-scale-13
-00:00:48.350 --> 00:00:51.780
-with 40–75% of its parameters.
+scale-16
+00:00:55.320 --> 00:00:58.490
+with only 40–75% of its parameters.
 
-nine-14
-00:00:54.550 --> 00:00:58.720
-Against the standard Transformer
-and seven looped residual designs,
+nine-17
+00:01:00.520 --> 00:01:05.450
+Against the standard Transformer and
+seven other looped residual designs,
 
-nine-15
-00:00:59.110 --> 00:01:01.684
+nine-18
+00:01:05.920 --> 00:01:08.396
 Loopback has the lowest
 loss and the highest
 
-nine-16
-00:01:01.684 --> 00:01:04.700
-thirteen-task average at
-all three scales tested.
+nine-19
+00:01:08.396 --> 00:01:10.910
+thirteen-task average at all three scales.
 
-math-17
-00:01:07.700 --> 00:01:08.850
-At larger scale,
+math-20
+00:01:12.610 --> 00:01:14.580
+At 1.4B and 3B,
 
-math-18
-00:01:08.920 --> 00:01:11.970
+math-21
+00:01:15.050 --> 00:01:18.000
 it also predicts math and
 code solutions better,
 
-math-19
-00:01:12.200 --> 00:01:13.830
+math-22
+00:01:18.370 --> 00:01:19.660
 and at 3B,
 
-math-20
-00:01:14.200 --> 00:01:19.010
+math-23
+00:01:20.050 --> 00:01:25.140
 word-problem accuracy
 rises from 2.6% to 6.4%.
 
-visits-21
-00:01:21.750 --> 00:01:24.840
+visits-24
+00:01:26.620 --> 00:01:29.750
 Run more loops at
 inference than in training,
 
-visits-22
-00:01:25.210 --> 00:01:28.220
-and Loopback degrades far
-less than plain addition.
-
-ablation-23
-00:01:30.950 --> 00:01:32.240
-Both controls matter:
-
-ablation-24
-00:01:32.390 --> 00:01:34.380
-without attention the loss rises,
-
-ablation-25
-00:01:34.710 --> 00:01:36.680
-without decay it rises much more,
+visits-25
+00:01:30.080 --> 00:01:34.950
+and Loopback degrades far less than
+Plain Loop at all three scales.
 
 ablation-26
-00:01:37.030 --> 00:01:39.160
-and the gains hold across initializations.
+00:01:36.870 --> 00:01:38.050
+Both controls matter:
 
-depth-27
-00:01:41.500 --> 00:01:43.090
+ablation-27
+00:01:38.050 --> 00:01:39.080
+without attention,
+
+ablation-28
+00:01:39.150 --> 00:01:40.080
+the loss rises;
+
+ablation-29
+00:01:40.510 --> 00:01:41.360
+without decay,
+
+ablation-30
+00:01:41.490 --> 00:01:42.720
+it rises much more.
+
+ablation-31
+00:01:43.430 --> 00:01:45.780
+And the gains hold across initializations.
+
+depth-32
+00:01:47.530 --> 00:01:49.240
 At a fixed parameter budget,
 
-depth-28
-00:01:43.580 --> 00:01:46.570
+depth-33
+00:01:49.510 --> 00:01:52.580
 deeper and narrower standard
 Transformers lose ground,
 
-depth-29
-00:01:46.780 --> 00:01:49.010
+depth-34
+00:01:52.870 --> 00:01:55.100
 while Loopback's margin grows with depth.
 
-eff-30
-00:01:51.200 --> 00:01:54.790
-The read adds under 0.1% in FLOPs;
+eff-35
+00:01:57.180 --> 00:01:58.550
+The cost is small:
 
-eff-31
-00:01:55.060 --> 00:01:56.130
-at 3B,
+eff-36
+00:01:59.100 --> 00:02:03.070
+reading the stored updates
+adds under 0.1% in FLOPs,
 
-eff-32
-00:01:56.820 --> 00:02:00.770
+eff-37
+00:02:04.360 --> 00:02:05.590
+and at 3B,
+
+eff-38
+00:02:05.900 --> 00:02:09.370
 training runs within 6% of the
 standard Transformer's speed.
 
-outro-33
-00:02:02.650 --> 00:02:04.180
+outro-39
+00:02:11.180 --> 00:02:12.630
 Loopback stores updates,
 
-outro-34
-00:02:04.590 --> 00:02:06.700
+outro-40
+00:02:13.000 --> 00:02:14.990
 keeps the input on its own path,
 
-outro-35
-00:02:07.050 --> 00:02:09.740
+outro-41
+00:02:15.360 --> 00:02:17.990
 and lets decay and attention
 control their weight:
 
-outro-36
-00:02:10.210 --> 00:02:12.100
+outro-42
+00:02:18.520 --> 00:02:20.210
 lower loss with fewer parameters.

@@ -13,11 +13,12 @@ def read(name):
 
 FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n'
          '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
-         '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;600&display=swap">\n')
+         '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400..600&display=swap">\n')
 # the saved light/dark choice is applied before the first paint (page.js keeps it in localStorage 'lb-theme')
 THEME = '<script>try{var t=localStorage.getItem("lb-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}</script>\n'
 SITE = 'https://yancyou.github.io/Loopback_page/'   # GitHub Pages address once the repository is public
 title = "<title>Loopback Transformer</title>\n"
+VIEWPORT_SIDES = '<meta name="claude:viewport-fit-sides" content="cover">\n'   # the side gutter uses max(16px, env(safe-area-inset-*))
 style = "<style>\n" + read("style.css") + "</style>\n"
 body = read("page.html")
 scripts = ("<script>\n" + read("results-data.js") + "</script>\n"
@@ -36,7 +37,7 @@ if TRACK in body:
                 '<script>(function(){var t=document.querySelector("track[data-vtt]"),s=document.getElementById("lb-vtt");'
                 'if(t&&s&&window.Blob&&window.URL){t.src=URL.createObjectURL(new Blob([s.textContent.trim()+"\\n"],{type:"text/vtt"}));}})();</script>\n')
     artifact_body = body.replace(TRACK, '<track kind="captions" srclang="en" label="English" data-vtt="inline">')
-artifact = title + THEME + FONTS + style + artifact_body + captions + scripts
+artifact = title + VIEWPORT_SIDES + THEME + FONTS + style + artifact_body + captions + scripts
 open(os.path.join(HERE, "artifact.html"), "w", encoding="utf-8").write(artifact)
 page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'

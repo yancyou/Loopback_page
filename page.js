@@ -50,6 +50,16 @@
   }
   window.addEventListener('scroll', markCurrent, { passive: true }); markCurrent();
 
+  /* ------------------------------------------------------------ results index rail: current subsection */
+  var tocLinks = Array.prototype.slice.call(doc.querySelectorAll('.toc a'));
+  var tocTargets = tocLinks.map(function (a) { return $(a.getAttribute('href').slice(1)); });
+  function markToc() {
+    var y = window.pageYOffset + 160, cur = -1;
+    tocTargets.forEach(function (t, i) { if (t && t.getBoundingClientRect().top + window.pageYOffset <= y) { cur = i; } });
+    tocLinks.forEach(function (a, i) { if (i === cur) { a.setAttribute('aria-current', 'true'); } else { a.removeAttribute('aria-current'); } });
+  }
+  if (tocLinks.length) { window.addEventListener('scroll', markToc, { passive: true }); markToc(); }
+
   /* ------------------------------------------------------------ lightbox */
   var dlg = $('lightbox');
   if (dlg && typeof dlg.showModal === 'function') {

@@ -9,8 +9,9 @@ is --bpm with its first beat at --phase seconds (read off librosa's beat_track: 
 9-98 s), and every join is a 40 ms equal-power crossfade on the downbeat.
 cand1 (110 s, ending from bar 48 at 99.4 s): from bar 8 the chords change every 2 bars in a 4-bar cycle, and the 8-bar
 sections from bar 8 to bar 39 match each other closely, so a jump back by a multiple of 4 bars to a phrase start keeps
-the harmony and the phrasing. The 133.7 s video uses --bars 0:36 20: (bars 20-35 twice, 143.1 s, ending from 132.4 s; the
-join at 74.5 s keeps the kick within 14 ms of the grid). The 96.4 s cut dropped bars 24-25 (ending 95.2 s); the 84 s cut
+the harmony and the phrasing. The 142.0 s video (11-05) uses --bars 0:40 20: (bars 20-39 twice, 151.4 s, ending from 140.7 s; join at 82.79 s);
+the 133.7 s one used --bars 0:36 20: (bars 20-35 twice, 143.1 s, ending from 132.4 s; the join at 74.5 s keeps the kick
+within 14 ms of the grid). The 96.4 s cut dropped bars 24-25 (ending 95.2 s); the 84 s cut
 dropped bars 24-31.
 numpy and soundfile.
 """

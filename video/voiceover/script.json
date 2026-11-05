@@ -1,40 +1,98 @@
-{"voice": "af_heart", "duration": 133.7, "video": "video/voiceover/build/loopback_promo_silent.mp4", "out": "videos/loopback_promo.mp4",
- "music": {"path": "video/music/build/bed.wav", "gap_db": -6.0, "fade_in": 0.5, "fade_out": 1.2},
+{
+ "voice": "af_heart",
+ "duration": 142.034,
+ "video": "video/voiceover/build/loopback_promo_silent.mp4",
+ "out": "videos/loopback_promo.mp4",
+ "music": {
+  "path": "video/music/build/bed.wav",
+  "gap_db": -6.0,
+  "fade_in": 0.5,
+  "fade_out": 1.2
+ },
  "segments": [
-  {"id": "title", "start": 0.5, "end": 6.2,
+  {
+   "id": "title",
+   "start": 0.5,
+   "end": 6.67,
    "say": "Loopback Transformer: towards a unified view of residual looped transformers.",
-   "display": "Loopback Transformer: towards a unified view of residual looped Transformers."},
-  {"id": "hook", "start": 7.0, "end": 16.1,
-   "say": "Looped transformers reduce parameters by reusing shared blocks, but sharing alone does not decide how repeated computation is reused.",
-   "display": "Looped Transformers reduce parameters by reusing shared blocks, but sharing alone does not decide how repeated computation is reused."},
-  {"id": "analysis", "start": 16.9, "end": 26.65,
-   "say": "Addition lets the total update weight grow with depth, and a joint softmax makes the input compete with the updates.",
-   "display": "Addition lets the total update weight grow with depth, and a joint softmax makes the input compete with the updates."},
-  {"id": "method", "start": 27.45, "end": 38.45,
-   "say": "Loopback stores each block's update, keeps the input on its own path, and lets decay set the total weight while attention allocates it.",
-   "display": "Loopback stores each block's update, keeps the input on its own path, and lets decay set the total weight while attention allocates it."},
-  {"id": "scale", "start": 39.25, "end": 53.75,
-   "say": "From one hundred ninety-one million to three billion parameters, Loopback reaches lower loss and a higher thirteen-task average than the standard transformer, with forty to seventy-five percent of its parameters.",
-   "display": "From 191M to 3B parameters, Loopback reaches lower loss and a higher thirteen-task average than the standard Transformer, with 40–75% of its parameters."},
-  {"id": "nine", "start": 54.55, "end": 66.9,
-   "say": "Against the standard transformer and seven looped residual designs, Loopback has the lowest loss and the highest thirteen-task average at all three scales tested.",
-   "display": "Against the standard Transformer and seven looped residual designs, Loopback has the lowest loss and the highest thirteen-task average at all three scales tested."},
-  {"id": "math", "start": 67.7, "end": 80.95,
-   "say": "At larger scale, it also predicts math and code solutions better, and at three billion, word-problem accuracy rises from two point six to six point four percent.",
-   "display": "At larger scale, it also predicts math and code solutions better, and at 3B, word-problem accuracy rises from 2.6% to 6.4%."},
-  {"id": "visits", "start": 81.75, "end": 90.15,
-   "say": "Run more loops at inference than in training, and Loopback degrades far less than plain addition.",
-   "display": "Run more loops at inference than in training, and Loopback degrades far less than plain addition."},
-  {"id": "ablation", "start": 90.95, "end": 100.7,
-   "say": "Both controls matter: without attention the loss rises, without decay it rises much more, and the gains hold across initializations.",
-   "display": "Both controls matter: without attention the loss rises, without decay it rises much more, and the gains hold across initializations."},
-  {"id": "depth", "start": 101.5, "end": 110.4,
+   "display": "Loopback Transformer: towards a unified view of residual looped Transformers."
+  },
+  {
+   "id": "hook",
+   "start": 7.47,
+   "end": 18.02,
+   "say": "Looped transformers save parameters by running the same blocks again and again. But sharing alone doesn't decide how all that repeated computation is reused.",
+   "display": "Looped Transformers save parameters by running the same blocks again and again. But sharing alone doesn't decide how all that repeated computation is reused."
+  },
+  {
+   "id": "analysis",
+   "start": 18.82,
+   "end": 30.81,
+   "say": "Think of residual connections as depth memory. Addition lets the total update weight keep growing with depth, and a joint softmax makes the input compete with the updates.",
+   "display": "Think of residual connections as depth memory. Addition lets the total update weight keep growing with depth, and a joint softmax makes the input compete with the updates."
+  },
+  {
+   "id": "method",
+   "start": 31.61,
+   "end": 43.96,
+   "say": "Loopback decouples the two: it stores each block's update, keeps the input on its own path, and lets decay set the total weight while attention allocates it.",
+   "display": "Loopback decouples the two: it stores each block's update, keeps the input on its own path, and lets decay set the total weight while attention allocates it."
+  },
+  {
+   "id": "scale",
+   "start": 44.76,
+   "end": 59.72,
+   "say": "The result: from one hundred ninety-one million to three billion parameters, Loopback reaches lower loss and a higher thirteen-task average than the standard transformer, with only forty to seventy-five percent of its parameters.",
+   "display": "The result: from 191M to 3B parameters, Loopback reaches lower loss and a higher thirteen-task average than the standard Transformer, with only 40–75% of its parameters."
+  },
+  {
+   "id": "nine",
+   "start": 60.52,
+   "end": 71.81,
+   "say": "Against the standard transformer and seven other looped residual designs, Loopback has the lowest loss and the highest thirteen-task average at all three scales.",
+   "display": "Against the standard Transformer and seven other looped residual designs, Loopback has the lowest loss and the highest thirteen-task average at all three scales."
+  },
+  {
+   "id": "math",
+   "start": 72.61,
+   "end": 85.82,
+   "say": "At one point four and three billion, it also predicts math and code solutions better, and at three billion, word-problem accuracy rises from two point six to six point four percent.",
+   "display": "At 1.4B and 3B, it also predicts math and code solutions better, and at 3B, word-problem accuracy rises from 2.6% to 6.4%."
+  },
+  {
+   "id": "visits",
+   "start": 86.62,
+   "end": 96.07,
+   "say": "Run more loops at inference than in training, and Loopback degrades far less than Plain Loop at all three scales.",
+   "display": "Run more loops at inference than in training, and Loopback degrades far less than Plain Loop at all three scales."
+  },
+  {
+   "id": "ablation",
+   "start": 96.87,
+   "end": 106.73,
+   "say": "Both controls matter: without attention, the loss rises; without decay, it rises much more. And the gains hold across initializations.",
+   "display": "Both controls matter: without attention, the loss rises; without decay, it rises much more. And the gains hold across initializations."
+  },
+  {
+   "id": "depth",
+   "start": 107.53,
+   "end": 116.38,
    "say": "At a fixed parameter budget, deeper and narrower standard transformers lose ground, while Loopback's margin grows with depth.",
-   "display": "At a fixed parameter budget, deeper and narrower standard Transformers lose ground, while Loopback's margin grows with depth."},
-  {"id": "eff", "start": 111.2, "end": 121.85,
-   "say": "The read adds under a tenth of a percent in flops; at three billion, training runs within six percent of the standard transformer's speed.",
-   "display": "The read adds under 0.1% in FLOPs; at 3B, training runs within 6% of the standard Transformer's speed."},
-  {"id": "outro", "start": 122.65, "end": 133.3,
+   "display": "At a fixed parameter budget, deeper and narrower standard Transformers lose ground, while Loopback's margin grows with depth."
+  },
+  {
+   "id": "eff",
+   "start": 117.18,
+   "end": 130.38,
+   "say": "The cost is small: reading the stored updates adds under a tenth of a percent in flops, and at three billion, training runs within six percent of the standard transformer's speed.",
+   "display": "The cost is small: reading the stored updates adds under 0.1% in FLOPs, and at 3B, training runs within 6% of the standard Transformer's speed."
+  },
+  {
+   "id": "outro",
+   "start": 131.18,
+   "end": 141.72,
    "say": "Loopback stores updates, keeps the input on its own path, and lets decay and attention control their weight: lower loss with fewer parameters.",
-   "display": "Loopback stores updates, keeps the input on its own path, and lets decay and attention control their weight: lower loss with fewer parameters."}
- ]}
+   "display": "Loopback stores updates, keeps the input on its own path, and lets decay and attention control their weight: lower loss with fewer parameters."
+  }
+ ]
+}

@@ -16,8 +16,11 @@ import argparse, asyncio, difflib, json, os, re, shutil, subprocess, sys
 from playwright.async_api import async_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FPS, DUR = 30, 133.7                # DUR must match promo.html
-POSTER_T, HERO_T = 4.2, 53.3        # title card (og:image); the finished five-scale results, shown before play
+FPS = 30
+_page = open(os.path.join(HERE, "promo.html"), encoding="utf-8").read()
+DUR = float(re.search(r"var DUR = ([0-9.]+);", _page).group(1))                       # the page's length and scene windows
+SCALE_END = float(re.search(r"scale: \[[0-9.]+, ([0-9.]+)\]", _page).group(1))
+POSTER_T, HERO_T = 4.2, SCALE_END - 0.7     # title card (og:image); the finished five-scale results, shown before play
 VO = os.path.join(HERE, "voiceover")
 NO_CAPTIONS = {"title"}
 
@@ -54,7 +57,9 @@ def cues():
         out[-1]["end"] = out[-1]["last"] + 0.6
     return out
 
-async def frames(times, out_dir, prefix, captions=()):
+async def frames(times, out_dir, prefix, captions=(), words=None):
+    """Screenshots of #stage at the given times. captions: the burned-in cues; words: the narration's word times the scenes
+    time their animations by (default: the captions; posters get the words but no captions)."""
     async with async_playwright() as p:
         b = await p.chromium.launch()
         pg = await b.new_page(viewport={"width": 1920, "height": 1080}, device_scale_factor=1)
@@ -63,7 +68,7 @@ async def frames(times, out_dir, prefix, captions=()):
         pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
         await pg.goto("file://" + os.path.join(HERE, "promo.html"), wait_until="networkidle", timeout=120000)
         await pg.wait_for_function("window.__ready === true", timeout=120000)
-        await pg.evaluate("c => { window.CUES = c; }", list(captions))
+        await pg.evaluate("c => { window.CUES = c[0]; window.WORDS = c[1]; }", [list(captions), list(captions if words is None else words)])
         stage = await pg.query_selector("#stage")
         paths = []
         for i, t in enumerate(times):
@@ -104,7 +109,7 @@ def main():
                     "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                     "-tune", "animation", a.out], check=True)
     vids = os.path.join(HERE, "..", "videos")
-    posters = asyncio.run(frames([POSTER_T, HERO_T], a.tmp, "poster_"))   # no captions on the stills
+    posters = asyncio.run(frames([POSTER_T, HERO_T], a.tmp, "poster_", (), cues()))   # no captions on the stills
     for path, name in zip(posters, ("loopback_promo_poster.jpg", "loopback_promo_poster_hero.jpg")):
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", path, "-q:v", "3", os.path.join(vids, name)], check=True)
     print("wrote", a.out, os.path.getsize(a.out), "bytes, and the posters in", os.path.normpath(vids))

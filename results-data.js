@@ -7,7 +7,7 @@
 window.LOOPBACK_DATA = {
   models: [
     { key: 'dense',     name: 'Standard',  family: 'control', note: 'baseline' },
-    { key: 'plain',     name: 'Plain',     family: 'plain',   note: 'plain loop' },
+    { key: 'plain',     name: 'Plain Loop', family: 'plain',  note: 'addition' },
     { key: 'mhc',       name: 'mHC',       family: 'hc' },
     { key: 'hc',        name: 'HC',        family: 'hc' },
     { key: 'ihc',       name: 'iHC',       family: 'hc' },

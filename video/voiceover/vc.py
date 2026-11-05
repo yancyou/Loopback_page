@@ -5,6 +5,7 @@ voice conversion changes only who it sounds like, so the clone does not pick up 
 
     tts_venv/bin/python   vc.py source  script.json [--voice am_michael]        # Kokoro, CPU
     SIGMA_CLIMB4K=1 CUDA_VISIBLE_DEVICES=0 clone_venv/bin/python vc.py source script.json --engine chatterbox [--takes 6]
+    SIGMA_CLIMB4K=1 CUDA_VISIBLE_DEVICES=0 clone_venv/bin/python vc.py source script.json --engine hybrid --ref /path/to/sample.wav
     SIGMA_CLIMB4K=1 CUDA_VISIBLE_DEVICES=0 clone_venv/bin/python vc.py convert script.json --ref /path/to/sample.wav
     ... source/convert --only visits eff      # read and convert just these segments; keep the other takes
     clone_venv/bin/python vc.py place script.json          # every previous take at its (moved) start; converts nothing
@@ -39,7 +40,9 @@ from synth import BUILD, LEAD, SR, TAIL, align, duration, load, plain
 SPEEDS = [0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.04, 1.08, 1.12]
 TARGET_WPM, MARGIN = 140, 0.15
 CB_EXAG, CB_CFG = 0.4, 0.3
+HY_EXAG, HY_CFG, HY_WPM, HY_MIN_TEMPO = 0.3, 0.3, 148, 0.9   # hybrid: no conversion follows, so slow a take by at most 10%
 VC_DIR = os.path.join(BUILD, "vc")
+TAKES_HY = os.path.join(BUILD, "takes_hy")
 
 def picked(s, only):
     """The segments to read or convert: all of them, or those named in --only."""
@@ -98,7 +101,7 @@ def source(s, voice, only=None):
         json.dump({"say": g["say"], "voice": voice, "speed": sp}, open(os.path.join(VC_DIR, f"{g['id']}.json"), "w"))
         print(f"{g['id']:<9}{g['start']:6.2f}-{g['end']:<6.2f}{sp:7.2f}{len(clip) / SR:7.2f}{wpm:6.0f}")
 
-def source_chatterbox(s, takes, only=None, pins=None):
+def source_chatterbox(s, takes, only=None, pins=None, ref=None):
     import warnings
     warnings.filterwarnings("ignore")
     import numpy as np, soundfile as sf, torch
@@ -106,29 +109,105 @@ def source_chatterbox(s, takes, only=None, pins=None):
     from transformers.models.whisper.english_normalizer import EnglishTextNormalizer
     from chatterbox.tts import ChatterboxTTS
     from asr_check import tokens
-    from clone import score, tempo, transcribe, trim
+    from clone import POST, ffilter, score, tempo, transcribe, trim
     m = ChatterboxTTS.from_pretrained(device="cuda" if torch.cuda.is_available() else "cpu")   # built-in voice: m.conds
+    voice = "chatterbox-default"
+    if ref:   # --engine hybrid: T3 gets the reference speaker's embedding but the built-in voice's prompt tokens, S3Gen the reference
+        from chatterbox.tts import Conditionals, T3Cond
+        default = m.conds
+        m.prepare_conditionals(ref, exaggeration=CB_EXAG)
+        m.conds = Conditionals(T3Cond(speaker_emb=m.conds.t3.speaker_emb, cond_prompt_speech_tokens=default.t3.cond_prompt_speech_tokens,
+                                      emotion_adv=HY_EXAG * torch.ones(1, 1, 1)).to(device=m.device), m.conds.gen)
+        voice = "hybrid"
+    ex, cfg, target = (HY_EXAG, HY_CFG, HY_WPM) if ref else (CB_EXAG, CB_CFG, TARGET_WPM)
+    if ref:
+        import librosa
+        ref16 = librosa.load(ref, sr=16000)[0]
+        ref_e = m.ve.embeds_from_wavs([ref16], sample_rate=16000).mean(0)
+        def sim(c):
+            e = m.ve.embeds_from_wavs([librosa.resample(c, orig_sr=SR, target_sr=16000)], sample_rate=16000).mean(0)
+            return float(np.dot(e, ref_e) / (np.linalg.norm(e) * np.linalg.norm(ref_e)))
     norm, asr = EnglishTextNormalizer({}), WhisperModel("small.en", device="cpu", compute_type="int8", cpu_threads=min(16, os.cpu_count() or 1))
     os.makedirs(VC_DIR, exist_ok=True)
+    listing = {}
     print(f"{'id':<9}{'window':>13}{'seed':>5}{'dur':>7}{'wpm':>6}{'WER':>6}  takes (s)")
     for g in picked(s, only):
         win, nwords, cand = g["end"] - g["start"] - MARGIN, len(plain(g["say"]).split()), []
         for seed in [pins[g["id"]]] if g["id"] in (pins or {}) else range(takes):
             torch.manual_seed(seed)
-            clip = trim(m.generate(plain(g["say"]), exaggeration=CB_EXAG, cfg_weight=CB_CFG).squeeze(0).numpy())
+            clip = m.generate(plain(g["say"]), exaggeration=ex, cfg_weight=cfg).squeeze(0).numpy()
+            clip = trim(ffilter(clip, POST) if ref else clip)     # hybrid takes are final: clean them as convert would
             cand.append((seed, clip, score(norm, g["say"], transcribe(asr, clip))))
+            if ref:   # every take is kept for `pick` (accent and speaker checks with voice_sim.py)
+                os.makedirs(TAKES_HY, exist_ok=True)
+                sf.write(os.path.join(TAKES_HY, f"{g['id']}_s{seed}.wav"), clip.astype(np.float32), SR, subtype="FLOAT")
+                listing[f"{g['id']}/{g['id']}_s{seed}"] = os.path.join(TAKES_HY, f"{g['id']}_s{seed}.wav")
         best = min(c[2] for c in cand); slack = max(0.05, 1 / max(1, len(tokens(norm, plain(g["say"]))))) + 1e-9
         ok = [c for c in cand if c[2] <= best + slack and len(c[1]) / SR <= win] or [min(cand, key=lambda c: len(c[1]))]
-        seed, clip, w = min(ok, key=lambda c: abs(nwords / (len(c[1]) / SR) * 60 - TARGET_WPM))
+        pace = lambda c: nwords / (len(c[1]) / SR) * 60
+        if ref:   # the most similar of the takes within 8 wpm of the slowest that is >= target (or of the nearest)
+            near = min(abs(pace(c) - target) for c in ok)
+            ok = [c for c in ok if abs(pace(c) - target) <= near + 8]
+            sims = {c[0]: sim(c[1]) for c in ok}
+            seed, clip, w = max(ok, key=lambda c: sims[c[0]])
+        else:
+            seed, clip, w = min(ok, key=lambda c: abs(pace(c) - target))
         raw_wpm = nwords / (len(clip) / SR) * 60
-        if raw_wpm > TARGET_WPM:
-            clip = tempo(clip, max(TARGET_WPM / raw_wpm, (len(clip) / SR) / win))   # slow down, but stay inside the window
+        if raw_wpm > target:
+            clip = tempo(clip, max(target / raw_wpm, (len(clip) / SR) / win, HY_MIN_TEMPO if ref else 0))   # slow down, inside the window
         sf.write(os.path.join(VC_DIR, f"{g['id']}.wav"), clip.astype(np.float32), SR, subtype="FLOAT")
-        json.dump({"say": g["say"], "voice": "chatterbox-default", "speed": 1.0, "seed": seed}, open(os.path.join(VC_DIR, f"{g['id']}.json"), "w"))
+        json.dump({"say": g["say"], "voice": voice, "speed": 1.0, "seed": seed}, open(os.path.join(VC_DIR, f"{g['id']}.json"), "w"))
         print(f"{g['id']:<9}{g['start']:6.2f}-{g['end']:<6.2f}{seed:5d}{len(clip) / SR:7.2f}{nwords / (len(clip) / SR) * 60:6.0f}{w:6.2f}  "
               f"{[round(len(c[1]) / SR, 2) for c in cand]}")
+    if listing:
+        old = json.load(open(os.path.join(TAKES_HY, "list.json"))) if os.path.exists(os.path.join(TAKES_HY, "list.json")) else {}
+        old.update(listing)
+        json.dump(old, open(os.path.join(TAKES_HY, "list.json"), "w"), indent=1)
+        print(f"kept {len(listing)} takes in {TAKES_HY} (list.json for voice_sim.py, then vc.py pick)")
 
-def convert(s, ref, seeds=4, only=None):
+ACCENT_MIN = 0.99   # pick: a take counts as a standard American reading when the accent classifier gives P(us) at least this
+
+def pick(s, report, only=None):
+    """Each segment's take from build/takes_hy (source --engine hybrid) by a voice_sim.py report of those takes: a word error
+    rate within one word (or 0.05) of the segment's best take, a standard American accent (P(us) >= ACCENT_MIN), a fit in the
+    window once slowed toward HY_WPM (by at most HY_MIN_TEMPO), a pace within 8 wpm of the take nearest HY_WPM; of those,
+    the one the two independent speaker-verification models (WavLM, ECAPA) find most like the reference. Writes it, slowed
+    if faster than HY_WPM, as build/vc/<id>.wav for convert --no-vc."""
+    import numpy as np, soundfile as sf
+    from transformers.models.whisper.english_normalizer import EnglishTextNormalizer
+    from asr_check import tokens
+    from clone import tempo
+    R, norm = json.load(open(report)), EnglishTextNormalizer({})
+    print(f"{'id':<9}{'seed':>5}{'WER':>6}{'P(us)':>7}{'wavlm':>7}{'ecapa':>7}{'wpm':>6}{'tempo':>7}  of (seed: WER, P(us))")
+    for g in picked(s, only):
+        win, nwords, takes = g["end"] - g["start"] - MARGIN, len(plain(g["say"]).split()), []
+        for k, v in R.items():
+            if k.split("/")[0] != g["id"] or "wer" not in v:
+                continue
+            seed = int(k.rsplit("_s", 1)[1])
+            clip = sf.read(os.path.join(TAKES_HY, f"{g['id']}_s{seed}.wav"), dtype="float32")[0]
+            takes.append({"seed": seed, "clip": clip, "wer": v["wer"], "p_us": v.get("p_us", 0.0), "wavlm": v["wavlm"], "ecapa": v["ecapa"],
+                          "wpm": nwords / (len(clip) / SR) * 60})
+        if not takes:
+            sys.exit(f"segment {g['id']!r}: no scored takes in {report}")
+        factor = lambda t: max(HY_MIN_TEMPO, min(1.0, HY_WPM / t["wpm"]))
+        slack = max(0.05, 1 / max(1, len(tokens(norm, plain(g["say"]))))) + 1e-9
+        best = min(t["wer"] for t in takes)
+        ok = [t for t in takes if t["wer"] <= best + slack and t["p_us"] >= ACCENT_MIN and len(t["clip"]) / SR / factor(t) <= win]
+        if not ok:
+            sys.exit(f"segment {g['id']!r}: no take passes (WER, accent, window): "
+                     + ", ".join(f"s{t['seed']} {t['wer']:.2f} {t['p_us']:.2f}" for t in takes) + "; read more takes")
+        near = min(abs(t["wpm"] - HY_WPM) for t in ok)
+        t = max((t for t in ok if abs(t["wpm"] - HY_WPM) <= near + 8), key=lambda t: t["wavlm"] + t["ecapa"])
+        f = factor(t)
+        clip = tempo(t["clip"], f) if f < 1.0 else t["clip"]
+        sf.write(os.path.join(VC_DIR, f"{g['id']}.wav"), clip.astype(np.float32), SR, subtype="FLOAT")
+        json.dump({"say": g["say"], "voice": "hybrid", "speed": round(1 / f, 3), "seed": t["seed"], "p_us": round(t["p_us"], 3),
+                   "wavlm": round(t["wavlm"], 3), "ecapa": round(t["ecapa"], 3)}, open(os.path.join(VC_DIR, f"{g['id']}.json"), "w"))
+        print(f"{g['id']:<9}{t['seed']:5d}{t['wer']:6.2f}{t['p_us']:7.3f}{t['wavlm']:7.3f}{t['ecapa']:7.3f}{t['wpm']:6.0f}{f:7.3f}  "
+              + " ".join(f"{x['seed']}:{x['wer']:.2f},{x['p_us']:.2f}" for x in sorted(takes, key=lambda x: x["seed"])))
+
+def convert(s, ref, seeds=4, only=None, vc_off=False):
     import warnings
     warnings.filterwarnings("ignore")
     import numpy as np, soundfile as sf
@@ -146,7 +225,9 @@ def convert(s, ref, seeds=4, only=None):
         from safetensors.torch import load_file
         from clone import MAX_TEMPO, POST, ffilter, score, tempo, transcribe, trim
         dev = "cuda" if torch.cuda.is_available() else "cpu"
-        vc = ChatterboxVC.from_pretrained(dev); vc.set_target_voice(ref)
+        vc = None
+        if not vc_off:
+            vc = ChatterboxVC.from_pretrained(dev); vc.set_target_voice(ref)
         ve = VoiceEncoder(); ve.load_state_dict(load_file(hf_hub_download("ResembleAI/chatterbox", "ve.safetensors"))); ve.to(dev).eval()
         emb = lambda w16: ve.embeds_from_wavs([w16], sample_rate=16000).mean(0)
         ref_emb = emb(librosa.load(ref, sr=16000)[0])
@@ -171,7 +252,10 @@ def convert(s, ref, seeds=4, only=None):
         if meta["say"] != g["say"]:
             sys.exit(f"build/vc/{g['id']}.wav was read from other text; rerun vc.py source")
         tries = []
-        for seed in range(seeds):
+        if vc_off:   # --no-vc: the reading is already in the reference voice (source --engine hybrid); place it as it is
+            c = sf.read(src, dtype="float32")[0]
+            tries.append((score(norm, g["say"], transcribe(asr, c)), 0.0, 0, c))
+        for seed in range(0 if vc_off else seeds):
             torch.manual_seed(seed)
             c = trim(ffilter(vc.generate(src).squeeze(0).numpy(), POST))
             ce = emb(librosa.resample(c, orig_sr=SR, target_sr=16000))
@@ -201,29 +285,43 @@ def convert(s, ref, seeds=4, only=None):
     for r in rows:
         print(f"{r[0]:<9}{r[1]:>13}{r[2]:7.2f}{r[3]:8.2f}{r[4]:6.2f}{r[5]:7.3f}{r[6]:7.3f}  {r[7]}")
     sf.write(os.path.join(BUILD, "voiceover.wav"), track, SR, subtype="FLOAT")
-    json.dump({"voice": f"kokoro {segs[0]['kokoro'][0]} -> chatterbox-vc", "video": s["video"], "video_duration": vdur,
+    label = (f"{segs[0]['kokoro'][0]} (no conversion)" if vc_off else
+             json.load(open(os.path.join(BUILD, "timings.json")))["voice"] if ref is None else f"kokoro {segs[0]['kokoro'][0]} -> chatterbox-vc")
+    json.dump({"voice": label,
+               "video": s["video"], "video_duration": vdur,
                "sample_rate": SR, "segments": segs}, open(os.path.join(BUILD, "timings.json"), "w"), indent=1, ensure_ascii=False)
     print(f"wrote build/voiceover.wav ({vdur:.2f} s, peak {np.abs(track).max():.2f}) and build/timings.json")
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("step", choices=["source", "convert", "place"]); ap.add_argument("script")
+    ap.add_argument("step", choices=["source", "pick", "convert", "place"]); ap.add_argument("script")
+    ap.add_argument("--report", help="pick: voice_sim.py report.json of build/takes_hy")
     ap.add_argument("--voice", default="am_michael"); ap.add_argument("--ref")
-    ap.add_argument("--engine", choices=["kokoro", "chatterbox"], default="kokoro"); ap.add_argument("--takes", type=int, default=6)
+    ap.add_argument("--engine", choices=["kokoro", "chatterbox", "hybrid"], default="kokoro"); ap.add_argument("--takes", type=int, default=6)
     ap.add_argument("--seeds", type=int, default=4, help="convert: decoder seeds tried per segment")
+    ap.add_argument("--no-vc", action="store_true", help="convert: place the readings as they are (they are in the reference voice)")
     ap.add_argument("--only", nargs="+", metavar="ID", help="just these segments; convert keeps the others' previous takes")
     ap.add_argument("--seed", action="append", default=[], metavar="ID=N", help="source (chatterbox): read segment ID with seed N only")
     a = ap.parse_args()
     s = load(a.script)
     pins = {k: int(v) for k, v in (p.split("=", 1) for p in a.seed)}
     if a.step == "source":
-        source_chatterbox(s, a.takes, a.only, pins) if a.engine == "chatterbox" else source(s, a.voice, a.only)
+        if a.engine == "hybrid" and not a.ref:
+            sys.exit("--engine hybrid needs --ref")
+        if a.engine == "kokoro":
+            source(s, a.voice, a.only)
+        else:
+            source_chatterbox(s, a.takes, a.only, pins, a.ref if a.engine == "hybrid" else None)
+    elif a.step == "pick":
+        if not a.report:
+            sys.exit("pick needs --report")
+        pick(s, a.report, a.only)
     elif a.step == "place":
         convert(s, None, 0, [])
     else:
         if not a.ref:
             sys.exit("convert needs --ref")
-        convert(s, a.ref, a.seeds, a.only)
+        convert(s, a.ref, a.seeds, a.only, a.no_vc)
 
 if __name__ == "__main__":
     main()

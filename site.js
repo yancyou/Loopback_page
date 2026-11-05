@@ -130,10 +130,10 @@
       var rect = el('rect', { x: -bw / 2, y: -bh / 2, width: bw, height: bh, rx: 5, fill: blockFill(k), stroke: C.border, 'stroke-width': 1 }, bg);
       sym(bg, 0, 5, 'f', String(k), { 'text-anchor': 'middle', 'font-size': 15 });
       G.blocks.push({ g: bg, rect: rect, x: p.x, y: p.y });
-      hover(rect, 'shared block f' + k + ': applied once per visit; its update δ is appended to the history');
+      hover(rect, 'shared block f' + k + ': applied once per iteration; its update δ is appended to the history');
     }
     txt(g, rg.cx, rg.cy - 8, 'shared blocks', { 'text-anchor': 'middle', 'font-size': 12, fill: C.muted });
-    txt(g, rg.cx, rg.cy + 10, 'K = ' + K + ', visited R = ' + P.R + ' times', { 'text-anchor': 'middle', 'font-size': 12, fill: C.muted });
+    txt(g, rg.cx, rg.cy + 10, 'K = ' + K + ', looped R = ' + P.R + ' times', { 'text-anchor': 'middle', 'font-size': 12, fill: C.muted });
     // reader
     var rd = G.readerG; rd.innerHTML = '';
     G.readerCircle = el('circle', { cx: L.reader.cx, cy: L.reader.cy, r: L.reader.r, fill: C.greenF, stroke: C.greenS, 'stroke-width': 1.2 }, rd);
@@ -160,7 +160,7 @@
     txt(g, gr.x0 + gr.w / 2, gr.y0 - 26, 'history of updates (one card per application)', { 'text-anchor': 'middle', 'font-size': 12, fill: C.muted });
     for (k = 0; k < K; k++) sym(g, gr.x0 + k * gr.cell + gr.card / 2, gr.y0 - 9, 'f', String(k), { 'text-anchor': 'middle', 'font-size': 12, fill: blockStroke(k) });
     // row labels on the right of the grid: the threads from the reader converge on the left edge of each row
-    G.labels.innerHTML = ''; G.rowLabels = G.labels; for (var v = 0; v < P.R; v++) halo(txt(G.rowLabels, gr.x0 + gr.w + 8, gr.y0 + v * gr.cell + gr.card / 2 + 4, 'visit ' + (v + 1), { 'text-anchor': 'start', 'font-size': 11, fill: C.muted }));
+    G.labels.innerHTML = ''; G.rowLabels = G.labels; for (var v = 0; v < P.R; v++) halo(txt(G.rowLabels, gr.x0 + gr.w + 8, gr.y0 + v * gr.cell + gr.card / 2 + 4, 'iteration ' + (v + 1), { 'text-anchor': 'start', 'font-size': 11, fill: C.muted }));
     // visit pips under the ring
     G.pips = [];
     var px = rg.cx - (P.R * 16 - 4) / 2, py = rg.cy + rg.r + 22;
@@ -211,19 +211,19 @@
         var fn = gr.card >= 50 ? 10.5 : 9.5, ny = c.y + gr.card - 7, val = fmt(w, gr.card >= 44 ? 3 : 2);
         levelLabel(cg, 'n' + i, function (fill) { return txt(cg, c.x + gr.card - 8.5, ny, val, { 'text-anchor': 'end', 'font-size': fn, fill: fill }); }, ny - 0.74 * fn, ny, barTop, w, k, c.x, gr.card);
       }
-      (function (i, k, v) { hover(cg, function () { var cc = coeffs(P.s, false); return 'δ' + i + ' from block f' + k + ', visit ' + (v + 1) + ': decay prior ' + fmt(cc.prior[i]) + ', after attention ' + fmt(cc.post[i]); }); })(i, k, v);
+      (function (i, k, v) { hover(cg, function () { var cc = coeffs(P.s, false); return 'δ' + i + ' from block f' + k + ', iteration ' + (v + 1) + ': decay prior ' + fmt(cc.prior[i]) + ', after attention ' + fmt(cc.post[i]); }); })(i, k, v);
     }
     // visit pips
     var cur = Math.floor(s / K);
     G.pips.forEach(function (p, v) { p.setAttribute('fill', v < cur ? C.navy : v === cur ? C.peachF : '#fff'); p.setAttribute('stroke', v <= cur ? C.navy : C.border); });
-    G.pipLabel.textContent = 'visit ' + (cur + 1) + ' of ' + P.R;
+    G.pipLabel.textContent = 'iteration ' + (cur + 1) + ' of ' + P.R;
     // reader subscript and next-state label
     G.readerLabel.innerHTML = ''; var b = el('tspan', { 'font-style': 'italic' }, G.readerLabel); b.textContent = 'R'; var sb = el('tspan', { dy: '0.32em', 'font-size': '72%' }, G.readerLabel); sb.textContent = String(s);
     G.nextLabel.innerHTML = ''; b = el('tspan', { 'font-style': 'italic' }, G.nextLabel); b.textContent = 'h'; sb = el('tspan', { dy: '0.32em', 'font-size': '72%' }, G.nextLabel); sb.textContent = String(s + 1);
     // caption
     var cap = G.caption; cap.innerHTML = '';
     var B = prior.reduce(function (a, b) { return a + b; }, 0);
-    txt(cap, 14, 26, 'application s = ' + s + ' of ' + (n - 1) + '  ·  visit ' + (cur + 1) + ', block f' + (s % K) + ' writes δ' + s + '  ·  read: input 1 + ' + (s + 1) + ' update' + (s ? 's' : '') + ' with total B = ' + fmt(B) + (isFinite(bound()) ? '  (visit-end bound Kλ/(1−λ) = ' + fmt(bound()) + ')' : '  (λ = 1: no decay, no bound)'), { 'font-size': 14 });
+    txt(cap, 14, 26, 'application s = ' + s + ' of ' + (n - 1) + '  ·  iteration ' + (cur + 1) + ', block f' + (s % K) + ' writes δ' + s + '  ·  read: input 1 + ' + (s + 1) + ' update' + (s ? 's' : '') + ' with total B = ' + fmt(B) + (isFinite(bound()) ? '  (iteration-end bound Kλ/(1−λ) = ' + fmt(bound()) + ')' : '  (λ = 1: no decay, no bound)'), { 'font-size': 14 });
     G.exit.setAttribute('stroke', s === n - 1 ? C.navy : C.ghost); G.exit.setAttribute('marker-end', s === n - 1 ? 'url(#lb-arrow-navy)' : 'url(#lb-arrow-faint)');
   }
 
@@ -289,7 +289,7 @@
     var pre = coeffs(s, true), fin = coeffs(s, false), target = L.blockPos[k].a;
     while (target <= dotAngle) target += 2 * Math.PI;
     var steps = [dotStep(target, 340), { dur: 10, end: function () { setBlockHighlight(k); } }, pulseStep(k, 240), flyStep(s, 380), tweenStep(pre, 300), readerPulse(260)];
-    if (visitEnd) { var bd = badgeStep(900, 'visit ' + (v + 1) + ' ends: every stored weight × λ = ' + fmt(P.lam, 2)), tw = tweenStep(fin, 520); steps.push({ dur: 900, start: function () { bd.start(); }, tick: function (e, u) { bd.tick(e, u); if (u > 0.25) tw.tick(ease(Math.min(1, (u - 0.25) / 0.6)), 0); }, end: function () { bd.end(); tw.end(); } }); }
+    if (visitEnd) { var bd = badgeStep(900, 'iteration ' + (v + 1) + ' ends: every stored weight × λ = ' + fmt(P.lam, 2)), tw = tweenStep(fin, 520); steps.push({ dur: 900, start: function () { bd.start(); }, tick: function (e, u) { bd.tick(e, u); if (u > 0.25) tw.tick(ease(Math.min(1, (u - 0.25) / 0.6)), 0); }, end: function () { bd.end(); tw.end(); } }); }
     steps.push({ dur: 10, end: readout });
     if (s === N() - 1) { var tTop = -Math.PI / 2; while (tTop <= target) tTop += 2 * Math.PI; steps.push(wait(120), dotStep(tTop, 300), { dur: 380, tick: function (e) { drawDot(0, exitPoint(e)); } }); }
     steps.push(wait(260));
@@ -307,7 +307,7 @@
   }
   function rebuildFocus() {
     var sel = $('focus'), cur = +sel.value, opts = '<option value="0">none (zero queries)</option>', i;
-    for (i = 1; i <= P.R; i++) opts += '<option value="' + i + '">visit ' + i + '</option>';
+    for (i = 1; i <= P.R; i++) opts += '<option value="' + i + '">iteration ' + i + '</option>';
     sel.innerHTML = opts; sel.value = cur <= P.R ? cur : 0; P.focus = +sel.value;
   }
   function readParams() {

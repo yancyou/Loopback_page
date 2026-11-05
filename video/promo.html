@@ -5,7 +5,7 @@
 <title>Loopback promo (render page)</title>
 <!-- Render page for the Loopback promo video. render.py loads it at 1920x1080, waits for window.__ready, then calls
      renderAt(t) for every frame and screenshots #stage. Nothing animates on its own: every frame is a pure function of t.
-     Every number on screen is from the paper (main table, Tables 3-4, the depth sweep, the visit and efficiency sections). -->
+     Every number on screen is from the paper (main table, Tables 3-4, the depth sweep, the extra-iteration and efficiency sections). -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@500;600;700&display=swap">
 <style>
 :root {
@@ -82,7 +82,6 @@ svg text { font-family: "Noto Sans", sans-serif; }
 
   <!-- 1 title -->
   <div class="scene" id="s-title">
-    <div id="t-kicker" class="fade">PREPRINT &middot; 2026</div>
     <div id="t-title" class="fade"><span class="grad">Loopback</span> Transformer</div>
     <div id="t-sub" class="fade">Towards a Unified View of Residual Looped Transformers</div>
     <div id="t-auth" class="fade">Xuan Ouyang<sup>*</sup> &nbsp;&middot;&nbsp; Zefan Cai<sup>*</sup> &nbsp;&middot;&nbsp; Chenlong Zhang &nbsp;&middot;&nbsp; Cheng Luo &nbsp;&middot;&nbsp; Ke Wan &nbsp;&middot;&nbsp; Junjie Hu</div>
@@ -111,7 +110,7 @@ svg text { font-family: "Noto Sans", sans-serif; }
     <div id="me-lab" class="fade"></div>
     <div class="mstep fade" id="me-1" style="top:300px"><span class="num">1</span><span class="tx">Store updates<small>each block's update, not its full output</small></span></div>
     <div class="mstep fade" id="me-2" style="top:430px"><span class="num">2</span><span class="tx">Input on its own path<small>held at weight 1</small></span></div>
-    <div class="mstep fade" id="me-3" style="top:560px"><span class="num">3</span><span class="tx">Decay sets the total<small>every weight &times;&lambda; at each visit end, &lambda; = 1/4</small></span></div>
+    <div class="mstep fade" id="me-3" style="top:560px"><span class="num">3</span><span class="tx">Decay sets the total<small>every weight &times;&lambda; at each iteration end, &lambda; = 1/4</small></span></div>
     <div class="mstep fade" id="me-4" style="top:690px"><span class="num">4</span><span class="tx">Attention allocates it<small>learned queries move weight; same total</small></span></div>
   </div>
 
@@ -144,7 +143,7 @@ svg text { font-family: "Noto Sans", sans-serif; }
   <!-- 8 more loops at inference -->
   <div class="scene" id="s-visits">
     <div class="h fade" id="vi-h">Extra loops at inference: Loopback degrades <b>far less</b></div>
-    <div class="note fade" id="vi-n" style="top:212px">No retraining &middot; extra visits reuse the last trained visit's queries &middot; held-out ClimbMix validation loss</div>
+    <div class="note fade" id="vi-n" style="top:212px">No retraining &middot; extra iterations reuse the last trained iteration's queries &middot; held-out ClimbMix validation loss</div>
     <svg id="vi-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
   </div>
 
@@ -153,13 +152,13 @@ svg text { font-family: "Noto Sans", sans-serif; }
     <div class="h fade" id="ab-h">Both controls matter: <b>decay</b> and <b>attention</b></div>
     <div class="note fade" id="ab-n" style="top:212px">Validation loss &middot; zero queries give a fixed allocation &middot; &lambda; = 1 turns decay off</div>
     <svg id="ab-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
-    <div class="note fade" id="ab-n2" style="top:800px">Three weight initializations at both scales: Loopback is below the standard Transformer and Plain in all six settings, and lowest in five.</div>
+    <div class="note fade" id="ab-n2" style="top:800px">Three weight initializations at both scales: Loopback is below the standard Transformer and Plain Loop in all six settings, and lowest in five.</div>
   </div>
 
   <!-- 10 depth at a fixed budget -->
   <div class="scene" id="s-depth">
     <div class="h fade" id="de-h">Loopback's margin <b>grows with depth</b></div>
-    <div class="note fade" id="de-n" style="top:212px">Same parameters and tokens at every depth &middot; looped models make two visits and store 56&ndash;58% of the standard Transformer's parameters</div>
+    <div class="note fade" id="de-n" style="top:212px">Same parameters and tokens at every depth &middot; looped models run two iterations and store 56&ndash;58% of the standard Transformer's parameters</div>
     <svg id="de-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
   </div>
 
@@ -187,9 +186,9 @@ svg text { font-family: "Noto Sans", sans-serif; }
 
 <script>
 'use strict';
-var DUR = 133.7;
-var SC = { title: [0, 6.5], hook: [6.5, 16.4], analysis: [16.4, 26.95], method: [26.95, 38.75], scale: [38.75, 54.05], nine: [54.05, 67.2],
-           math: [67.2, 81.25], visits: [81.25, 90.45], ablation: [90.45, 101], depth: [101, 110.7], eff: [110.7, 122.15], outro: [122.15, 133.7] };
+var DUR = 142.02;
+var SC = { title: [0, 6.97], hook: [6.97, 18.32], analysis: [18.32, 31.11], method: [31.11, 44.26], scale: [44.26, 60.02], nine: [60.02, 72.11],
+           math: [72.11, 86.12], visits: [86.12, 96.37], ablation: [96.37, 107.03], depth: [107.03, 116.68], eff: [116.68, 130.68], outro: [130.68, 142.02] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { navy: '#7fb1e9', teal: '#3cc0ad', ink: '#f4f6f9', ink2: '#d5dbe4', ink3: '#a3aebd', muted: '#7f8a99', line: '#2a3340', grid: '#1a212b',
           rose: '#f07a78', grey: '#8a94a3', dark: '#c9d2de', blueF: '#142a43', blueS: '#6fa0d6', peachF: '#3b261c', peachS: '#d79a7c', grayF: '#1b2129', band: '#0d1218' };
@@ -211,6 +210,18 @@ function appear(e, t, start, dur, dy) {
 function sceneOpacity(t, r, fin, fout) {
   if (t < r[0] || t > r[1]) { return 0; }
   return Math.min(1, (t - r[0]) / (fin || .45), (r[1] - t) / (fout || .45));
+}
+// When the narration says `word` in scene `id`: its time from window.WORDS (render.py sets them from the voiceover's word
+// times, the same cues as the captions), else the scene start + `fallback` s. Words compare by their letters and digits.
+function wt(id, word, fallback) {
+  var r = SC[id], cues = window.WORDS || [], want = String(word).toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (var i = 0; i < cues.length; i++) {
+    if (cues[i].start < r[0] - .3 || cues[i].start >= r[1]) { continue; }
+    for (var j = 0; j < cues[i].words.length; j++) {
+      if (cues[i].words[j][0].toLowerCase().replace(/[^a-z0-9]/g, '') === want) { return cues[i].words[j][1]; }
+    }
+  }
+  return r[0] + fallback;
 }
 var LATE = [];                                    // layout that needs the web fonts (text widths), run once they are loaded
 function legend(g, x, y, items) {               // [[label, colour, 'dot' | 'ring' | 'square'], ...] in a row from x
@@ -270,14 +281,14 @@ var HK = { cx: 560, cy: 585, r: 215, K: 4, R: 3 };
     HK.blocks.push({ g: bg, rect: rc });
   }
   txt(g, HK.cx, HK.cy - 6, 'K = 4 shared blocks', { 'text-anchor': 'middle', 'font-size': 26, fill: C.ink3 });
-  HK.visit = txt(g, HK.cx, HK.cy + 34, 'visit 1 of 3', { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.navy });
+  HK.visit = txt(g, HK.cx, HK.cy + 34, 'iteration 1 of 3', { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.navy });
   HK.tok = el('circle', { r: 15, fill: C.navy, stroke: '#06070a', 'stroke-width': 4 }, g);
   // history grid
-  var hx = 1090, hy = 330, cw = 150, ch = 112, gap = 18;
+  var hx = 1160, hy = 330, cw = 150, ch = 112, gap = 18;
   txt(g, hx + 2 * (cw + gap) - gap / 2, hy - 34, 'history of updates, one card per application', { 'text-anchor': 'middle', 'font-size': 24, fill: C.muted });
   HK.cards = [];
   for (var v = 0; v < HK.R; v++) {
-    txt(g, hx - 24, hy + v * (ch + gap) + ch / 2 + 9, 'visit ' + (v + 1), { 'text-anchor': 'end', 'font-size': 24, fill: C.muted });
+    txt(g, hx - 24, hy + v * (ch + gap) + ch / 2 + 9, 'iteration ' + (v + 1), { 'text-anchor': 'end', 'font-size': 24, fill: C.muted });
     for (var j = 0; j < HK.K; j++) {
       var x0 = hx + j * (cw + gap), y0 = hy + v * (ch + gap);
       el('rect', { x: x0, y: y0, width: cw, height: ch, rx: 12, fill: 'none', stroke: '#2a3340', 'stroke-width': 2, 'stroke-dasharray': '7 7' }, g);
@@ -300,7 +311,7 @@ function renderHook(t) {
   var a0 = -Math.PI / 2 + i * Math.PI / 2, ang = t < t0 ? -Math.PI / 2 : a0 + f * Math.PI / 2;
   if (u >= n) { ang = -Math.PI / 2 + n * Math.PI / 2; }
   HK.tok.setAttribute('cx', HK.cx + HK.r * Math.cos(ang)); HK.tok.setAttribute('cy', HK.cy + HK.r * Math.sin(ang));
-  HK.visit.textContent = 'visit ' + Math.min(HK.R, Math.floor(Math.min(u, n - 1e-6) / HK.K) + 1) + ' of ' + HK.R;
+  HK.visit.textContent = 'iteration ' + Math.min(HK.R, Math.floor(Math.min(u, n - 1e-6) / HK.K) + 1) + ' of ' + HK.R;
   HK.blocks.forEach(function (b, k) {
     var active = t >= t0 && u < n && (Math.floor(u) % HK.K) === k && (u - Math.floor(u)) < .35;
     b.rect.setAttribute('stroke-width', active ? 6 : 2.5);
@@ -317,12 +328,12 @@ function renderHook(t) {
 var RU = { K: 4, n: 12, lam: .25, W: 540, H: 330, x0: 40, y0: 18, ch: 250, bw: 22, gap: 9 };
 RU.charts = [0, 1, 2].map(function (p) {
   var s = $('ru-c' + p), o = { bars: [], ghosts: [] };
-  // visit bands (Loopback only)
+  // iteration bands (Loopback only)
   if (p === 2) {
     for (var v = 0; v < 3; v++) {
       var bx = RU.x0 + 54 + v * RU.K * (RU.bw + RU.gap) - 4;
       el('rect', { x: bx, y: RU.y0, width: RU.K * (RU.bw + RU.gap) - 1, height: RU.ch, fill: v % 2 ? '#06070a' : C.band }, s);
-      txt(s, bx + (RU.K * (RU.bw + RU.gap)) / 2, RU.y0 + 26, 'visit ' + (v + 1), { 'text-anchor': 'middle', 'font-size': 19, fill: C.muted });
+      txt(s, bx + (RU.K * (RU.bw + RU.gap)) / 2, RU.y0 + 26, 'iteration ' + (v + 1), { 'text-anchor': 'middle', 'font-size': 19, fill: C.muted });
     }
   }
   [0, .5, 1].forEach(function (yv) {
@@ -340,7 +351,7 @@ RU.charts = [0, 1, 2].map(function (p) {
   }
   return o;
 });
-function priorWeights(n, dec) {                  // Loopback decay prior after n applications; dec animates the visit-end decay
+function priorWeights(n, dec) {                  // Loopback decay prior after n applications; dec animates the iteration-end decay
   var w = [], pre = Math.floor((n - 1) / RU.K), post = Math.floor(n / RU.K);
   for (var i = 0; i < n; i++) {
     var after = Math.pow(RU.lam, post - Math.floor(i / RU.K)), before = Math.pow(RU.lam, pre - Math.floor(i / RU.K));
@@ -348,7 +359,7 @@ function priorWeights(n, dec) {                  // Loopback decay prior after n
   }
   return w;
 }
-function ruTimeline(dt) {                         // K applications per visit, then a hold in which every weight is multiplied by lambda
+function ruTimeline(dt) {                         // K applications per iteration, then a hold in which every weight is multiplied by lambda
   var per = .4, hold = .8, seg = RU.K * per;
   if (dt <= 0) { return { u: 0, n: 1, grow: 0, dec: 0 }; }
   for (var v = 0; v < 3; v++) {
@@ -358,7 +369,7 @@ function ruTimeline(dt) {                         // K applications per visit, t
     dt -= hold;
   }
 }
-function attnWeights(n) {                        // attention favoring visit 2, total kept at the prior's B
+function attnWeights(n) {                        // attention favoring iteration 2, total kept at the prior's B
   var c0 = priorWeights(n), B = c0.reduce(function (a, b) { return a + b; }, 0);
   var z = c0.map(function (c, i) { return Math.floor(i / RU.K) === 1 ? 2 : 0; });
   var e = c0.map(function (c, i) { return c * Math.exp(z[i]); }), Z = e.reduce(function (a, b) { return a + b; }, 0);
@@ -373,7 +384,7 @@ function renderAnalysis(t) {
   var r = SC.analysis;
   appear($('an-h'), t, r[0] + .2, .6); appear($('an-n'), t, r[0] + .5, .6);
   appear($('ru-p0'), t, r[0] + .7, .6); appear($('ru-p1'), t, r[0] + .95, .6);
-  var tl = ruTimeline(t - (r[0] + 1.5)), u = tl.u, n = tl.n, grow = tl.grow;   // applications 1..12, newest bar grows in
+  var tl = ruTimeline(t - (wt('analysis', 'addition', 1.5) - .1)), u = tl.u, n = tl.n, grow = tl.grow;   // applications 1..12, newest bar grows in
   var A = RU.charts[0];
   setBar(A.input, 1, true);
   A.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? 1 : i === n - 1 ? easeOut(grow) : 0, i < n); });
@@ -383,16 +394,17 @@ function renderAnalysis(t) {
   S.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? ws : i === n - 1 ? ws * easeOut(grow) : 0, i < n); });
   $('ru-l1').innerHTML = 'input 1/' + (u === 0 ? 1 : n + 1) + ' &middot; total ' + (u === 0 ? '0' : fmt2(n / (n + 1))) + '<br><span style="color:#f07a78">the input competes with the updates</span>';
 }
-// method: the chart starts at c0 s into the scene, attention reallocates from re s, the four moves light up at steps (the narration's
-// "stores", "keeps", "decay", "attention")
-var ME = { c0: 1.0, re: 8.4, steps: [1.0, 3.2, 6.1, 8.4] };
+// method: the four moves light up with the narration's "stores", "keeps", "decay", "attention" (fallback: these many s into the
+// scene); the chart starts with the first, and attention reallocates once the third iteration has decayed and it has been said
+var ME = { steps: [['stores', 1.0], ['keeps', 3.2], ['decay', 6.1], ['attention', 8.4]] };
 function renderMethod(t) {
-  var r = SC.method;
+  var r = SC.method, st = ME.steps.map(function (w) { return wt('method', w[0], w[1]); }), c0 = st[0] - .2;
+  var re = Math.max(st[3], c0 + 7.7);
   appear($('me-e'), t, r[0] + .1, .5); appear($('me-h'), t, r[0] + .2, .6);
   $('ru-c2').style.opacity = easeOut(prog(t, r[0] + .5, r[0] + 1.0));
   appear($('me-lab'), t, r[0] + .8, .5, 0);
-  var tl = ruTimeline(t - (r[0] + ME.c0)), u = tl.u, n = tl.n, grow = tl.grow;
-  var realloc = ease(prog(t, r[0] + ME.re, r[0] + ME.re + 1.6));
+  var tl = ruTimeline(t - c0), u = tl.u, n = tl.n, grow = tl.grow;
+  var realloc = ease(prog(t, re, re + 1.6));
   var L = RU.charts[2], c0 = priorWeights(n, tl.dec), ca = attnWeights(RU.n), B = c0.reduce(function (a, b) { return a + b; }, 0);
   setBar(L.input, 1, true);
   L.bars.forEach(function (b, i) {
@@ -406,12 +418,12 @@ function renderMethod(t) {
   });
   var atEnd = tl.dec >= 1;
   $('me-lab').innerHTML = 'input 1 &middot; total ' + (u === 0 ? '0.00' : fmt2(B)) + (atEnd ? ' &le; 1.33' : '') + '<br><span style="color:#3cc0ad">' +
-    (realloc > .02 ? 'attention moves weight; same total' : tl.dec > 0 ? 'visit end: every weight ×λ, λ = 1/4' : 'each new update enters at weight 1') + '</span>';
+    (realloc > .02 ? 'attention moves weight; same total' : tl.dec > 0 ? 'iteration end: every weight ×λ, λ = 1/4' : 'each new update enters at weight 1') + '</span>';
   var cur = -1;
-  ME.steps.forEach(function (s, k) { if (t >= r[0] + s) { cur = k; } });
-  ME.steps.forEach(function (s, k) {
+  st.forEach(function (s, k) { if (t >= s) { cur = k; } });
+  st.forEach(function (s, k) {
     var e = $('me-' + (k + 1)), on = k === cur;
-    appear(e, t, r[0] + s - .15, .5, 18);
+    appear(e, t, s - .15, .5, 18);
     e.querySelector('.num').style.background = on ? C.navy : '#1d2a3a';
     e.querySelector('.num').style.color = on ? '#06070a' : C.ink2;
     e.querySelector('.tx').style.color = on ? C.ink : C.ink3;
@@ -460,6 +472,7 @@ function renderScale(t) {
   var r = SC.scale;
   appear($('sc-h'), t, r[0] + .2, .6); appear($('sc-n'), t, r[0] + .5, .6);
   $('sc-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.1));
+  var tL = wt('scale', 'lower', 4.4) - .2, tA = wt('scale', 'thirteen-task', 6.3) - .2;
   SC_ROWS.forEach(function (o, i) {
     var d = o.d;
     o.lab.setAttribute('opacity', easeOut(prog(t, r[0] + .8 + i * .2, r[0] + 1.2 + i * .2)));
@@ -467,17 +480,17 @@ function renderScale(t) {
     var wf = SG.pw * d.p / 100 * ease(prog(t, r[0] + 1.6 + i * .22, r[0] + 2.5 + i * .22));
     o.fill.setAttribute('width', wf);
     o.share.setAttribute('x', SG.px0 + wf - 12); o.share.setAttribute('opacity', prog(t, r[0] + 2.3 + i * .22, r[0] + 2.7 + i * .22));
-    var w2 = (d.l0 - d.l1) * SG.k2 * ease(prog(t, r[0] + 4.4 + i * .25, r[0] + 5.3 + i * .25));
+    var w2 = (d.l0 - d.l1) * SG.k2 * ease(prog(t, tL + i * .25, tL + .9 + i * .25));
     o.b2.setAttribute('x', SG.z2 - w2); o.b2.setAttribute('width', w2);
-    o.t2.setAttribute('x', o.in2 ? SG.z2 - w2 + 14 : SG.z2 - w2 - 12); o.t2.setAttribute('opacity', prog(t, r[0] + 5.1 + i * .25, r[0] + 5.5 + i * .25));
-    var w3 = (d.a1 - d.a0) * SG.k3 * ease(prog(t, r[0] + 6.3 + i * .25, r[0] + 7.2 + i * .25));
+    o.t2.setAttribute('x', o.in2 ? SG.z2 - w2 + 14 : SG.z2 - w2 - 12); o.t2.setAttribute('opacity', prog(t, tL + .7 + i * .25, tL + 1.1 + i * .25));
+    var w3 = (d.a1 - d.a0) * SG.k3 * ease(prog(t, tA + i * .25, tA + .9 + i * .25));
     o.b3.setAttribute('width', w3);
-    o.t3.setAttribute('x', o.in3 ? SG.z3 + 14 : SG.z3 + w3 + 12); o.t3.setAttribute('opacity', prog(t, r[0] + 7.0 + i * .25, r[0] + 7.4 + i * .25));
+    o.t3.setAttribute('x', o.in3 ? SG.z3 + 14 : SG.z3 + w3 + 12); o.t3.setAttribute('opacity', prog(t, tA + .7 + i * .25, tA + 1.1 + i * .25));
   });
 }
 
 /* ---------------------------------------------------------------- scene 6: nine designs at 191M, 374M (32 layers), 778M (48 layers) */
-var NINE_NAMES = ['Standard', 'Plain', 'mHC', 'HC', 'iHC', 'Hyperloop', 'MHAR', 'AttnRes', 'Loopback'];
+var NINE_NAMES = ['Standard', 'Plain Loop', 'mHC', 'HC', 'iHC', 'Hyperloop', 'MHAR', 'AttnRes', 'Loopback'];
 var NINE3 = [
   { t: '191M', sub: '20 layers', lo: 2.612, hi: 2.686, loss: [2.6234, 2.6802, 2.6250, 2.6449, 2.6564, 2.6489, 2.6564, 2.6404, 2.6187],
     avg: [38.28, 36.64, 38.30, 38.15, 38.40, 38.31, 38.30, 38.19, 38.64] },
@@ -518,14 +531,15 @@ var NN = { x0: [70, 670, 1270], w: 580, cy0: 392, dy: 52, nameX: 150, dotA: 172,
 function renderNine(t) {
   var r = SC.nine;
   appear($('nn-h'), t, r[0] + .2, .6); appear($('nn-n'), t, r[0] + .5, .6);
+  var tB = wt('nine', 'lowest', 5.0) - .2, tR = wt('nine', 'highest', 7.2) - .2;
   NN.panels.forEach(function (P, p) {
     P.g.setAttribute('opacity', easeOut(prog(t, r[0] + .6 + p * .3, r[0] + 1.1 + p * .3)));
     P.rows.forEach(function (rg, k) {   // from the bottom (highest loss) up to the best
       var st = r[0] + 1.0 + p * .3 + (8 - k) * .16, q = easeOut(prog(t, st, st + .4));
       rg.setAttribute('opacity', q); rg.setAttribute('transform', 'translate(' + ((1 - q) * -24) + ' 0)');
     });
-    P.band.setAttribute('opacity', easeOut(prog(t, r[0] + 5.0 + p * .15, r[0] + 5.6 + p * .15)));   // "lowest loss"
-    P.ring.setAttribute('opacity', easeOut(prog(t, r[0] + 7.2 + p * .15, r[0] + 7.7 + p * .15)));   // "highest average"
+    P.band.setAttribute('opacity', easeOut(prog(t, tB + p * .15, tB + .6 + p * .15)));   // "lowest loss"
+    P.ring.setAttribute('opacity', easeOut(prog(t, tR + p * .15, tR + .5 + p * .15)));   // "highest ... average"
   });
 }
 
@@ -574,47 +588,52 @@ function renderMath(t) {
       o.lv.setAttribute('opacity', prog(t, a + 1.6, a + 2.0));
     });
   });
-  appear($('ma-wp'), t, r[0] + 5.3, .7, 30);
-  var hi = easeOut(prog(t, r[0] + 10.2, r[0] + 10.8));                    // "six point four"
+  appear($('ma-wp'), t, wt('math', 'word-problem', 5.7) - .5, .7, 30);
+  var t64 = wt('math', '6.4%', 10.2), hi = easeOut(prog(t, t64, t64 + .6));   // "six point four"
   $('ma-wp3').style.transform = 'scale(' + (1 + .06 * hi) + ')'; $('ma-wp3').style.transformOrigin = '100% 50%';
 }
 
 /* ---------------------------------------------------------------- scene 8: more loops at inference than in training */
-// Validation loss at R' visits at inference, from the trained count up, no retraining (paper fig:scale-large-visits).
+// Validation loss at R' iterations at inference, from the trained count up, no retraining (paper fig:scale-large-visits a-c;
+// 1.4B: figure/extra_visits/data/f1p4_{ours,plain}.json, the last trained iteration's queries).
 var VIS = [
-  { title: '(a) 191M', sub: 'trained with 4 visits', X0: 265, R: [4, 5, 6, 8], lo: 2.53, hi: 3.20, ticks: [2.6, 2.8, 3.0, 3.2],
+  { title: '(a) 191M, 20 layers', sub: 'trained with 4 iterations', X0: 180, R: [4, 5, 6, 8], lo: 2.53, hi: 3.20, ticks: [2.6, 2.8, 3.0, 3.2],
     loop: [2.619, 2.639, 2.664, 2.679], plain: [2.680, 2.734, 2.852, 3.134], dLoop: '+0.06', dPlain: '+0.45' },
-  { title: '(b) 374M, 32 layers', sub: 'trained with 2 visits', X0: 1145, R: [2, 3, 4], lo: 2.35, hi: 2.75, ticks: [2.4, 2.5, 2.6, 2.7],
-    loop: [2.401, 2.427, 2.475], plain: [2.437, 2.535, 2.707], dLoop: '+0.07', dPlain: '+0.27' }
+  { title: '(b) 374M, 32 layers', sub: 'trained with 2 iterations', X0: 780, R: [2, 3, 4], lo: 2.35, hi: 2.75, ticks: [2.4, 2.5, 2.6, 2.7],
+    loop: [2.401, 2.427, 2.475], plain: [2.437, 2.535, 2.707], dLoop: '+0.07', dPlain: '+0.27' },
+  { title: '(c) 1.4B, 25 layers', sub: 'trained with 2 iterations', X0: 1380, R: [2, 3, 4], lo: 2.06, hi: 2.42, ticks: [2.1, 2.2, 2.3, 2.4],
+    loop: [2.107, 2.118, 2.135], plain: [2.129, 2.206, 2.377], dLoop: '+0.03', dPlain: '+0.25' }
 ];
-var VI = { W: 600, top: 400, bot: 800, padL: 60, span: 390 };
+var VV = { W: 470, top: 430, bot: 800, padL: 46, span: 300 };
 (function buildVisits() {
   var s = $('vi-svg'), g = el('g', { id: 'vi-g' }, s);
-  legend(g, 640, 300, [['Loopback', C.navy, 'dot'], ['Plain (ordinary residual addition)', C.grey, 'square']]);
-  VIS.forEach(function (d) {
+  legend(g, 690, 300, [['Loopback', C.navy, 'dot'], ['Plain Loop (residual addition)', C.grey, 'square']]);
+  VIS.forEach(function (d, p) {
     var X0 = d.X0, Rmin = d.R[0], Rmax = d.R[d.R.length - 1];
-    var xOf = function (R) { return X0 + VI.padL + (R - Rmin) / (Rmax - Rmin) * VI.span; };
-    var yOf = function (v) { return VI.bot - (v - d.lo) / (d.hi - d.lo) * (VI.bot - VI.top); };
+    var xOf = function (R) { return X0 + VV.padL + (R - Rmin) / (Rmax - Rmin) * VV.span; };
+    var yOf = function (v) { return VV.bot - (v - d.lo) / (d.hi - d.lo) * (VV.bot - VV.top); };
     var pg = el('g', {}, g);
-    var tt = txt(pg, X0 + VI.W / 2, 362, d.title, { 'text-anchor': 'middle', 'font-size': 28, 'font-weight': 700, fill: C.ink });
-    tsp(tt, '  ·  ' + d.sub, { 'font-size': 23, 'font-weight': 400, fill: C.muted });
+    txt(pg, X0 + VV.W / 2 - 40, 358, d.title, { 'text-anchor': 'middle', 'font-size': 27, 'font-weight': 700, fill: C.ink });
+    txt(pg, X0 + VV.W / 2 - 40, 392, d.sub, { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted });
     // trained count: a band behind it
     var xt = xOf(Rmin);
-    el('rect', { x: xt - 32, y: VI.top, width: 64, height: VI.bot - VI.top, rx: 10, fill: C.band }, pg);
-    txt(pg, xt, VI.top + 28, 'trained', { 'text-anchor': 'middle', 'font-size': 19, fill: C.muted });
+    el('rect', { x: xt - 30, y: VV.top, width: 60, height: VV.bot - VV.top, rx: 10, fill: C.band }, pg);
+    txt(pg, xt, VV.top + 28, 'trained', { 'text-anchor': 'middle', 'font-size': 19, fill: C.muted });
     d.ticks.forEach(function (v) {
       var y = yOf(v);
-      el('line', { x1: X0, x2: X0 + VI.W, y1: y, y2: y, stroke: C.grid, 'stroke-width': 1.5 }, pg);
+      el('line', { x1: X0, x2: X0 + VV.W - 40, y1: y, y2: y, stroke: C.grid, 'stroke-width': 1.5 }, pg);
       txt(pg, X0 - 12, y + 7, v.toFixed(1), { 'text-anchor': 'end', 'font-size': 21, fill: C.muted, class: 'mono' });
     });
-    el('line', { x1: X0, x2: X0 + VI.W, y1: VI.bot, y2: VI.bot, stroke: '#3a4656', 'stroke-width': 2 }, pg);
-    el('line', { x1: X0, x2: X0, y1: VI.top, y2: VI.bot, stroke: '#3a4656', 'stroke-width': 2 }, pg);
-    var yl = txt(pg, 0, 0, 'validation loss', { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted });
-    yl.setAttribute('transform', 'translate(' + (X0 - 70) + ' ' + ((VI.top + VI.bot) / 2) + ') rotate(-90)');
+    el('line', { x1: X0, x2: X0 + VV.W - 40, y1: VV.bot, y2: VV.bot, stroke: '#3a4656', 'stroke-width': 2 }, pg);
+    el('line', { x1: X0, x2: X0, y1: VV.top, y2: VV.bot, stroke: '#3a4656', 'stroke-width': 2 }, pg);
+    if (p === 0) {
+      var yl = txt(pg, 0, 0, 'validation loss', { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted });
+      yl.setAttribute('transform', 'translate(' + (X0 - 74) + ' ' + ((VV.top + VV.bot) / 2) + ') rotate(-90)');
+    }
     d.R.forEach(function (R, i) {
-      txt(pg, xOf(R), VI.bot + 38, R + (i ? '' : '*'), { 'text-anchor': 'middle', 'font-size': 25, 'font-weight': i ? 500 : 700, fill: i ? C.ink2 : C.ink });
+      txt(pg, xOf(R), VV.bot + 38, R + (i ? '' : '*'), { 'text-anchor': 'middle', 'font-size': 25, 'font-weight': i ? 500 : 700, fill: i ? C.ink2 : C.ink });
     });
-    // series: Plain first, so Loopback draws on top
+    // series: Plain Loop first, so Loopback draws on top
     d.series = [['plain', C.grey, d.dPlain, C.ink3], ['loop', C.navy, d.dLoop, C.navy]].map(function (q) {
       var vals = d[q[0]], pts = vals.map(function (v, i) { return [xOf(d.R[i]), yOf(v)]; }), up = q[0] === 'plain';
       var path = el('path', { d: '', fill: 'none', stroke: q[1], 'stroke-width': up ? 4 : 4.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, pg);
@@ -622,24 +641,24 @@ var VI = { W: 600, top: 400, bot: 800, padL: 60, span: 390 };
         return up ? el('rect', { x: p[0] - 9, y: p[1] - 9, width: 18, height: 18, fill: '#06070a', stroke: q[1], 'stroke-width': 3.5, opacity: 0 }, pg)
                   : el('circle', { cx: p[0], cy: p[1], r: 10, fill: q[1], stroke: '#06070a', 'stroke-width': 3, opacity: 0 }, pg);
       });
-      // trained value: Plain above its marker, Loopback below; at the end: the rise, then the value
-      var v0 = txt(pg, pts[0][0], pts[0][1] + (up ? -22 : 37), vals[0].toFixed(3), { 'text-anchor': 'middle', 'font-size': 22, 'font-weight': 600, fill: up ? C.ink3 : C.navy, class: 'mono', opacity: 0 });
+      // trained value: Plain Loop above its marker, Loopback below; at the end: the rise, then the value
+      var v0 = txt(pg, pts[0][0], pts[0][1] + (up ? -22 : 37), vals[0].toFixed(3), { 'text-anchor': 'middle', 'font-size': 21, 'font-weight': 600, fill: up ? C.ink3 : C.navy, class: 'mono halo', opacity: 0 });
       var e = pts[pts.length - 1];
       var end = el('g', { opacity: 0 }, pg);
-      txt(end, e[0] + 28, e[1] + 6, q[2], { class: 'mr', 'font-size': 34, 'font-weight': 800, fill: q[3] });
-      txt(end, e[0] + 30, e[1] + 33, vals[vals.length - 1].toFixed(3), { 'font-size': 20, fill: up ? C.muted : C.navy, class: 'mono', opacity: up ? 1 : .8 });
+      txt(end, e[0] + 24, e[1] + 6, q[2], { class: 'mr halo', 'font-size': 32, 'font-weight': 800, fill: q[3] });
+      txt(end, e[0] + 26, e[1] + 32, vals[vals.length - 1].toFixed(3), { 'font-size': 19, fill: up ? C.muted : C.navy, class: 'mono halo', opacity: up ? 1 : .8 });
       return { pts: pts, path: path, marks: marks, v0: v0, end: end };
     });
   });
-  txt(g, 960, 890, 'loop visits at inference  (* trained count)', { 'text-anchor': 'middle', 'font-size': 23, fill: C.muted });
+  txt(g, 960, 890, 'loop iterations at inference  (* trained count)', { 'text-anchor': 'middle', 'font-size': 23, fill: C.muted });
 })();
 function renderVisits(t) {
   var r = SC.visits;
   appear($('vi-h'), t, r[0] + .2, .6); appear($('vi-n'), t, r[0] + .5, .6);
   $('vi-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.2));
   VIS.forEach(function (d, k) {
-    var t0 = r[0] + 1.7 + k * .8, t1 = t0 + 1.9, u = ease(prog(t, t0, t1));
-    var pop = easeOut(prog(t, r[0] + 1.1 + k * .2, r[0] + 1.5 + k * .2));
+    var t0 = r[0] + 1.5 + k * .6, t1 = t0 + 1.7, u = ease(prog(t, t0, t1));
+    var pop = easeOut(prog(t, r[0] + 1.0 + k * .2, r[0] + 1.4 + k * .2));
     d.series.forEach(function (sr) {
       var xa = sr.pts[0][0], xb = sr.pts[sr.pts.length - 1][0], xc = lerp(xa, xb, u);
       sr.path.setAttribute('d', u > 0 ? partialPath(sr.pts, xc) : '');
@@ -652,7 +671,7 @@ function renderVisits(t) {
 
 /* ---------------------------------------------------------------- scene 9: decay and attention (Table 4a) */
 var AB_ROWS = [['Loopback', 'decay + attention'], ['Decay only', 'zero queries: fixed allocation'], ['Attention only', 'decay off (λ = 1)'],
-               ['Neither = Plain', 'decay off, fixed allocation']];
+               ['Neither = Plain Loop', 'decay off, fixed allocation']];
 var AB = [
   { t: '(a) 191M', x0: 110, lo: 2.610, hi: 2.690, ticks: [2.62, 2.64, 2.66, 2.68], std: 2.6234, v: [2.6187, 2.6220, 2.6621, 2.6802], dA: '+0.0033', dD: '+0.0434' },
   { t: '(b) 374M, 24 layers', x0: 1000, lo: 2.390, hi: 2.450, ticks: [2.40, 2.42, 2.44], std: 2.4198, v: [2.3971, 2.3999, 2.4308, 2.4415], dA: '+0.0028', dD: '+0.0337' }
@@ -693,24 +712,24 @@ var AG = { cy0: 384, dy: 96, nameX: 286, a: 344, b: 794, top: 348, bot: 718 };
     });
   });
 })();
-// the rows come in with the narration: Loopback and Plain first, then "without attention", then "without decay"
-var AB_T = [0.9, 2.0, 4.2, 1.3];
+// the rows come in with the narration: Loopback and Plain Loop first, then "without attention", then "without decay"
 function renderAblation(t) {
-  var r = SC.ablation;
+  var r = SC.ablation, AB_T = [r[0] + 0.9, wt('ablation', 'attention', 2.0) - .2, wt('ablation', 'decay', 4.2) - .2, r[0] + 1.3];
   appear($('ab-h'), t, r[0] + .2, .6); appear($('ab-n'), t, r[0] + .5, .6);
   $('ab-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.1));
   AB.forEach(function (d, p) {
     d.stdg.setAttribute('opacity', easeOut(prog(t, r[0] + .9, r[0] + 1.4)));
     d.rows.forEach(function (o, k) {
-      var a = r[0] + AB_T[k] + p * .2, q = easeOut(prog(t, a, a + .5));
+      var a = AB_T[k] + p * .2, q = easeOut(prog(t, a, a + .5));
       o.g.setAttribute('opacity', q); o.g.setAttribute('transform', 'translate(' + ((1 - q) * -20) + ' 0)');
       if (o.ann) { o.ann.setAttribute('opacity', easeOut(prog(t, a + .4, a + .9))); }
     });
   });
-  appear($('ab-n2'), t, r[0] + 6.6, .6);
+  appear($('ab-n2'), t, wt('ablation', 'gains', 6.6) - .3, .6);
 }
 
 /* ---------------------------------------------------------------- scene 10: depth at a fixed parameter budget */
+var VI = { W: 600, top: 400, bot: 800 };            // plot box of the two depth panels
 var DLAY = [16, 24, 32, 48, 64];
 var DE = [
   { title: '(a) 374M', X0: 265, lo: 2.38, hi: 2.52, ticks: [2.40, 2.44, 2.48, 2.52],
@@ -762,15 +781,16 @@ function renderDepth(t) {
   var r = SC.depth;
   appear($('de-h'), t, r[0] + .2, .6); appear($('de-n'), t, r[0] + .5, .6);
   $('de-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.2));
+  var tS = wt('depth', 'deeper', 2.4), tL = wt('depth', "loopback's", 5.4) - .1, tM = wt('depth', 'grows', 6.8);
   DE.forEach(function (d, k) {
-    d.series.forEach(function (sr, j) {             // Standard with "lose ground", then Loopback with "margin grows"
-      var t0 = r[0] + (j ? 5.4 : 2.4) + k * .3, t1 = t0 + 1.6, u = ease(prog(t, t0, t1));
+    d.series.forEach(function (sr, j) {             // Standard with "deeper and narrower", then Loopback with "Loopback's margin"
+      var t0 = (j ? tL : tS) + k * .3, t1 = t0 + 1.6, u = ease(prog(t, t0, t1));
       var xc = lerp(sr.pts[0][0], sr.pts[sr.pts.length - 1][0], u);
       sr.path.setAttribute('d', u > 0 ? partialPath(sr.pts, xc) : '');
       sr.marks.forEach(function (m, i) { m.setAttribute('opacity', u > 0 ? clamp((xc - sr.pts[i][0] + 14) / 14, 0, 1) : 0); });
       sr.val.setAttribute('opacity', easeOut(prog(t, t1 - .1, t1 + .4)));
     });
-    d.mg.setAttribute('opacity', easeOut(prog(t, r[0] + 6.8 + k * .3, r[0] + 7.3 + k * .3)));
+    d.mg.setAttribute('opacity', easeOut(prog(t, tM + k * .3, tM + .5 + k * .3)));
   });
 }
 
@@ -787,7 +807,7 @@ function renderOutro(t) {
   appear($('o-r1'), t, r[0] + 1.6, .6); appear($('o-r2'), t, r[0] + 2.2, .6); appear($('o-r3'), t, r[0] + 2.8, .6);
 }
 function renderTitle(t) {
-  appear($('t-kicker'), t, .3, .5); appear($('t-title'), t, .5, .8, 36); appear($('t-sub'), t, 1.1, .7);
+  appear($('t-title'), t, .4, .8, 36); appear($('t-sub'), t, 1.1, .7);
   appear($('t-auth'), t, 1.9, .7); appear($('t-aff'), t, 2.3, .7);
 }
 
