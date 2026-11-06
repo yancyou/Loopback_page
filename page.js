@@ -287,50 +287,37 @@
     crender();
   }
 
-  // ---- the hero card: decay prior <-> attention. It switches by itself while on screen (hovering it, focusing it or hiding the
-  // tab pauses the countdown drawn under the active tab); a click on a tab pins that state. Reduced motion: no switching by itself.
+  // ---- the hero card: one animation of the two steps of every read. The rows come in with the decay prior (step 1), then
+  // attention reweights them row by row (step 2: the prior symbols shrink and stay, attention's weights appear, the totals are
+  // marked unchanged), the card holds, fades and plays again. Hovering it, focusing it, scrolling it away or hiding the tab
+  // holds the current step. Reduced motion: the finished two-step card, still.
   (function () {
     var card = doc.querySelector('.prior-card');
     if (!card) { return; }
-    var tabs = [].slice.call(card.querySelectorAll('.prior-tab'));
+    var steps = [].slice.call(card.querySelectorAll('.prior-step'));
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var HOLD = { decay: 5600, attn: 7200 }, FIRST = 4800;   // the rows have finished coming in after ~2.5 s
-    var state = 'decay', auto = !reduce, timer = 0, due = 0, left = FIRST, isPaused = false, hovered = false, onScreen = true;
-    function show(s) {
-      state = s;
-      card.classList.toggle('is-attn', s === 'attn');
-      tabs.forEach(function (t) {
-        var on = t.getAttribute('data-state') === s;
-        t.classList.toggle('is-on', on); t.setAttribute('aria-pressed', on ? 'true' : 'false');
-      });
-    }
-    function paused() { return hovered || !onScreen || doc.hidden; }
-    function arm(ms, fresh) {                 // the next switch in ms; fresh = a new hold, so the countdown restarts
+    function lit(phase) { steps.forEach(function (t) { t.classList.toggle('is-on', t.getAttribute('data-phase') === phase); }); }
+    if (reduce) { card.classList.add('is-attn'); lit('attn'); return; }
+    // each entry: [what to do, ms until the next entry]; the build lasts ~2.4 s (6 rows, 0.3 s apart, 0.55 s each)
+    var PLAN = [
+      [function () { card.classList.add('is-reset'); card.classList.remove('is-attn', 'is-out', 'is-build'); void card.offsetWidth;
+                     card.classList.remove('is-reset'); card.classList.add('is-build'); lit('decay'); }, 4400],
+      [function () { card.classList.add('is-attn'); lit('attn'); }, 7600],
+      [function () { card.classList.remove('is-build'); card.classList.add('is-out'); lit(''); }, 650]
+    ];
+    var i = 0, timer = 0, due = 0, left = 0, held = false, hovered = false, onScreen = true;
+    function holdNow() { return hovered || !onScreen || doc.hidden; }
+    function run(k) { i = k % PLAN.length; PLAN[i][0](); arm(PLAN[i][1]); }
+    function arm(ms) {
       clearTimeout(timer); left = ms;
-      if (!auto) { return; }
-      if (fresh) {
-        card.style.setProperty('--hold', ms + 'ms');
-        card.classList.remove('is-auto'); void card.offsetWidth; card.classList.add('is-auto');
-      }
-      if (paused()) { isPaused = true; card.classList.add('is-paused'); return; }
-      isPaused = false; card.classList.remove('is-paused');
-      due = Date.now() + ms;
-      timer = setTimeout(function () { show(state === 'decay' ? 'attn' : 'decay'); arm(HOLD[state], true); }, ms);
+      if (holdNow()) { held = true; return; }
+      held = false; due = Date.now() + ms;
+      timer = setTimeout(function () { run(i + 1); }, ms);
     }
     function sync() {
-      if (!auto) { return; }
-      if (paused() && !isPaused) {
-        clearTimeout(timer); left = Math.max(0, due - Date.now()); isPaused = true; card.classList.add('is-paused');
-      } else if (!paused() && isPaused) {
-        arm(left, false);
-      }
+      if (holdNow() && !held) { clearTimeout(timer); left = Math.max(0, due - Date.now()); held = true; }
+      else if (!holdNow() && held) { arm(left); }
     }
-    tabs.forEach(function (t) {
-      t.addEventListener('click', function () {
-        auto = false; clearTimeout(timer); card.classList.remove('is-auto', 'is-paused');
-        show(t.getAttribute('data-state'));
-      });
-    });
     card.addEventListener('mouseenter', function () { hovered = true; sync(); });
     card.addEventListener('mouseleave', function () { hovered = card.contains(doc.activeElement); sync(); });
     card.addEventListener('focusin', function () { hovered = true; sync(); });
@@ -339,6 +326,7 @@
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (es) { onScreen = es[es.length - 1].isIntersecting; sync(); }, { threshold: 0.35 }).observe(card);
     }
-    if (auto) { arm(FIRST, true); }
+    card.classList.add('is-live');
+    run(0);
   })();
 })();

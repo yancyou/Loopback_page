@@ -168,18 +168,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
    The card is drawn on the light paper in both themes, like the figures, so its colours are fixed. */
 .prior-card { position: relative; margin: 0; padding: 16px 18px 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--paper); box-shadow: var(--shadow-lg); min-width: 0; }
 .prior-card__head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin: 0 2px 2px; }
-.prior-tabs { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid #e4e1d9; border-radius: 999px; background: #f2f0ea; }
-.prior-tab { position: relative; min-height: 30px; padding: 0 13px; border: 0; border-radius: 999px; background: transparent; color: #5a6370; font: 600 .68rem/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: background-color .3s ease, color .3s ease, box-shadow .3s ease; }
-.prior-tab:hover { color: #0f4d92; }
-.prior-tab.is-on { background: #ffffff; color: #0f4d92; box-shadow: 0 1px 2px rgba(20, 30, 50, .08), 0 0 0 1px rgba(15, 77, 146, .18); }
-.prior-tab:focus-visible { outline: 2px solid #0f4d92; outline-offset: 2px; }
-/* the hold before the card switches by itself, drawn under the active tab */
-.prior-tab::after { content: ""; position: absolute; left: 13px; right: 13px; bottom: 5px; height: 2px; border-radius: 2px; background: #0f4d92; opacity: .5; transform: scaleX(0); transform-origin: left center; }
-.prior-card.is-auto .prior-tab.is-on::after { animation: prior-hold var(--hold, 5s) linear forwards; }
-.prior-card.is-paused .prior-tab.is-on::after { animation-play-state: paused; }
-@keyframes prior-hold { to { transform: scaleX(1); } }
-.prior-card__params { color: #2c3440; font: 400 .95rem/1 var(--font-display); white-space: nowrap; }
-.prior-card__params i { font-style: italic; }
+/* the two steps of every read, lit in turn as the card plays (not controls) */
+.prior-steps { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; margin: 0; padding: 0; list-style: none; }
+.prior-step { position: relative; display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px 5px 5px; border: 1px solid #e4e1d9; border-radius: 999px; background: #f6f4ef; color: #6b7280; font: 600 .8rem/1.2 var(--font-body); white-space: nowrap; transition: color .35s ease, background-color .35s ease, border-color .35s ease, box-shadow .35s ease; }
+.prior-step + .prior-step::before { content: ""; position: absolute; left: -15px; top: 50%; width: 7px; height: 7px; border-top: 1.6px solid #a3abb5; border-right: 1.6px solid #a3abb5; transform: translateY(-50%) rotate(45deg); }
+.prior-step__n { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #e7e4dd; color: #5a6370; font-size: .64rem; letter-spacing: 0; transition: background-color .35s ease, color .35s ease; }
+.prior-step.is-on { color: #0f4d92; background: #ffffff; border-color: rgba(15, 77, 146, .28); box-shadow: 0 1px 2px rgba(20, 30, 50, .08); }
+.prior-step.is-on .prior-step__n { background: #0f4d92; color: #ffffff; }
+.prior__params { font-size: 15px; fill: #2c3440 !important; }
 .prior { display: block; width: 100%; height: auto; }
 .prior text { font-family: var(--font-display); fill: #2c3440; }
 .prior__col { font-size: 19px; font-style: italic; }
@@ -189,7 +185,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .prior__c { font-weight: 700; font-style: italic; }   /* bold c with stacked indices, as in the paper */
 /* the paper's shading: it deepens with every iteration-end decay (1 lightest); attention's weights take the shade of their decay depth */
 .prior__cell { fill: var(--f); stroke: #0f4d92; stroke-width: 2.4; stroke-opacity: 0; }
-.prior__val { font-size: 19px; fill: #1c1c1c !important; }
+.prior__val { font-size: 19px; fill: #1c1c1c !important; transform-box: fill-box; transform-origin: center; }
 .prior__val--num { font-size: 15px; font-variant-numeric: tabular-nums; }
 .prior__lam { font-style: italic; }
 .prior__total { font-family: var(--font-mono) !important; font-size: 15px; font-weight: 600; fill: #0f4d92 !important; }
@@ -202,19 +198,24 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .prior__cell { transition: fill .6s cubic-bezier(.2, .7, .2, 1) calc(var(--d) * 80ms), stroke-opacity .5s ease calc(var(--d) * 80ms + .15s); }
 .prior-card.is-attn .prior__cell { fill: var(--fa); }
 .prior-card.is-attn .prior__cell--up { stroke-opacity: .85; }
-.prior__val--p, .prior__lab--p { transition: opacity .24s ease calc(var(--d) * 80ms + .2s); }
-.prior__val--a, .prior__lab--a { opacity: 0; transition: opacity .18s ease calc(var(--d) * 80ms); }
-.prior-card.is-attn .prior__val--p, .prior-card.is-attn .prior__lab--p { opacity: 0; transition: opacity .18s ease calc(var(--d) * 80ms); }
-.prior-card.is-attn .prior__val--a, .prior-card.is-attn .prior__lab--a { opacity: 1; transition: opacity .24s ease calc(var(--d) * 80ms + .2s); }
+/* attention phase: the prior symbol shrinks to the top of its cell and stays; attention's weight fades in under it after the
+   symbol has moved (a transition takes the timing of the state it goes to); row labels swap c0_s -> c_s */
+.prior__val--p { transition: transform .5s cubic-bezier(.2, .7, .2, 1) calc(var(--d) * 80ms), opacity .4s ease calc(var(--d) * 80ms); }
+.prior-card.is-attn .prior__val--p:not(.prior__val--keep) { transform: translateY(-9.5px) scale(.62); opacity: .7; }
+.prior__val--a { opacity: 0; transition: opacity .18s ease calc(var(--d) * 80ms); }
+.prior-card.is-attn .prior__val--a { opacity: 1; transition: opacity .3s ease calc(var(--d) * 80ms + .3s); }
+.prior__lab--p { transition: opacity .24s ease calc(var(--d) * 80ms + .2s); }
+.prior__lab--a { opacity: 0; transition: opacity .18s ease calc(var(--d) * 80ms); }
+.prior-card.is-attn .prior__lab--p { opacity: 0; transition: opacity .18s ease calc(var(--d) * 80ms); }
+.prior-card.is-attn .prior__lab--a { opacity: 1; transition: opacity .24s ease calc(var(--d) * 80ms + .2s); }
 .prior__bband, .prior__bnote { transition: opacity .5s ease .15s; }
 .prior-card.is-attn .prior__bband, .prior-card.is-attn .prior__bnote { opacity: 1; }
-.prior__row { opacity: 0; animation: prior-in .55s cubic-bezier(.2, .7, .2, 1) forwards; animation-delay: calc(.35s + var(--d) * .32s); }
+.prior-card.is-live.is-build .prior__row { opacity: 0; animation: prior-in .55s cubic-bezier(.2, .7, .2, 1) forwards; animation-delay: calc(.25s + var(--d) * .3s); }
+.prior-card.is-live.is-out .prior__row, .prior-card.is-live.is-out .prior__bband, .prior-card.is-live.is-out .prior__bnote { animation: prior-out .5s ease forwards; }
+@keyframes prior-out { from { opacity: 1; } to { opacity: 0; } }
+.prior-card.is-reset * { transition: none !important; }
 @keyframes prior-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-/* both captions share one grid cell, so the card keeps the taller one's height and does not jump when it switches */
-.prior-card figcaption { display: grid; margin: 6px 4px 0; color: #4a5560; font-size: .85rem; line-height: 1.5; text-wrap: pretty; }
-.prior-cap { grid-area: 1 / 1; transition: opacity .3s ease .3s, visibility 0s linear .3s; }
-.prior-cap--attn, .prior-card.is-attn .prior-cap--decay { opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility 0s linear .25s; }
-.prior-card.is-attn .prior-cap--attn { opacity: 1; visibility: visible; transition: opacity .3s ease .3s, visibility 0s linear .3s; }
+.prior-card figcaption { margin: 6px 4px 0; color: #4a5560; font-size: .85rem; line-height: 1.5; text-wrap: pretty; }
 .prior-card figcaption i { font-family: var(--font-display); font-size: 1.05em; }
 .prior-card figcaption sub, .prior-card figcaption sup { font-size: .72em; }
 .prior-card .nowrap { white-space: nowrap; }
@@ -477,7 +478,8 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
 @media (min-width: 1240px) { #results > .wrap { max-width: 86rem; } }
 @media (max-width: 560px) {
   .prior-card { padding: 14px 12px 12px; }
-  .prior-tab { min-height: 28px; padding: 0 10px; font-size: .62rem; letter-spacing: .08em; }
-  .prior-tab::after { left: 10px; right: 10px; bottom: 4px; }
-  .prior-card__params { font-size: .88rem; }
+  .prior-step { padding: 4px 9px 4px 4px; font-size: .7rem; }
+  .prior-step__n { width: 16px; height: 16px; }
+  .prior-steps { column-gap: 18px; }
+  .prior-step + .prior-step::before { left: -12px; }
 }

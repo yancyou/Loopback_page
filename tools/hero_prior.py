@@ -25,7 +25,8 @@ from fractions import Fraction
 K, R, LAM = 2, 3, Fraction(1, 4)
 N = K * R
 Z = [2.3, 0.0, 0.6, 0.0, 0.6, 0.0]           # illustrative content scores z_i = q^T k_i / sqrt(d), the same query in every row
-CW, CH, GX, GY = 54, 32, 6, 12               # cell width / height and gaps (panel (b): 212 x 130 px cells, wide row gaps)
+CW, CH, GX, GY = 54, 40, 6, 12               # cell width / height and gaps (panel (b): 212 x 130 px cells, wide row gaps); 40 high so a
+                                             # cell can hold the prior symbol over attention's weight
 PX, PY = CW + GX, CH + GY
 x0, y0 = 72, 62
 XL = x0 + N * PX + 6                          # the "x lambda" column
@@ -111,7 +112,8 @@ svg = [f'<svg class="prior" viewBox="0 0 {W} {H}" role="img" aria-labelledby="pr
        'one iteration share one weight and older iterations fade (darker shades). Attention: each row is reweighted by content with '
        'illustrative scores, moving weight toward the first update and toward each iteration’s first block, while every row total stays the same.</desc>',
        f'<rect class="prior__bband" x="{BX - 32}" y="{y0 - 40}" width="64" height="{N * PY - GY + 46}" rx="10"/>',
-       f'<text class="prior__bnote" x="{BX}" y="{y0 - 47}" text-anchor="middle">unchanged</text>']
+       f'<text class="prior__bnote" x="{BX}" y="{y0 - 47}" text-anchor="middle">unchanged</text>',
+       f'<text class="prior__params" x="6" y="{y0 - 34}"><tspan font-style="italic">K</tspan> = 2, <tspan font-style="italic">λ</tspan> = 1/4</text>']
 for i in range(N):
     cx = x0 + i * PX + CW / 2
     svg.append(f'<text class="prior__col" x="{cx:.0f}" y="{y0 - 12}" text-anchor="middle"><tspan class="prior__d">δ</tspan><tspan dy="4" font-size="11">{i}</tspan></text>')
@@ -126,30 +128,30 @@ for s, (c0, ca, B) in enumerate(rows):
         x = x0 + i * PX
         up = s > 0 and a > 1.25 * float(p)
         svg.append(f'<rect class="prior__cell{" prior__cell--up" if up else ""}" x="{x}" y="{y}" width="{CW}" height="{CH}" rx="1.5" style="--f:{shade(float(p))};--fa:{shade(a)}"/>')
-        tx, ty = x + CW / 2, round(cy + 5.5)
-        svg.append(f'<text class="prior__val prior__val--p" x="{tx:.0f}" y="{ty}" text-anchor="middle">{label_svg(p)}</text>')
-        alab = label_svg(p) if s == 0 else num(a)   # the first read keeps its single weight 1 (no query)
-        svg.append(f'<text class="prior__val prior__val--a{"" if s == 0 else " prior__val--num"}" x="{tx:.0f}" y="{ty}" text-anchor="middle">{alab}</text>')
+        tx, ty = x + CW / 2, round(cy + 6.5)
+        # the prior symbol (centred; in the attention phase it shrinks to the top of the cell and stays) and attention's
+        # weight under it; the first read has one update and no query, so row 0 keeps its single 1
+        svg.append(f'<text class="prior__val prior__val--p{" prior__val--keep" if s == 0 else ""}" x="{tx:.0f}" y="{ty}" text-anchor="middle">{label_svg(p)}</text>')
+        if s > 0:
+            svg.append(f'<text class="prior__val prior__val--a prior__val--num" x="{tx:.0f}" y="{round(y + CH - 7)}" text-anchor="middle">{num(a)}</text>')
     if (s + 1) % K == 0:
-        svg.append(f'<text class="prior__decay" x="{XL}" y="{round(cy + 5.5)}">×<tspan class="prior__lam">λ</tspan></text>')
+        svg.append(f'<text class="prior__decay" x="{XL}" y="{round(cy + 6.5)}">×<tspan class="prior__lam">λ</tspan></text>')
     svg.append(f'<text class="prior__total" x="{BX}" y="{round(cy + 5)}" text-anchor="middle">{total(B)}</text>')
     svg.append('</g>')
 svg.append('</svg>')
 
 out = ['<figure class="prior-card" aria-labelledby="prior-cap">',
        '<div class="prior-card__head">',
-       '<div class="prior-tabs" role="group" aria-label="Read weights shown">'
-       '<button type="button" class="prior-tab is-on" data-state="decay" aria-pressed="true">Decay prior</button>'
-       '<button type="button" class="prior-tab" data-state="attn" aria-pressed="false">Attention</button></div>',
-       '<span class="prior-card__params"><i>K</i> = 2, <i>&lambda;</i> = 1/4</span>',
+       '<ol class="prior-steps" aria-label="Two steps of every read">'
+       '<li class="prior-step is-on" data-phase="decay"><span class="prior-step__n">1</span>Decay sets the prior</li>'
+       '<li class="prior-step" data-phase="attn"><span class="prior-step__n">2</span>Attention allocates it</li></ol>',
        '</div>',
        "".join(svg),
-       '<figcaption id="prior-cap" aria-live="polite">',
-       '<span class="prior-cap prior-cap--decay"><b>Decay sets the prior.</b> Append 1; scale all entries by <i>&lambda;</i> at iteration ends, '
-       'so the updates of one iteration share one weight and the total <i>B</i> stays below <i>K&lambda;</i>/(1&minus;<i>&lambda;</i>) = 2/3. '
-       'Prior and total change; stored updates do not.</span>',
-       '<span class="prior-cap prior-cap--attn"><b>Attention allocates that total,</b> <span class="nowrap"><i>c<sub>s</sub></i> = <i>B<sub>s</sub></i>&thinsp;softmax(<i>z<sub>s</sub></i> + log&thinsp;<i>c</i><sup>0</sup><sub><i>s</i></sub>)</span>: '
-       'updates of one iteration can now differ and an older one can gain (here <i>&delta;</i><sub>0</sub>, illustrative scores), while every row total <i>B<sub>s</sub></i> stays the same.</span>',
+       '<figcaption id="prior-cap">',
+       '<b>Decay sets the prior</b> (symbols): append 1, scale all entries by <i>&lambda;</i> at iteration ends; one iteration&rsquo;s updates '
+       'share a weight and <i>B</i> stays below <i>K&lambda;</i>/(1&minus;<i>&lambda;</i>) = 2/3. <b>Attention allocates that total</b> '
+       '(numbers; illustrative scores): <span class="nowrap"><i>c<sub>s</sub></i> = <i>B<sub>s</sub></i>&thinsp;softmax(<i>z<sub>s</sub></i> + log&thinsp;<i>c</i><sup>0</sup><sub><i>s</i></sub>)</span>, '
+       'so updates can differ while every <i>B<sub>s</sub></i> stays the same.',
        '</figcaption>',
        '</figure>']
 print("\n".join(out))
