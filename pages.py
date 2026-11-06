@@ -20,7 +20,7 @@ def git(*args, env=None, stdin=None):
 
 page = open(os.path.join(HERE, 'index.html'), encoding='utf-8').read()
 # relative references, plus the absolute og:/twitter: image URLs on the Pages address
-refs = set(re.findall(r'(?:src|href|poster|content)="(?:' + re.escape(SITE) + r')?((?:images|videos)/[^"#?]+)"', page))
+refs = set(re.findall(r'(?:src|href|poster|content)="(?:' + re.escape(SITE) + r')?((?:images|videos)/[^"#?]+)(?:[?#][^"]*)?"', page))   # a ?v= cache key is not part of the file name
 files = ['index.html'] + sorted(refs)
 missing = [f for f in files if not os.path.isfile(os.path.join(HERE, f))]
 if missing:
