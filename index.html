@@ -185,26 +185,58 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .pill--soon:hover { background: transparent; color: var(--text); transform: none; box-shadow: none; }
 .pill__soon { margin-left: 2px; padding: 4px 7px; border-radius: 6px; background: var(--surface-2); color: var(--text-muted); font: 600 .64rem/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 
-/* the decay-prior card next to the title (the paper's Figure 4b, three iterations) */
-.prior-card { position: relative; margin: 0; padding: 18px 18px 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--paper); box-shadow: var(--shadow-lg); min-width: 0; }
-.prior-card__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 4px 6px; color: #4a5560; font: 600 .7rem/1.3 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
-.prior-card__head b { color: #0f4d92; font-weight: 600; }
-.prior-card__params { margin-left: 8px; text-transform: none; letter-spacing: 0; font: 400 .92rem/1 var(--font-display); color: #2c3440; }
+/* the hero card next to the title: Loopback's read weights for K = 2 over three iterations (the paper's Figure 4b, extended),
+   cycling between the decay prior and attention's reallocation (page.js toggles .is-attn; a click on a tab pins that state).
+   The card is drawn on the light paper in both themes, like the figures, so its colours are fixed. */
+.prior-card { position: relative; margin: 0; padding: 16px 18px 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--paper); box-shadow: var(--shadow-lg); min-width: 0; }
+.prior-card__head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin: 0 2px 2px; }
+.prior-tabs { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid #e4e1d9; border-radius: 999px; background: #f2f0ea; }
+.prior-tab { position: relative; min-height: 30px; padding: 0 13px; border: 0; border-radius: 999px; background: transparent; color: #5a6370; font: 600 .68rem/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: background-color .3s ease, color .3s ease, box-shadow .3s ease; }
+.prior-tab:hover { color: #0f4d92; }
+.prior-tab.is-on { background: #ffffff; color: #0f4d92; box-shadow: 0 1px 2px rgba(20, 30, 50, .08), 0 0 0 1px rgba(15, 77, 146, .18); }
+.prior-tab:focus-visible { outline: 2px solid #0f4d92; outline-offset: 2px; }
+/* the hold before the card switches by itself, drawn under the active tab */
+.prior-tab::after { content: ""; position: absolute; left: 13px; right: 13px; bottom: 5px; height: 2px; border-radius: 2px; background: #0f4d92; opacity: .5; transform: scaleX(0); transform-origin: left center; }
+.prior-card.is-auto .prior-tab.is-on::after { animation: prior-hold var(--hold, 5s) linear forwards; }
+.prior-card.is-paused .prior-tab.is-on::after { animation-play-state: paused; }
+@keyframes prior-hold { to { transform: scaleX(1); } }
+.prior-card__params { color: #2c3440; font: 400 .95rem/1 var(--font-display); white-space: nowrap; }
 .prior-card__params i { font-style: italic; }
 .prior { display: block; width: 100%; height: auto; }
 .prior text { font-family: var(--font-display); fill: #2c3440; }
 .prior__col { font-size: 19px; font-style: italic; }
 .prior__col--b { fill: #0f4d92 !important; }
 .prior__row-label { font-size: 17px; font-style: italic; fill: #5a6370 !important; }
-.prior__cell { fill: #b64342; fill-opacity: var(--o); }
+.prior__cell { fill: #b64342; fill-opacity: var(--o); stroke: #0f4d92; stroke-width: 2.4; stroke-opacity: 0; }
 .prior__val { font-family: var(--font-mono) !important; font-size: 14px; font-weight: 500; fill: #ffffff !important; }
+.prior__val--num { font-size: 13px; letter-spacing: -.02em; }
 .prior__val--light { fill: #7d2f2e !important; }
 .prior__total { font-family: var(--font-mono) !important; font-size: 15px; font-weight: 600; fill: #0f4d92 !important; }
 .prior__decay { font-family: var(--font-mono) !important; font-size: 13px; fill: #b64342 !important; }
+.prior__bband { fill: #0f4d92; fill-opacity: .06; stroke: #0f4d92; stroke-opacity: .2; stroke-width: 1; opacity: 0; }
+.prior__bnote { font-family: var(--font-mono) !important; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; fill: #0f4d92 !important; opacity: 0; }
+/* the switch: weights, values and row labels change row by row; the band marks the totals that attention leaves alone.
+   A label that leaves fades out first and its replacement fades in after it (a transition takes the timing of the state it
+   goes to), so the two never overlap. */
+.prior__cell { transition: fill-opacity .6s cubic-bezier(.2, .7, .2, 1) calc(var(--d) * 80ms), stroke-opacity .5s ease calc(var(--d) * 80ms + .15s); }
+.prior-card.is-attn .prior__cell { fill-opacity: var(--oa); }
+.prior-card.is-attn .prior__cell--up { stroke-opacity: .85; }
+.prior__val--p, .prior__lab--p { transition: opacity .24s ease calc(var(--d) * 80ms + .2s); }
+.prior__val--a, .prior__lab--a { opacity: 0; transition: opacity .18s ease calc(var(--d) * 80ms); }
+.prior-card.is-attn .prior__val--p, .prior-card.is-attn .prior__lab--p { opacity: 0; transition: opacity .18s ease calc(var(--d) * 80ms); }
+.prior-card.is-attn .prior__val--a, .prior-card.is-attn .prior__lab--a { opacity: 1; transition: opacity .24s ease calc(var(--d) * 80ms + .2s); }
+.prior__bband, .prior__bnote { transition: opacity .5s ease .15s; }
+.prior-card.is-attn .prior__bband, .prior-card.is-attn .prior__bnote { opacity: 1; }
 .prior__row { opacity: 0; animation: prior-in .55s cubic-bezier(.2, .7, .2, 1) forwards; animation-delay: calc(.35s + var(--d) * .32s); }
 @keyframes prior-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.prior-card figcaption { margin: 8px 4px 0; color: #4a5560; font-size: .85rem; line-height: 1.5; text-wrap: pretty; }
+/* both captions share one grid cell, so the card keeps the taller one's height and does not jump when it switches */
+.prior-card figcaption { display: grid; margin: 6px 4px 0; color: #4a5560; font-size: .85rem; line-height: 1.5; text-wrap: pretty; }
+.prior-cap { grid-area: 1 / 1; transition: opacity .3s ease .3s, visibility 0s linear .3s; }
+.prior-cap--attn, .prior-card.is-attn .prior-cap--decay { opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility 0s linear .25s; }
+.prior-card.is-attn .prior-cap--attn { opacity: 1; visibility: visible; transition: opacity .3s ease .3s, visibility 0s linear .3s; }
 .prior-card figcaption i { font-family: var(--font-display); font-size: 1.05em; }
+.prior-card figcaption sub, .prior-card figcaption sup { font-size: .72em; }
+.prior-card .nowrap { white-space: nowrap; }
 
 .hero__video { margin: clamp(2.5rem, 5vw, 3.75rem) 0 0; border-radius: 18px; background: var(--paper); border: 1px solid var(--border); box-shadow: var(--shadow-lg); overflow: hidden; }
 .hero__video video { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; background: #faf9f6; }   /* the video is drawn on the light paper in both themes, like the figures */
@@ -463,8 +495,10 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
 /* the results section is wider when the index rail is shown, so Table 1 fits without sideways scrolling */
 @media (min-width: 1240px) { #results > .wrap { max-width: 86rem; } }
 @media (max-width: 560px) {
-  .prior-card__head > span:last-child { display: none; }
-  .prior-card__params { display: block; margin: 6px 0 0; }
+  .prior-card { padding: 14px 12px 12px; }
+  .prior-tab { min-height: 28px; padding: 0 10px; font-size: .62rem; letter-spacing: .08em; }
+  .prior-tab::after { left: 10px; right: 10px; bottom: 4px; }
+  .prior-card__params { font-size: .88rem; }
 }
 </style>
 </head>
@@ -515,9 +549,15 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
     </div>
       </div>
       <figure class="prior-card" aria-labelledby="prior-cap">
-        <div class="prior-card__head"><span><b>Decay prior</b> <span class="prior-card__params"><i>K</i> = 2, <i>&lambda;</i> = 1/4</span></span><span>three iterations</span></div>
-        <svg class="prior" viewBox="0 0 510 368" role="img" aria-labelledby="prior-title prior-desc" xmlns="http://www.w3.org/2000/svg"><title id="prior-title">Loopback’s decay prior</title><desc id="prior-desc">Prior read coefficients for two shared blocks over three loop iterations with decay 1/4: after every application the new block update enters with coefficient 1, and at the end of every iteration all stored coefficients are multiplied by 1/4, so older updates fade while the total stays bounded.</desc><text class="prior__col" x="97" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">0</tspan></text><text class="prior__col" x="149" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">1</tspan></text><text class="prior__col" x="201" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">2</tspan></text><text class="prior__col" x="253" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">3</tspan></text><text class="prior__col" x="305" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">4</tspan></text><text class="prior__col" x="357" y="36" text-anchor="middle">δ<tspan dy="4" font-size="11">5</tspan></text><text class="prior__col prior__col--b" x="478" y="36" text-anchor="middle">B<tspan dy="4" font-size="11">s</tspan></text><g class="prior__row" style="--d:0"><text class="prior__row-label" x="60" y="80" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">0</tspan></text><rect class="prior__cell" x="74" y="52" width="46" height="46" rx="7" style="--o:1.000"/><text class="prior__val" x="97" y="81" text-anchor="middle">1</text><text class="prior__total" x="478" y="80" text-anchor="middle">1</text></g><g class="prior__row" style="--d:1"><text class="prior__row-label" x="60" y="132" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">1</tspan></text><rect class="prior__cell" x="74" y="104" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="97" y="133" text-anchor="middle">λ</text><rect class="prior__cell" x="126" y="104" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="149" y="133" text-anchor="middle">λ</text><text class="prior__total" x="478" y="132" text-anchor="middle">0.5</text><text class="prior__decay" x="182" y="132">× λ</text></g><g class="prior__row" style="--d:2"><text class="prior__row-label" x="60" y="184" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">2</tspan></text><rect class="prior__cell" x="74" y="156" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="97" y="185" text-anchor="middle">λ</text><rect class="prior__cell" x="126" y="156" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="149" y="185" text-anchor="middle">λ</text><rect class="prior__cell" x="178" y="156" width="46" height="46" rx="7" style="--o:1.000"/><text class="prior__val" x="201" y="185" text-anchor="middle">1</text><text class="prior__total" x="478" y="184" text-anchor="middle">1.5</text></g><g class="prior__row" style="--d:3"><text class="prior__row-label" x="60" y="236" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">3</tspan></text><rect class="prior__cell" x="74" y="208" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="97" y="237" text-anchor="middle">λ²</text><rect class="prior__cell" x="126" y="208" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="149" y="237" text-anchor="middle">λ²</text><rect class="prior__cell" x="178" y="208" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="201" y="237" text-anchor="middle">λ</text><rect class="prior__cell" x="230" y="208" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="253" y="237" text-anchor="middle">λ</text><text class="prior__total" x="478" y="236" text-anchor="middle">0.625</text><text class="prior__decay" x="286" y="236">× λ</text></g><g class="prior__row" style="--d:4"><text class="prior__row-label" x="60" y="288" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">4</tspan></text><rect class="prior__cell" x="74" y="260" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="97" y="289" text-anchor="middle">λ²</text><rect class="prior__cell" x="126" y="260" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="149" y="289" text-anchor="middle">λ²</text><rect class="prior__cell" x="178" y="260" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="201" y="289" text-anchor="middle">λ</text><rect class="prior__cell" x="230" y="260" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="253" y="289" text-anchor="middle">λ</text><rect class="prior__cell" x="282" y="260" width="46" height="46" rx="7" style="--o:1.000"/><text class="prior__val" x="305" y="289" text-anchor="middle">1</text><text class="prior__total" x="478" y="288" text-anchor="middle">1.625</text></g><g class="prior__row" style="--d:5"><text class="prior__row-label" x="60" y="340" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">5</tspan></text><rect class="prior__cell" x="74" y="312" width="46" height="46" rx="7" style="--o:0.120"/><text class="prior__val prior__val--light" x="97" y="341" text-anchor="middle">λ³</text><rect class="prior__cell" x="126" y="312" width="46" height="46" rx="7" style="--o:0.120"/><text class="prior__val prior__val--light" x="149" y="341" text-anchor="middle">λ³</text><rect class="prior__cell" x="178" y="312" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="201" y="341" text-anchor="middle">λ²</text><rect class="prior__cell" x="230" y="312" width="46" height="46" rx="7" style="--o:0.218"/><text class="prior__val prior__val--light" x="253" y="341" text-anchor="middle">λ²</text><rect class="prior__cell" x="282" y="312" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="305" y="341" text-anchor="middle">λ</text><rect class="prior__cell" x="334" y="312" width="46" height="46" rx="7" style="--o:0.467"/><text class="prior__val prior__val--light" x="357" y="341" text-anchor="middle">λ</text><text class="prior__total" x="478" y="340" text-anchor="middle">0.656</text><text class="prior__decay" x="390" y="340">× λ</text></g></svg>
-        <figcaption id="prior-cap">Each read after a block application gives the new update weight 1; at the end of every loop iteration all stored weights shrink by <i>&lambda;</i>, so the total <i>B</i> stays below <i>K&lambda;</i>/(1&minus;<i>&lambda;</i>) = 2/3. Attention then reallocates that total by content.</figcaption>
+      <div class="prior-card__head">
+      <div class="prior-tabs" role="group" aria-label="Read weights shown"><button type="button" class="prior-tab is-on" data-state="decay" aria-pressed="true">Decay prior</button><button type="button" class="prior-tab" data-state="attn" aria-pressed="false">Attention</button></div>
+      <span class="prior-card__params"><i>K</i> = 2, <i>&lambda;</i> = 1/4</span>
+      </div>
+      <svg class="prior" viewBox="0 0 510 386" role="img" aria-labelledby="prior-title prior-desc" xmlns="http://www.w3.org/2000/svg"><title id="prior-title">Loopback’s read weights: decay prior and attention</title><desc id="prior-desc">Read weights for two shared blocks over three loop iterations with decay 1/4. Decay prior: after every application the new block update enters with weight 1, and at the end of every iteration all stored weights are multiplied by 1/4, so older updates fade while the total stays bounded. Attention: each row is reweighted by content with illustrative scores, moving weight toward the first update and toward each iteration’s first block, while every row total stays the same.</desc><rect class="prior__bband" x="432" y="26" width="68" height="358" rx="12"/><text class="prior__bnote" x="466" y="20" text-anchor="middle">unchanged</text><text class="prior__col" x="97" y="54" text-anchor="middle">δ<tspan dy="4" font-size="11">0</tspan></text><text class="prior__col" x="149" y="54" text-anchor="middle">δ<tspan dy="4" font-size="11">1</tspan></text><text class="prior__col" x="201" y="54" text-anchor="middle">δ<tspan dy="4" font-size="11">2</tspan></text><text class="prior__col" x="253" y="54" text-anchor="middle">δ<tspan dy="4" font-size="11">3</tspan></text><text class="prior__col" x="305" y="54" text-anchor="middle">δ<tspan dy="4" font-size="11">4</tspan></text><text class="prior__col" x="357" y="54" text-anchor="middle">δ<tspan dy="4" font-size="11">5</tspan></text><text class="prior__col prior__col--b" x="466" y="54" text-anchor="middle">B<tspan dy="4" font-size="11">s</tspan></text><g class="prior__row" style="--d:0"><text class="prior__row-label prior__lab--p" x="60" y="98" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">0</tspan></text><text class="prior__row-label prior__lab--a" x="60" y="98" text-anchor="end">c<tspan dy="4" font-size="10">0</tspan></text><rect class="prior__cell" x="74" y="70" width="46" height="46" rx="7" style="--o:1.000;--oa:1.000"/><text class="prior__val prior__val--p" x="97" y="99" text-anchor="middle">1</text><text class="prior__val prior__val--a" x="97" y="99" text-anchor="middle">1</text><text class="prior__total" x="466" y="98" text-anchor="middle">1</text></g><g class="prior__row" style="--d:1"><text class="prior__row-label prior__lab--p" x="60" y="150" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">1</tspan></text><text class="prior__row-label prior__lab--a" x="60" y="150" text-anchor="end">c<tspan dy="4" font-size="10">1</tspan></text><rect class="prior__cell prior__cell--up" x="74" y="122" width="46" height="46" rx="7" style="--o:0.467;--oa:0.648"/><text class="prior__val prior__val--p prior__val--light" x="97" y="151" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num" x="97" y="151" text-anchor="middle">0.45</text><rect class="prior__cell" x="126" y="122" width="46" height="46" rx="7" style="--o:0.467;--oa:0.183"/><text class="prior__val prior__val--p prior__val--light" x="149" y="151" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="149" y="151" text-anchor="middle">0.05</text><text class="prior__total" x="466" y="150" text-anchor="middle">0.5</text><text class="prior__decay" x="182" y="150">× λ</text></g><g class="prior__row" style="--d:2"><text class="prior__row-label prior__lab--p" x="60" y="202" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">2</tspan></text><text class="prior__row-label prior__lab--a" x="60" y="202" text-anchor="end">c<tspan dy="4" font-size="10">2</tspan></text><rect class="prior__cell prior__cell--up" x="74" y="174" width="46" height="46" rx="7" style="--o:0.467;--oa:0.896"/><text class="prior__val prior__val--p prior__val--light" x="97" y="203" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num" x="97" y="203" text-anchor="middle">0.82</text><rect class="prior__cell" x="126" y="174" width="46" height="46" rx="7" style="--o:0.467;--oa:0.253"/><text class="prior__val prior__val--p prior__val--light" x="149" y="203" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="149" y="203" text-anchor="middle">0.08</text><rect class="prior__cell" x="178" y="174" width="46" height="46" rx="7" style="--o:1.000;--oa:0.754"/><text class="prior__val prior__val--p" x="201" y="203" text-anchor="middle">1</text><text class="prior__val prior__val--a prior__val--num" x="201" y="203" text-anchor="middle">0.60</text><text class="prior__total" x="466" y="202" text-anchor="middle">1.5</text></g><g class="prior__row" style="--d:3"><text class="prior__row-label prior__lab--p" x="60" y="254" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">3</tspan></text><text class="prior__row-label prior__lab--a" x="60" y="254" text-anchor="end">c<tspan dy="4" font-size="10">3</tspan></text><rect class="prior__cell prior__cell--up" x="74" y="226" width="46" height="46" rx="7" style="--o:0.218;--oa:0.497"/><text class="prior__val prior__val--p prior__val--light" x="97" y="255" text-anchor="middle">λ²</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="97" y="255" text-anchor="middle">0.28</text><rect class="prior__cell" x="126" y="226" width="46" height="46" rx="7" style="--o:0.218;--oa:0.140"/><text class="prior__val prior__val--p prior__val--light" x="149" y="255" text-anchor="middle">λ²</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="149" y="255" text-anchor="middle">0.03</text><rect class="prior__cell" x="178" y="226" width="46" height="46" rx="7" style="--o:0.467;--oa:0.418"/><text class="prior__val prior__val--p prior__val--light" x="201" y="255" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="201" y="255" text-anchor="middle">0.20</text><rect class="prior__cell" x="230" y="226" width="46" height="46" rx="7" style="--o:0.467;--oa:0.300"/><text class="prior__val prior__val--p prior__val--light" x="253" y="255" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="253" y="255" text-anchor="middle">0.11</text><text class="prior__total" x="466" y="254" text-anchor="middle">0.625</text><text class="prior__decay" x="286" y="254">× λ</text></g><g class="prior__row" style="--d:4"><text class="prior__row-label prior__lab--p" x="60" y="306" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">4</tspan></text><text class="prior__row-label prior__lab--a" x="60" y="306" text-anchor="end">c<tspan dy="4" font-size="10">4</tspan></text><rect class="prior__cell prior__cell--up" x="74" y="278" width="46" height="46" rx="7" style="--o:0.218;--oa:0.530"/><text class="prior__val prior__val--p prior__val--light" x="97" y="307" text-anchor="middle">λ²</text><text class="prior__val prior__val--a prior__val--num" x="97" y="307" text-anchor="middle">0.32</text><rect class="prior__cell" x="126" y="278" width="46" height="46" rx="7" style="--o:0.218;--oa:0.150"/><text class="prior__val prior__val--p prior__val--light" x="149" y="307" text-anchor="middle">λ²</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="149" y="307" text-anchor="middle">0.03</text><rect class="prior__cell" x="178" y="278" width="46" height="46" rx="7" style="--o:0.467;--oa:0.446"/><text class="prior__val prior__val--p prior__val--light" x="201" y="307" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="201" y="307" text-anchor="middle">0.23</text><rect class="prior__cell" x="230" y="278" width="46" height="46" rx="7" style="--o:0.467;--oa:0.321"/><text class="prior__val prior__val--p prior__val--light" x="253" y="307" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="253" y="307" text-anchor="middle">0.13</text><rect class="prior__cell" x="282" y="278" width="46" height="46" rx="7" style="--o:1.000;--oa:0.956"/><text class="prior__val prior__val--p" x="305" y="307" text-anchor="middle">1</text><text class="prior__val prior__val--a prior__val--num" x="305" y="307" text-anchor="middle">0.92</text><text class="prior__total" x="466" y="306" text-anchor="middle">1.625</text></g><g class="prior__row" style="--d:5"><text class="prior__row-label prior__lab--p" x="60" y="358" text-anchor="end">c<tspan dy="-7" font-size="10">0</tspan><tspan dy="11" font-size="10">5</tspan></text><text class="prior__row-label prior__lab--a" x="60" y="358" text-anchor="end">c<tspan dy="4" font-size="10">5</tspan></text><rect class="prior__cell prior__cell--up" x="74" y="330" width="46" height="46" rx="7" style="--o:0.120;--oa:0.277"/><text class="prior__val prior__val--p prior__val--light" x="97" y="359" text-anchor="middle">λ³</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="97" y="359" text-anchor="middle">0.10</text><rect class="prior__cell" x="126" y="330" width="46" height="46" rx="7" style="--o:0.120;--oa:0.120"/><text class="prior__val prior__val--p prior__val--light" x="149" y="359" text-anchor="middle">λ³</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="149" y="359" text-anchor="middle">0.01</text><rect class="prior__cell" x="178" y="330" width="46" height="46" rx="7" style="--o:0.218;--oa:0.233"/><text class="prior__val prior__val--p prior__val--light" x="201" y="359" text-anchor="middle">λ²</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="201" y="359" text-anchor="middle">0.07</text><rect class="prior__cell" x="230" y="330" width="46" height="46" rx="7" style="--o:0.218;--oa:0.168"/><text class="prior__val prior__val--p prior__val--light" x="253" y="359" text-anchor="middle">λ²</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="253" y="359" text-anchor="middle">0.04</text><rect class="prior__cell" x="282" y="330" width="46" height="46" rx="7" style="--o:0.467;--oa:0.500"/><text class="prior__val prior__val--p prior__val--light" x="305" y="359" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num" x="305" y="359" text-anchor="middle">0.28</text><rect class="prior__cell" x="334" y="330" width="46" height="46" rx="7" style="--o:0.467;--oa:0.360"/><text class="prior__val prior__val--p prior__val--light" x="357" y="359" text-anchor="middle">λ</text><text class="prior__val prior__val--a prior__val--num prior__val--light" x="357" y="359" text-anchor="middle">0.16</text><text class="prior__total" x="466" y="358" text-anchor="middle">0.656</text><text class="prior__decay" x="390" y="358">× λ</text></g></svg>
+      <figcaption id="prior-cap" aria-live="polite">
+      <span class="prior-cap prior-cap--decay">Each read after a block application gives the new update weight 1; at the end of every loop iteration all stored weights shrink by <i>&lambda;</i>, so the total <i>B</i> stays below <i>K&lambda;</i>/(1&minus;<i>&lambda;</i>) = 2/3.</span>
+      <span class="prior-cap prior-cap--attn"><span class="nowrap"><i>c<sub>s</sub></i> = <i>B<sub>s</sub></i>&thinsp;softmax(<i>z<sub>s</sub></i> + log&thinsp;<i>c</i><sup>0</sup><sub><i>s</i></sub>)</span>: attention reweights each row by content, here moving weight toward the older <i>&delta;</i><sub>0</sub> (illustrative scores), while every row total <i>B<sub>s</sub></i> stays the same.</span>
+      </figcaption>
       </figure>
     </div>
     <figure class="hero__video" id="video">
@@ -1402,6 +1442,61 @@ window.LOOPBACK_DATA = {
     }
     crender();
   }
+
+  // ---- the hero card: decay prior <-> attention. It switches by itself while on screen (hovering it, focusing it or hiding the
+  // tab pauses the countdown drawn under the active tab); a click on a tab pins that state. Reduced motion: no switching by itself.
+  (function () {
+    var card = doc.querySelector('.prior-card');
+    if (!card) { return; }
+    var tabs = [].slice.call(card.querySelectorAll('.prior-tab'));
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var HOLD = { decay: 5600, attn: 7200 }, FIRST = 4800;   // the rows have finished coming in after ~2.5 s
+    var state = 'decay', auto = !reduce, timer = 0, due = 0, left = FIRST, isPaused = false, hovered = false, onScreen = true;
+    function show(s) {
+      state = s;
+      card.classList.toggle('is-attn', s === 'attn');
+      tabs.forEach(function (t) {
+        var on = t.getAttribute('data-state') === s;
+        t.classList.toggle('is-on', on); t.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+    function paused() { return hovered || !onScreen || doc.hidden; }
+    function arm(ms, fresh) {                 // the next switch in ms; fresh = a new hold, so the countdown restarts
+      clearTimeout(timer); left = ms;
+      if (!auto) { return; }
+      if (fresh) {
+        card.style.setProperty('--hold', ms + 'ms');
+        card.classList.remove('is-auto'); void card.offsetWidth; card.classList.add('is-auto');
+      }
+      if (paused()) { isPaused = true; card.classList.add('is-paused'); return; }
+      isPaused = false; card.classList.remove('is-paused');
+      due = Date.now() + ms;
+      timer = setTimeout(function () { show(state === 'decay' ? 'attn' : 'decay'); arm(HOLD[state], true); }, ms);
+    }
+    function sync() {
+      if (!auto) { return; }
+      if (paused() && !isPaused) {
+        clearTimeout(timer); left = Math.max(0, due - Date.now()); isPaused = true; card.classList.add('is-paused');
+      } else if (!paused() && isPaused) {
+        arm(left, false);
+      }
+    }
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        auto = false; clearTimeout(timer); card.classList.remove('is-auto', 'is-paused');
+        show(t.getAttribute('data-state'));
+      });
+    });
+    card.addEventListener('mouseenter', function () { hovered = true; sync(); });
+    card.addEventListener('mouseleave', function () { hovered = card.contains(doc.activeElement); sync(); });
+    card.addEventListener('focusin', function () { hovered = true; sync(); });
+    card.addEventListener('focusout', function (e) { hovered = card.contains(e.relatedTarget) || card.matches(':hover'); sync(); });
+    doc.addEventListener('visibilitychange', sync);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) { onScreen = es[es.length - 1].isIntersecting; sync(); }, { threshold: 0.35 }).observe(card);
+    }
+    if (auto) { arm(FIRST, true); }
+  })();
 })();
 </script>
 <script>

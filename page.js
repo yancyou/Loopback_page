@@ -286,4 +286,59 @@
     }
     crender();
   }
+
+  // ---- the hero card: decay prior <-> attention. It switches by itself while on screen (hovering it, focusing it or hiding the
+  // tab pauses the countdown drawn under the active tab); a click on a tab pins that state. Reduced motion: no switching by itself.
+  (function () {
+    var card = doc.querySelector('.prior-card');
+    if (!card) { return; }
+    var tabs = [].slice.call(card.querySelectorAll('.prior-tab'));
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var HOLD = { decay: 5600, attn: 7200 }, FIRST = 4800;   // the rows have finished coming in after ~2.5 s
+    var state = 'decay', auto = !reduce, timer = 0, due = 0, left = FIRST, isPaused = false, hovered = false, onScreen = true;
+    function show(s) {
+      state = s;
+      card.classList.toggle('is-attn', s === 'attn');
+      tabs.forEach(function (t) {
+        var on = t.getAttribute('data-state') === s;
+        t.classList.toggle('is-on', on); t.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+    function paused() { return hovered || !onScreen || doc.hidden; }
+    function arm(ms, fresh) {                 // the next switch in ms; fresh = a new hold, so the countdown restarts
+      clearTimeout(timer); left = ms;
+      if (!auto) { return; }
+      if (fresh) {
+        card.style.setProperty('--hold', ms + 'ms');
+        card.classList.remove('is-auto'); void card.offsetWidth; card.classList.add('is-auto');
+      }
+      if (paused()) { isPaused = true; card.classList.add('is-paused'); return; }
+      isPaused = false; card.classList.remove('is-paused');
+      due = Date.now() + ms;
+      timer = setTimeout(function () { show(state === 'decay' ? 'attn' : 'decay'); arm(HOLD[state], true); }, ms);
+    }
+    function sync() {
+      if (!auto) { return; }
+      if (paused() && !isPaused) {
+        clearTimeout(timer); left = Math.max(0, due - Date.now()); isPaused = true; card.classList.add('is-paused');
+      } else if (!paused() && isPaused) {
+        arm(left, false);
+      }
+    }
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        auto = false; clearTimeout(timer); card.classList.remove('is-auto', 'is-paused');
+        show(t.getAttribute('data-state'));
+      });
+    });
+    card.addEventListener('mouseenter', function () { hovered = true; sync(); });
+    card.addEventListener('mouseleave', function () { hovered = card.contains(doc.activeElement); sync(); });
+    card.addEventListener('focusin', function () { hovered = true; sync(); });
+    card.addEventListener('focusout', function (e) { hovered = card.contains(e.relatedTarget) || card.matches(':hover'); sync(); });
+    doc.addEventListener('visibilitychange', sync);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) { onScreen = es[es.length - 1].isIntersecting; sync(); }, { threshold: 0.35 }).observe(card);
+    }
+    if (auto) { arm(FIRST, true); }
+  })();
 })();

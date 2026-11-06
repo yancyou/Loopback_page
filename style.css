@@ -163,26 +163,58 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .pill--soon:hover { background: transparent; color: var(--text); transform: none; box-shadow: none; }
 .pill__soon { margin-left: 2px; padding: 4px 7px; border-radius: 6px; background: var(--surface-2); color: var(--text-muted); font: 600 .64rem/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 
-/* the decay-prior card next to the title (the paper's Figure 4b, three iterations) */
-.prior-card { position: relative; margin: 0; padding: 18px 18px 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--paper); box-shadow: var(--shadow-lg); min-width: 0; }
-.prior-card__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 4px 6px; color: #4a5560; font: 600 .7rem/1.3 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
-.prior-card__head b { color: #0f4d92; font-weight: 600; }
-.prior-card__params { margin-left: 8px; text-transform: none; letter-spacing: 0; font: 400 .92rem/1 var(--font-display); color: #2c3440; }
+/* the hero card next to the title: Loopback's read weights for K = 2 over three iterations (the paper's Figure 4b, extended),
+   cycling between the decay prior and attention's reallocation (page.js toggles .is-attn; a click on a tab pins that state).
+   The card is drawn on the light paper in both themes, like the figures, so its colours are fixed. */
+.prior-card { position: relative; margin: 0; padding: 16px 18px 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--paper); box-shadow: var(--shadow-lg); min-width: 0; }
+.prior-card__head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin: 0 2px 2px; }
+.prior-tabs { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid #e4e1d9; border-radius: 999px; background: #f2f0ea; }
+.prior-tab { position: relative; min-height: 30px; padding: 0 13px; border: 0; border-radius: 999px; background: transparent; color: #5a6370; font: 600 .68rem/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: background-color .3s ease, color .3s ease, box-shadow .3s ease; }
+.prior-tab:hover { color: #0f4d92; }
+.prior-tab.is-on { background: #ffffff; color: #0f4d92; box-shadow: 0 1px 2px rgba(20, 30, 50, .08), 0 0 0 1px rgba(15, 77, 146, .18); }
+.prior-tab:focus-visible { outline: 2px solid #0f4d92; outline-offset: 2px; }
+/* the hold before the card switches by itself, drawn under the active tab */
+.prior-tab::after { content: ""; position: absolute; left: 13px; right: 13px; bottom: 5px; height: 2px; border-radius: 2px; background: #0f4d92; opacity: .5; transform: scaleX(0); transform-origin: left center; }
+.prior-card.is-auto .prior-tab.is-on::after { animation: prior-hold var(--hold, 5s) linear forwards; }
+.prior-card.is-paused .prior-tab.is-on::after { animation-play-state: paused; }
+@keyframes prior-hold { to { transform: scaleX(1); } }
+.prior-card__params { color: #2c3440; font: 400 .95rem/1 var(--font-display); white-space: nowrap; }
 .prior-card__params i { font-style: italic; }
 .prior { display: block; width: 100%; height: auto; }
 .prior text { font-family: var(--font-display); fill: #2c3440; }
 .prior__col { font-size: 19px; font-style: italic; }
 .prior__col--b { fill: #0f4d92 !important; }
 .prior__row-label { font-size: 17px; font-style: italic; fill: #5a6370 !important; }
-.prior__cell { fill: #b64342; fill-opacity: var(--o); }
+.prior__cell { fill: #b64342; fill-opacity: var(--o); stroke: #0f4d92; stroke-width: 2.4; stroke-opacity: 0; }
 .prior__val { font-family: var(--font-mono) !important; font-size: 14px; font-weight: 500; fill: #ffffff !important; }
+.prior__val--num { font-size: 13px; letter-spacing: -.02em; }
 .prior__val--light { fill: #7d2f2e !important; }
 .prior__total { font-family: var(--font-mono) !important; font-size: 15px; font-weight: 600; fill: #0f4d92 !important; }
 .prior__decay { font-family: var(--font-mono) !important; font-size: 13px; fill: #b64342 !important; }
+.prior__bband { fill: #0f4d92; fill-opacity: .06; stroke: #0f4d92; stroke-opacity: .2; stroke-width: 1; opacity: 0; }
+.prior__bnote { font-family: var(--font-mono) !important; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; fill: #0f4d92 !important; opacity: 0; }
+/* the switch: weights, values and row labels change row by row; the band marks the totals that attention leaves alone.
+   A label that leaves fades out first and its replacement fades in after it (a transition takes the timing of the state it
+   goes to), so the two never overlap. */
+.prior__cell { transition: fill-opacity .6s cubic-bezier(.2, .7, .2, 1) calc(var(--d) * 80ms), stroke-opacity .5s ease calc(var(--d) * 80ms + .15s); }
+.prior-card.is-attn .prior__cell { fill-opacity: var(--oa); }
+.prior-card.is-attn .prior__cell--up { stroke-opacity: .85; }
+.prior__val--p, .prior__lab--p { transition: opacity .24s ease calc(var(--d) * 80ms + .2s); }
+.prior__val--a, .prior__lab--a { opacity: 0; transition: opacity .18s ease calc(var(--d) * 80ms); }
+.prior-card.is-attn .prior__val--p, .prior-card.is-attn .prior__lab--p { opacity: 0; transition: opacity .18s ease calc(var(--d) * 80ms); }
+.prior-card.is-attn .prior__val--a, .prior-card.is-attn .prior__lab--a { opacity: 1; transition: opacity .24s ease calc(var(--d) * 80ms + .2s); }
+.prior__bband, .prior__bnote { transition: opacity .5s ease .15s; }
+.prior-card.is-attn .prior__bband, .prior-card.is-attn .prior__bnote { opacity: 1; }
 .prior__row { opacity: 0; animation: prior-in .55s cubic-bezier(.2, .7, .2, 1) forwards; animation-delay: calc(.35s + var(--d) * .32s); }
 @keyframes prior-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.prior-card figcaption { margin: 8px 4px 0; color: #4a5560; font-size: .85rem; line-height: 1.5; text-wrap: pretty; }
+/* both captions share one grid cell, so the card keeps the taller one's height and does not jump when it switches */
+.prior-card figcaption { display: grid; margin: 6px 4px 0; color: #4a5560; font-size: .85rem; line-height: 1.5; text-wrap: pretty; }
+.prior-cap { grid-area: 1 / 1; transition: opacity .3s ease .3s, visibility 0s linear .3s; }
+.prior-cap--attn, .prior-card.is-attn .prior-cap--decay { opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility 0s linear .25s; }
+.prior-card.is-attn .prior-cap--attn { opacity: 1; visibility: visible; transition: opacity .3s ease .3s, visibility 0s linear .3s; }
 .prior-card figcaption i { font-family: var(--font-display); font-size: 1.05em; }
+.prior-card figcaption sub, .prior-card figcaption sup { font-size: .72em; }
+.prior-card .nowrap { white-space: nowrap; }
 
 .hero__video { margin: clamp(2.5rem, 5vw, 3.75rem) 0 0; border-radius: 18px; background: var(--paper); border: 1px solid var(--border); box-shadow: var(--shadow-lg); overflow: hidden; }
 .hero__video video { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; background: #faf9f6; }   /* the video is drawn on the light paper in both themes, like the figures */
@@ -441,6 +473,8 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
 /* the results section is wider when the index rail is shown, so Table 1 fits without sideways scrolling */
 @media (min-width: 1240px) { #results > .wrap { max-width: 86rem; } }
 @media (max-width: 560px) {
-  .prior-card__head > span:last-child { display: none; }
-  .prior-card__params { display: block; margin: 6px 0 0; }
+  .prior-card { padding: 14px 12px 12px; }
+  .prior-tab { min-height: 28px; padding: 0 10px; font-size: .62rem; letter-spacing: .08em; }
+  .prior-tab::after { left: 10px; right: 10px; bottom: 4px; }
+  .prior-card__params { font-size: .88rem; }
 }
