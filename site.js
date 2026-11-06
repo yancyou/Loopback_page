@@ -57,7 +57,7 @@
   }
 
   // ---------- model ----------
-  var P = { K: 4, R: 4, lam: 0.25, focus: 0, gain: 2, speed: 1, s: 0 };
+  var P = { K: 4, R: 4, lam: 0.25, focus: 1, gain: 2, speed: 1, s: 0 };   // focus 1: attention favours iteration 1's updates
   function N() { return P.K * P.R; }
   function bound() { return P.lam < 1 ? P.K * P.lam / (1 - P.lam) : Infinity; }
   // read after application s: decay prior (preDecay = the appended 1 before the visit-end decay) and the attention-reallocated coefficients
@@ -69,6 +69,8 @@
     var ex = logits.map(function (v) { return Math.exp(v - m); }), Z = ex.reduce(function (a, b) { return a + b; }, 0);
     return { prior: prior, post: ex.map(function (v) { return B * v / Z; }), B: B };
   }
+  function moved(c) { for (var i = 0; i < c.prior.length; i++) if (Math.abs(c.post[i] - c.prior[i]) > 0.004) return true; return false; }
+  function priorOnly(c) { return { prior: c.prior.slice(), post: c.prior.slice() }; }   // the decay prior before attention
 
   // ---------- layout ----------
   var L = {};
@@ -160,7 +162,9 @@
     txt(g, gr.x0 + gr.w / 2, gr.y0 - 26, 'history of updates (one card per application)', { 'text-anchor': 'middle', 'font-size': 12, fill: C.muted });
     for (k = 0; k < K; k++) sym(g, gr.x0 + k * gr.cell + gr.card / 2, gr.y0 - 9, 'f', String(k), { 'text-anchor': 'middle', 'font-size': 12, fill: blockStroke(k) });
     // row labels on the right of the grid: the threads from the reader converge on the left edge of each row
-    G.labels.innerHTML = ''; G.rowLabels = G.labels; for (var v = 0; v < P.R; v++) halo(txt(G.rowLabels, gr.x0 + gr.w + 8, gr.y0 + v * gr.cell + gr.card / 2 + 4, 'iteration ' + (v + 1), { 'text-anchor': 'start', 'font-size': 11, fill: C.muted }));
+    G.labels.innerHTML = ''; G.rowLabels = G.labels; G.rowLab = [];
+    for (var v = 0; v < P.R; v++) G.rowLab.push(halo(txt(G.rowLabels, gr.x0 + gr.w + 8, gr.y0 + v * gr.cell + gr.card / 2 + 4, 'iteration ' + (v + 1), { 'text-anchor': 'start', 'font-size': 11, fill: C.muted })));
+    markFocus();
     // visit pips under the ring
     G.pips = [];
     var px = rg.cx - (P.R * 16 - 4) / 2, py = rg.cy + rg.r + 22;
@@ -168,6 +172,8 @@
     G.pipLabel = txt(g, rg.cx, py + 30, '', { 'text-anchor': 'middle', 'font-size': 12, fill: C.muted });
   }
 
+  // the iteration the queries favour gets a navy row label (zero queries: none)
+  function markFocus() { (G.rowLab || []).forEach(function (t, v) { var on = P.focus === v + 1; t.setAttribute('fill', on ? C.navy : C.muted); t.setAttribute('font-weight', on ? 700 : 400); }); }
   function setBlockHighlight(k) {
     G.blocks.forEach(function (b, j) { b.rect.setAttribute('stroke', j === k ? C.navy : C.border); b.rect.setAttribute('stroke-width', j === k ? 2.4 : 1); b.rect.setAttribute('filter', j === k ? 'url(#lb-glow)' : null); });
   }
@@ -223,7 +229,7 @@
     // caption
     var cap = G.caption; cap.innerHTML = '';
     var B = prior.reduce(function (a, b) { return a + b; }, 0);
-    txt(cap, 14, 26, 'application s = ' + s + ' of ' + (n - 1) + '  ·  iteration ' + (cur + 1) + ', block f' + (s % K) + ' writes δ' + s + '  ·  read: input 1 + ' + (s + 1) + ' update' + (s ? 's' : '') + ' with total B = ' + fmt(B) + (isFinite(bound()) ? '  (iteration-end bound Kλ/(1−λ) = ' + fmt(bound()) + ')' : '  (λ = 1: no decay, no bound)'), { 'font-size': 14 });
+    txt(cap, 14, 26, 'application s = ' + s + ' of ' + (n - 1) + '  ·  iteration ' + (cur + 1) + ', block f' + (s % K) + ' writes δ' + s + '  ·  read: input 1 + ' + (s + 1) + ' update' + (s ? 's' : '') + ', decay sets the total B = ' + fmt(B) + (isFinite(bound()) ? '  (iteration-end bound Kλ/(1−λ) = ' + fmt(bound()) + ')' : '  (λ = 1: no decay, no bound)'), { 'font-size': 14 });
     G.exit.setAttribute('stroke', s === n - 1 ? C.navy : C.ghost); G.exit.setAttribute('marker-end', s === n - 1 ? 'url(#lb-arrow-navy)' : 'url(#lb-arrow-faint)');
   }
 
@@ -246,9 +252,11 @@
     requestAnimationFrame(frame);
   }
   function lerpArrays(from, to, e) { return to.map(function (v, i) { var f = i < from.length ? from[i] : 0; return f + (v - f) * e; }); }
-  function tweenStep(target, dur) { // coefficient arrays -> drawDynamic
-    var from = { prior: shown.prior.slice(), post: shown.post.slice() };
-    return { dur: dur, tick: function (e) { shown.prior = lerpArrays(from.prior, target.prior, e); shown.post = lerpArrays(from.post, target.post, e); drawDynamic(shown.prior, shown.post, P.s); },
+  function tweenStep(target, dur) { // coefficient arrays -> drawDynamic, from whatever is shown when the tween begins
+    var from = null;
+    function begin() { from = { prior: shown.prior.slice(), post: shown.post.slice() }; }
+    return { dur: dur, start: begin,
+             tick: function (e) { if (!from) begin(); shown.prior = lerpArrays(from.prior, target.prior, e); shown.post = lerpArrays(from.post, target.post, e); drawDynamic(shown.prior, shown.post, P.s); },
              end: function () { shown.prior = target.prior.slice(); shown.post = target.post.slice(); drawDynamic(shown.prior, shown.post, P.s); } };
   }
   function dotStep(toAngle, dur) { var from = dotAngle; return { dur: dur, tick: function (e) { dotAngle = from + (toAngle - from) * e; drawDot(dotAngle); }, end: function () { dotAngle = toAngle; drawDot(dotAngle); } }; }
@@ -261,10 +269,17 @@
       end: function () { G.fly.innerHTML = ''; } };
   }
   function readerPulse(dur) { return { dur: dur, start: function () { G.threads.setAttribute('class', 'lb-flow'); }, tick: function (e, u) { G.readerCircle.setAttribute('r', L.reader.r * (1 + 0.14 * Math.sin(Math.PI * u))); G.readerCircle.setAttribute('filter', u < 1 ? 'url(#lb-glow)' : null); }, end: function () { G.readerCircle.setAttribute('r', L.reader.r); G.readerCircle.removeAttribute('filter'); G.threads.removeAttribute('class'); } }; }
-  function badgeStep(dur, text) {
-    var g, gr = L.grid, w = 330, x = gr.x0 + gr.w / 2 - w / 2, y = gr.y0 - 24;
+  // a pill over the grid's header (decay) or under its last row (attention), so the two never sit in the same place
+  function badgeStep(dur, text, color, below) {
+    var g, gr = L.grid, cx = gr.x0 + gr.w / 2, y = below ? gr.y0 + gr.h + 26 : Math.max(53, gr.y0 - 32);   // 53: clear of the caption line
     return { dur: dur,
-      start: function () { g = el('g', {}, G.badge); el('rect', { x: x, y: y - 17, width: w, height: 30, rx: 15, fill: C.rose }, g); txt(g, x + w / 2, y + 4, text, { 'text-anchor': 'middle', fill: '#fff', 'font-size': 13.5 }); },
+      start: function () {
+        g = el('g', {}, G.badge);
+        var t = txt(g, cx, y + 4, text, { 'text-anchor': 'middle', fill: '#fff', 'font-size': 13.5 }), w = Math.max(240, (bbox(t).w || text.length * 6.6) + 36);
+        cx = Math.min(cx, 994 - w / 2);
+        t.setAttribute('x', cx);
+        g.insertBefore(el('rect', { x: cx - w / 2, y: y - 17, width: w, height: 30, rx: 15, fill: color || C.rose }), t);
+      },
       tick: function (e, u) { g.setAttribute('opacity', u < 0.15 ? u / 0.15 : u > 0.8 ? (1 - u) / 0.2 : 1); g.setAttribute('transform', 'translate(0 ' + (-(1 - Math.min(1, u / 0.15)) * 6) + ')'); },
       end: function () { G.badge.innerHTML = ''; } };
   }
@@ -288,9 +303,13 @@
     P.s = s;
     var pre = coeffs(s, true), fin = coeffs(s, false), target = L.blockPos[k].a;
     while (target <= dotAngle) target += 2 * Math.PI;
-    var steps = [dotStep(target, 340), { dur: 10, end: function () { setBlockHighlight(k); } }, pulseStep(k, 240), flyStep(s, 380), tweenStep(pre, 300), readerPulse(260)];
-    if (visitEnd) { var bd = badgeStep(900, 'iteration ' + (v + 1) + ' ends: every stored weight × λ = ' + fmt(P.lam, 2)), tw = tweenStep(fin, 520); steps.push({ dur: 900, start: function () { bd.start(); }, tick: function (e, u) { bd.tick(e, u); if (u > 0.25) tw.tick(ease(Math.min(1, (u - 0.25) / 0.6)), 0); }, end: function () { bd.end(); tw.end(); } }); }
-    steps.push({ dur: 10, end: readout });
+    // 1 the block writes delta_s; 2 decay prior: the new update enters at weight 1 (at an iteration end every stored weight
+    // then x lambda); 3 attention reallocates that total by content, B unchanged; 4 the reader reads with the final weights
+    var steps = [dotStep(target, 340), { dur: 10, end: function () { setBlockHighlight(k); } }, pulseStep(k, 240), flyStep(s, 380), tweenStep(priorOnly(pre), 300)];
+    if (visitEnd) { var bd = badgeStep(900, 'iteration ' + (v + 1) + ' ends: every stored weight × λ = ' + fmt(P.lam, 2), C.rose), tw = tweenStep(priorOnly(fin), 520); steps.push({ dur: 900, start: function () { bd.start(); }, tick: function (e, u) { bd.tick(e, u); if (u > 0.25) tw.tick(ease(Math.min(1, (u - 0.25) / 0.6)), 0); }, end: function () { bd.end(); tw.end(); } }); }
+    if (moved(fin)) { var ba = badgeStep(1050, 'attention: weight moves to iteration ' + P.focus + ' · total B unchanged', C.navy, true), ta = tweenStep(fin, 640); steps.push({ dur: 1050, start: function () { ba.start(); }, tick: function (e, u) { ba.tick(e, u); if (u > 0.2) ta.tick(ease(Math.min(1, (u - 0.2) / 0.62)), 0); }, end: function () { ba.end(); ta.end(); } }); }
+    else steps.push(tweenStep(fin, 10));      // nothing to move: zero queries, a single update, or the favoured iteration not written yet
+    steps.push(readerPulse(260), { dur: 10, end: readout });
     if (s === N() - 1) { var tTop = -Math.PI / 2; while (tTop <= target) tTop += 2 * Math.PI; steps.push(wait(120), dotStep(tTop, 300), { dur: 380, tick: function (e) { drawDot(0, exitPoint(e)); } }); }
     steps.push(wait(260));
     timeline(steps, done);
@@ -306,9 +325,9 @@
     start(function () { (function next() { if (!playing) return; if (P.s >= N() - 1) { stop(); return; } advance(next); })(); });
   }
   function rebuildFocus() {
-    var sel = $('focus'), cur = +sel.value, opts = '<option value="0">none (zero queries)</option>', i;
+    var sel = $('focus'), opts = '<option value="0">none (zero queries: decay alone)</option>', i;
     for (i = 1; i <= P.R; i++) opts += '<option value="' + i + '">iteration ' + i + '</option>';
-    sel.innerHTML = opts; sel.value = cur <= P.R ? cur : 0; P.focus = +sel.value;
+    sel.innerHTML = opts; P.focus = Math.min(P.focus, P.R); sel.value = String(P.focus);
   }
   function readParams() {
     P.K = +$('k').value; P.R = +$('r').value; P.lam = +$('lam').value; P.gain = +$('gain').value; P.speed = +$('speed').value;
@@ -318,7 +337,7 @@
   function rebuild(keepS) { layout(); drawRing(); show(keepS ? Math.min(P.s, N() - 1) : 0, false); }
   ['k', 'r', 'lam', 'gain'].forEach(function (id) { $(id).addEventListener('input', function () { stop(); cancel(); readParams(); rebuild(true); }); });
   $('speed').addEventListener('input', function () { readParams(); });
-  $('focus').addEventListener('change', function () { P.focus = +$('focus').value; show(P.s, true); });
+  $('focus').addEventListener('change', function () { P.focus = +$('focus').value; markFocus(); show(P.s, true); });
   $('s').addEventListener('input', function () { stop(); cancel(); show(+$('s').value, true); });
   $('btn-play').addEventListener('click', play);
   $('btn-step').addEventListener('click', function () { stop(); cancel(); if (P.s >= N() - 1) show(0, true); else advance(); });

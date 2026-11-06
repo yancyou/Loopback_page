@@ -157,7 +157,7 @@
     <div class="section__head">
       <span class="section__index"><b>05</b> Interactive</span>
       <h2 id="demo-title">One token through the loop</h2>
-      <p class="lead">Press play. The hidden state circles the shared blocks; each application appends the block's update to the history, and the reader forms the next state from the loop input and the stored updates. At the end of every iteration the decay multiplies all stored weights by <i>&lambda;</i>; attention reallocates that total, and the input keeps coefficient one throughout.</p>
+      <p class="lead">Press play. The hidden state circles the shared blocks; each application appends the block's update to the history, and the reader forms the next state from the loop input and the stored updates. Every read shows Loopback&rsquo;s two steps: decay sets the prior and its total (each new update enters with weight 1, and at the end of every iteration all stored weights shrink by <i>&lambda;</i>), then attention reallocates that total by content, here with queries that favor one iteration&rsquo;s updates; dashed outlines mark the prior it moved. The input keeps coefficient one throughout, and zero queries show decay alone.</p>
     </div>
     <div class="lb-demo">
       <div class="lb-transport">
