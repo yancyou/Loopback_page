@@ -711,7 +711,6 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
           <li><a href="#ablations">Ablations</a></li>
           <li><a href="#depth">Depth</a></li>
           <li><a href="#memory-readers">Readers</a></li>
-          <li><a href="#efficiency">Efficiency</a></li>
         </ol>
       </nav>
       <div class="results-main">
@@ -902,46 +901,6 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
       </div>
     </details>
 
-    <div class="section__head sub-head">
-      <span class="eyebrow">Efficiency</span>
-      <h3 id="efficiency">Compute, throughput and memory</h3>
-      <p class="lead">At matched executed depth, Loopback adds only 0.04&ndash;0.08% forward FLOPs: the extra operations normalize and score the stored updates, form their weighted sum, and apply decay and mixture replacement, with no Q/K/V projections or extra block evaluations. The fused implementation keeps the training-throughput gap to the standard Transformer at 6% at 3B, on the same eight H100 GPUs with the same batch layout. The KV cache is the standard Transformer&rsquo;s, and the stored weights are smaller.</p>
-    </div>
-    <ul class="kpis" aria-label="Efficiency numbers">
-      <li class="kpi"><span class="kpi__value">+0.04&ndash;0.08% FLOPs</span><span class="kpi__label">forward FLOPs added by the read at matched executed depth: <strong>+0.08%</strong> at 191M and 374M, <strong>+0.04%</strong> at 778M (24 layers)</span></li>
-      <li class="kpi"><span class="kpi__value">6% throughput gap at 3B</span><span class="kpi__label">training throughput of the fused implementation against the standard Transformer, on the <strong>same eight H100s</strong> with the same batch layout</span></li>
-      <li class="kpi"><span class="kpi__value">23&ndash;44% less weight memory</span><span class="kpi__label">bf16 weights including embeddings: <strong>0.20 vs 0.36 GiB</strong> at 191M, <strong>4.16 vs 5.43 GiB</strong> at 3B</span></li>
-      <li class="kpi"><span class="kpi__value">Same KV cache</span><span class="kpi__label">executed depth and heads are the standard Transformer&rsquo;s, so the cache per 4,096-token sequence matches: <strong>240 MiB</strong> at 191M to <strong>1,152 MiB</strong> at 3B</span></li>
-    </ul>
-    <div id="compute-table" data-widget="compute">
-      <div class="card"><strong>Table 2: compute and efficiency.</strong> Parameters, extra FLOPs, training throughput, peak memory and prefill throughput of the residual rules at 191M, 374M and 778M (24 layers). The interactive table needs JavaScript.</div>
-    </div>
-    <div class="fig-stack fig-stack--after">
-      <figure class="fig fig--narrow" id="fig-9">
-        <div class="fig__head"><span class="fig__label"><b>Figure 9</b> &middot; Throughput and quality versus FLOPs at 374M</span><button type="button" class="fig__zoom" data-zoom="fig-9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
-        <div class="fig__media"><img src="images/fig_efficiency.png" alt="Training throughput and validation loss against forward FLOPs for the residual rules at 374M with 24 layers" loading="lazy" data-zoom="fig-9"></div>
-        <figcaption class="fig__caption"><strong>Compute and efficiency at 374M, 24 layers.</strong> Loopback and AttnRes run fused read kernels. (a) Per-GPU training throughput on eight H100s; bar labels give hours for the 20-TPP budget. (b) Validation loss versus forward FLOPs per token in excess of the standard Transformer&rsquo;s. Table 2 gives the other rules at all three measured scales.</figcaption>
-      </figure>
-      <div class="card card--table">
-        <h3>Persistent inference memory</h3>
-        <p>Analytical bf16 storage for all weights, including embeddings and the vocabulary head, plus the KV cache at 4,096 tokens. Totals exclude temporary activations and workspaces.</p>
-        <div class="tbl-wrap"><table class="tbl tbl--t2">
-          <thead><tr><th>Scale</th><th>Model</th><th>Params (M)</th><th>Weights (GiB)</th><th>KV / seq. (MiB)</th><th>1 seq. (GiB)</th><th>8 seq. (GiB)</th></tr></thead>
-          <tbody>
-            <tr><td>191M, 20 layers</td><td>Standard</td><td>190.74</td><td>0.36</td><td>240</td><td>0.59</td><td>2.23</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>105.80</td><td class="best">0.20</td><td>240</td><td class="best">0.43</td><td class="best">2.07</td></tr>
-            <tr><td>374M, 24 layers</td><td>Standard</td><td>373.87</td><td>0.70</td><td>384</td><td>1.07</td><td>3.70</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>245.42</td><td class="best">0.46</td><td>384</td><td class="best">0.83</td><td class="best">3.46</td></tr>
-            <tr><td>778M, 24 layers</td><td>Standard</td><td>777.86</td><td>1.45</td><td>576</td><td>2.01</td><td>5.95</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>551.36</td><td class="best">1.03</td><td>576</td><td class="best">1.59</td><td class="best">5.53</td></tr>
-            <tr><td>1.4B, 25 layers</td><td>Standard</td><td>1,415.68</td><td>2.64</td><td>800</td><td>3.42</td><td>8.89</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>1,004.64</td><td class="best">1.87</td><td>800</td><td class="best">2.65</td><td class="best">8.12</td></tr>
-            <tr><td>3B, 24 layers</td><td>Standard</td><td>2,914.67</td><td>5.43</td><td>1,152</td><td>6.55</td><td>14.43</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>2,235.19</td><td class="best">4.16</td><td>1,152</td><td class="best">5.29</td><td class="best">13.16</td></tr>
-          </tbody>
-        </table></div>
-      </div>
-    </div>
         </div>
     </div>
   </div>
@@ -1122,47 +1081,11 @@ window.LOOPBACK_DATA = {
         mean13:         [48.56, 49.45]
       } }
   ],
-  // Table 2: compute and efficiency (Transformer-only parameters; extra forward FLOPs relative to the standard Transformer; per-GPU training
-  // throughput and peak memory; prefill on one H100)
-  compute: {
-    columns: [
-      { key: 'params', label: 'Params (M)', fmt: 2 },
-      { key: 'flops', label: 'Extra FLOPs', text: true },
-      { key: 'tps', label: 'Train tok/s/GPU', text: true, higher: true },
-      { key: 'mem', label: 'Peak GiB/GPU', fmt: 0, lower: true },
-      { key: 'prefill', label: 'Prefill tok/s', text: true, higher: true }
-    ],
-    scales: [
-      { key: '191M', title: '191M, [2 → 4×4 → 2], 3.82B tokens, 16 sequences per GPU', rows: [
-        ['dense',     141.59, '—',   '222k', 38, '885k'],
-        ['plain',     56.64,  '+0.00%', '226k', 38, '886k'],
-        ['mhc',       56.93,  '+0.15%', '169k', 42, '594k'],
-        ['hc',        56.65,  '+0.07%', '186k', 42, '671k'],
-        ['ihc',       57.04,  '+0.17%', '116k', 67, '370k'],
-        ['hyperloop', 56.79,  '+0.08%', '186k', 42, '743k'],
-        ['mhar',      56.64,  '+0.01%', '204k', 41, '810k'],
-        ['loopback',  56.65,  '+0.08%', '167k', 42, '601k'] ] },
-      { key: '374M', title: '374M, [2 → 10×2 → 2], 7.47B tokens, 8 sequences per GPU', rows: [
-        ['dense',     308.33, '—',   '128k', 26, '492k'],
-        ['plain',     179.86, '+0.00%', '130k', 26, '491k'],
-        ['mhc',       180.06, '+0.05%', '115k', 29, '422k'],
-        ['hc',        179.87, '+0.02%', '120k', 30, '439k'],
-        ['ihc',       180.53, '+0.15%', '68k',  52, '220k'],
-        ['hyperloop', 179.96, '+0.03%', '120k', 29, '457k'],
-        ['mhar',      179.86, '+0.00%', '126k', 27, '480k'],
-        ['loopback',  179.88, '+0.08%', '98k',  32, '352k'] ] },
-      { key: '778M', title: '778M, [2 → 8×2 → 6], 15.60B tokens, 8 sequences per GPU', rows: [
-        ['dense',    679.55, '—',   '75k', 38, '269k'],
-        ['plain',    453.04, '+0.00%', '76k', 37, '269k'],
-        ['mhc',      453.33, '+0.04%', '68k', 42, '240k'],
-        ['loopback', 453.06, '+0.04%', '63k', 44, '217k'] ] }
-    ]
-  }
 };
 </script>
 <script>
 // Page behaviour: theme toggle, section highlighting in the nav, the figure lightbox, the BibTeX copy button, and the two
-// data-driven tables (Table 1 main results, Table 2 compute) rendered from results-data.js. Inlined by build.py.
+// the data-driven main-results table (Table 1) rendered from results-data.js. Inlined by build.py.
 (function () {
   'use strict';
   var doc = document;
@@ -1396,58 +1319,6 @@ window.LOOPBACK_DATA = {
       hint.classList.remove('is-on'); setTimeout(function () { scroller.dispatchEvent(new Event('scroll')); }, 0);
     }
     render();
-  }
-
-  /* ---------- Table 2: compute */
-  var cm = $('compute-table');
-  if (cm && D.compute) {
-    var C = D.compute, cstate = { scale: '374M' };
-    var cscroller = h('div', { 'class': 'rt-scroll', role: 'region', 'aria-label': 'Table 2, compute and efficiency' });
-    var chint = h('p', { 'class': 'rt-hint', 'aria-hidden': 'true' }, 'Scroll sideways for all columns →');
-    var ctitle = h('span', { 'class': 'rt-caption' });
-    var cseg = segControl(C.scales.map(function (s) { return { key: s.key, label: s.key }; }), function (k) { cstate.scale = k; crender(); }, 'Model scale');
-    cseg.querySelectorAll('.seg__btn').forEach(function (b) { var on = b.dataset.key === cstate.scale; b.setAttribute('aria-checked', on ? 'true' : 'false'); b.setAttribute('tabindex', on ? '0' : '-1'); });
-    var ccard = h('div', { 'class': 'rt-card' },
-      h('div', { 'class': 'rt-head' },
-        h('p', { 'class': 'rt-label' }, h('b', null, 'Table 2'), ' · Compute and efficiency'),
-        h('div', { 'class': 'rt-controls' }, h('span', { 'class': 'rt-controls__name', 'aria-hidden': 'true' }, 'Scale'), cseg)),
-      chint, cscroller,
-      h('div', { 'class': 'rt-foot' }, ctitle,
-        h('p', { 'class': 'rt-notes' }, 'Parameters are Transformer-only; extra forward FLOPs are relative to the standard Transformer. Training throughput and peak memory are per GPU on 8 H100s. Prefill uses one H100. The underline marks the best looped rule in the column.')));
-    cm.innerHTML = ''; cm.appendChild(ccard);
-    scrollHint(cscroller, chint);
-    function crender() {
-      var s = null; C.scales.forEach(function (x) { if (x.key === cstate.scale) { s = x; } });
-      var table = h('table', { 'class': 'rt-table' });
-      table.appendChild(h('caption', { 'class': 'sr-only' }, 'Table 2: compute and efficiency at ' + s.key + '. Models in rows.'));
-      var tr = h('tr'); tr.appendChild(h('th', { scope: 'col', 'class': 'rt-corner' }, 'Model'));
-      C.columns.forEach(function (c) { tr.appendChild(h('th', { scope: 'col', 'class': 'rt-model' }, c.label)); });
-      table.appendChild(h('thead', null, tr));
-      var tb = h('tbody');
-      // best among the looped rules per numeric column (the standard Transformer is the reference, not a competitor)
-      var bestOf = {};
-      C.columns.forEach(function (c, ci) {
-        if (!c.lower && !c.higher) { return; }
-        var vals = s.rows.filter(function (r) { return r[0] !== 'dense'; }).map(function (r) { var v = r[ci + 1]; return typeof v === 'number' ? v : parseFloat(String(v).replace(/[^\d.]/g, '')); });
-        bestOf[c.key] = c.lower ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
-      });
-      s.rows.forEach(function (r) {
-        var m = MODEL[r[0]], ours = m.family === 'ours';
-        var row = h('tr', { 'class': ours ? 'rt-row-mean' : null });
-        row.appendChild(h('th', { scope: 'row', 'class': 'rt-bench' }, ours ? h('strong', null, m.name) : m.name, m.note ? h('small', null, m.note) : null));
-        C.columns.forEach(function (c, ci) {
-          var v = r[ci + 1], num = typeof v === 'number' ? v : parseFloat(String(v).replace(/[^\d.]/g, ''));
-          var isBest = r[0] !== 'dense' && bestOf[c.key] !== undefined && num === bestOf[c.key];
-          row.appendChild(h('td', { 'class': 'rt-num' + (ours ? ' rt-ours' : '') }, h('span', { 'class': 'rt-v' + (isBest ? ' is-best' : '') }, typeof v === 'number' ? fmt(v, c.fmt) : v)));
-        });
-        tb.appendChild(row);
-      });
-      table.appendChild(tb);
-      cscroller.innerHTML = ''; cscroller.appendChild(table); cscroller.scrollLeft = 0;
-      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to the standard Transformer’s forward FLOPs. The read’s cost is memory traffic, which the fused kernel streams once per read; at 3B the training-throughput gap to the standard Transformer is 6%.';
-      chint.classList.remove('is-on'); setTimeout(function () { cscroller.dispatchEvent(new Event('scroll')); }, 0);
-    }
-    crender();
   }
 
   // ---- the hero card: one animation of the two steps of every read. The rows come in with the decay prior (step 1), then
