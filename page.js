@@ -1,5 +1,5 @@
 // Page behaviour: theme toggle, section highlighting in the nav, the figure lightbox, the BibTeX copy button, and the two
-// data-driven tables (Table 1 main results, Table 2 compute) rendered from results-data.js. Inlined by build.py.
+// the data-driven main-results table (Table 1) rendered from results-data.js. Inlined by build.py.
 (function () {
   'use strict';
   var doc = document;
@@ -233,58 +233,6 @@
       hint.classList.remove('is-on'); setTimeout(function () { scroller.dispatchEvent(new Event('scroll')); }, 0);
     }
     render();
-  }
-
-  /* ---------- Table 2: compute */
-  var cm = $('compute-table');
-  if (cm && D.compute) {
-    var C = D.compute, cstate = { scale: '374M' };
-    var cscroller = h('div', { 'class': 'rt-scroll', role: 'region', 'aria-label': 'Table 2, compute and efficiency' });
-    var chint = h('p', { 'class': 'rt-hint', 'aria-hidden': 'true' }, 'Scroll sideways for all columns →');
-    var ctitle = h('span', { 'class': 'rt-caption' });
-    var cseg = segControl(C.scales.map(function (s) { return { key: s.key, label: s.key }; }), function (k) { cstate.scale = k; crender(); }, 'Model scale');
-    cseg.querySelectorAll('.seg__btn').forEach(function (b) { var on = b.dataset.key === cstate.scale; b.setAttribute('aria-checked', on ? 'true' : 'false'); b.setAttribute('tabindex', on ? '0' : '-1'); });
-    var ccard = h('div', { 'class': 'rt-card' },
-      h('div', { 'class': 'rt-head' },
-        h('p', { 'class': 'rt-label' }, h('b', null, 'Table 2'), ' · Compute and efficiency'),
-        h('div', { 'class': 'rt-controls' }, h('span', { 'class': 'rt-controls__name', 'aria-hidden': 'true' }, 'Scale'), cseg)),
-      chint, cscroller,
-      h('div', { 'class': 'rt-foot' }, ctitle,
-        h('p', { 'class': 'rt-notes' }, 'Parameters are Transformer-only; extra forward FLOPs are relative to the standard Transformer. Training throughput and peak memory are per GPU on 8 H100s. Prefill uses one H100. The underline marks the best looped rule in the column.')));
-    cm.innerHTML = ''; cm.appendChild(ccard);
-    scrollHint(cscroller, chint);
-    function crender() {
-      var s = null; C.scales.forEach(function (x) { if (x.key === cstate.scale) { s = x; } });
-      var table = h('table', { 'class': 'rt-table' });
-      table.appendChild(h('caption', { 'class': 'sr-only' }, 'Table 2: compute and efficiency at ' + s.key + '. Models in rows.'));
-      var tr = h('tr'); tr.appendChild(h('th', { scope: 'col', 'class': 'rt-corner' }, 'Model'));
-      C.columns.forEach(function (c) { tr.appendChild(h('th', { scope: 'col', 'class': 'rt-model' }, c.label)); });
-      table.appendChild(h('thead', null, tr));
-      var tb = h('tbody');
-      // best among the looped rules per numeric column (the standard Transformer is the reference, not a competitor)
-      var bestOf = {};
-      C.columns.forEach(function (c, ci) {
-        if (!c.lower && !c.higher) { return; }
-        var vals = s.rows.filter(function (r) { return r[0] !== 'dense'; }).map(function (r) { var v = r[ci + 1]; return typeof v === 'number' ? v : parseFloat(String(v).replace(/[^\d.]/g, '')); });
-        bestOf[c.key] = c.lower ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
-      });
-      s.rows.forEach(function (r) {
-        var m = MODEL[r[0]], ours = m.family === 'ours';
-        var row = h('tr', { 'class': ours ? 'rt-row-mean' : null });
-        row.appendChild(h('th', { scope: 'row', 'class': 'rt-bench' }, ours ? h('strong', null, m.name) : m.name, m.note ? h('small', null, m.note) : null));
-        C.columns.forEach(function (c, ci) {
-          var v = r[ci + 1], num = typeof v === 'number' ? v : parseFloat(String(v).replace(/[^\d.]/g, ''));
-          var isBest = r[0] !== 'dense' && bestOf[c.key] !== undefined && num === bestOf[c.key];
-          row.appendChild(h('td', { 'class': 'rt-num' + (ours ? ' rt-ours' : '') }, h('span', { 'class': 'rt-v' + (isBest ? ' is-best' : '') }, typeof v === 'number' ? fmt(v, c.fmt) : v)));
-        });
-        tb.appendChild(row);
-      });
-      table.appendChild(tb);
-      cscroller.innerHTML = ''; cscroller.appendChild(table); cscroller.scrollLeft = 0;
-      ctitle.innerHTML = '<strong>' + s.title + '.</strong> Loopback adds ' + (s.key === '778M' ? '0.04%' : '0.08%') + ' to the standard Transformer’s forward FLOPs. The read’s cost is memory traffic, which the fused kernel streams once per read; at 3B the training-throughput gap to the standard Transformer is 6%.';
-      chint.classList.remove('is-on'); setTimeout(function () { cscroller.dispatchEvent(new Event('scroll')); }, 0);
-    }
-    crender();
   }
 
   // ---- the hero card: one animation of the two steps of every read. The rows come in with the decay prior (step 1), then

@@ -201,7 +201,6 @@
           <li><a href="#ablations">Ablations</a></li>
           <li><a href="#depth">Depth</a></li>
           <li><a href="#memory-readers">Readers</a></li>
-          <li><a href="#efficiency">Efficiency</a></li>
         </ol>
       </nav>
       <div class="results-main">
@@ -392,46 +391,6 @@
       </div>
     </details>
 
-    <div class="section__head sub-head">
-      <span class="eyebrow">Efficiency</span>
-      <h3 id="efficiency">Compute, throughput and memory</h3>
-      <p class="lead">At matched executed depth, Loopback adds only 0.04&ndash;0.08% forward FLOPs: the extra operations normalize and score the stored updates, form their weighted sum, and apply decay and mixture replacement, with no Q/K/V projections or extra block evaluations. The fused implementation keeps the training-throughput gap to the standard Transformer at 6% at 3B, on the same eight H100 GPUs with the same batch layout. The KV cache is the standard Transformer&rsquo;s, and the stored weights are smaller.</p>
-    </div>
-    <ul class="kpis" aria-label="Efficiency numbers">
-      <li class="kpi"><span class="kpi__value">+0.04&ndash;0.08% FLOPs</span><span class="kpi__label">forward FLOPs added by the read at matched executed depth: <strong>+0.08%</strong> at 191M and 374M, <strong>+0.04%</strong> at 778M (24 layers)</span></li>
-      <li class="kpi"><span class="kpi__value">6% throughput gap at 3B</span><span class="kpi__label">training throughput of the fused implementation against the standard Transformer, on the <strong>same eight H100s</strong> with the same batch layout</span></li>
-      <li class="kpi"><span class="kpi__value">23&ndash;44% less weight memory</span><span class="kpi__label">bf16 weights including embeddings: <strong>0.20 vs 0.36 GiB</strong> at 191M, <strong>4.16 vs 5.43 GiB</strong> at 3B</span></li>
-      <li class="kpi"><span class="kpi__value">Same KV cache</span><span class="kpi__label">executed depth and heads are the standard Transformer&rsquo;s, so the cache per 4,096-token sequence matches: <strong>240 MiB</strong> at 191M to <strong>1,152 MiB</strong> at 3B</span></li>
-    </ul>
-    <div id="compute-table" data-widget="compute">
-      <div class="card"><strong>Table 2: compute and efficiency.</strong> Parameters, extra FLOPs, training throughput, peak memory and prefill throughput of the residual rules at 191M, 374M and 778M (24 layers). The interactive table needs JavaScript.</div>
-    </div>
-    <div class="fig-stack fig-stack--after">
-      <figure class="fig fig--narrow" id="fig-9">
-        <div class="fig__head"><span class="fig__label"><b>Figure 9</b> &middot; Throughput and quality versus FLOPs at 374M</span><button type="button" class="fig__zoom" data-zoom="fig-9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</button></div>
-        <div class="fig__media"><img src="images/fig_efficiency.png" alt="Training throughput and validation loss against forward FLOPs for the residual rules at 374M with 24 layers" loading="lazy" data-zoom="fig-9"></div>
-        <figcaption class="fig__caption"><strong>Compute and efficiency at 374M, 24 layers.</strong> Loopback and AttnRes run fused read kernels. (a) Per-GPU training throughput on eight H100s; bar labels give hours for the 20-TPP budget. (b) Validation loss versus forward FLOPs per token in excess of the standard Transformer&rsquo;s. Table 2 gives the other rules at all three measured scales.</figcaption>
-      </figure>
-      <div class="card card--table">
-        <h3>Persistent inference memory</h3>
-        <p>Analytical bf16 storage for all weights, including embeddings and the vocabulary head, plus the KV cache at 4,096 tokens. Totals exclude temporary activations and workspaces.</p>
-        <div class="tbl-wrap"><table class="tbl tbl--t2">
-          <thead><tr><th>Scale</th><th>Model</th><th>Params (M)</th><th>Weights (GiB)</th><th>KV / seq. (MiB)</th><th>1 seq. (GiB)</th><th>8 seq. (GiB)</th></tr></thead>
-          <tbody>
-            <tr><td>191M, 20 layers</td><td>Standard</td><td>190.74</td><td>0.36</td><td>240</td><td>0.59</td><td>2.23</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>105.80</td><td class="best">0.20</td><td>240</td><td class="best">0.43</td><td class="best">2.07</td></tr>
-            <tr><td>374M, 24 layers</td><td>Standard</td><td>373.87</td><td>0.70</td><td>384</td><td>1.07</td><td>3.70</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>245.42</td><td class="best">0.46</td><td>384</td><td class="best">0.83</td><td class="best">3.46</td></tr>
-            <tr><td>778M, 24 layers</td><td>Standard</td><td>777.86</td><td>1.45</td><td>576</td><td>2.01</td><td>5.95</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>551.36</td><td class="best">1.03</td><td>576</td><td class="best">1.59</td><td class="best">5.53</td></tr>
-            <tr><td>1.4B, 25 layers</td><td>Standard</td><td>1,415.68</td><td>2.64</td><td>800</td><td>3.42</td><td>8.89</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>1,004.64</td><td class="best">1.87</td><td>800</td><td class="best">2.65</td><td class="best">8.12</td></tr>
-            <tr><td>3B, 24 layers</td><td>Standard</td><td>2,914.67</td><td>5.43</td><td>1,152</td><td>6.55</td><td>14.43</td></tr>
-            <tr class="ours"><td></td><td>Loopback</td><td>2,235.19</td><td class="best">4.16</td><td>1,152</td><td class="best">5.29</td><td class="best">13.16</td></tr>
-          </tbody>
-        </table></div>
-      </div>
-    </div>
         </div>
     </div>
   </div>

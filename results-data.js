@@ -142,40 +142,4 @@ window.LOOPBACK_DATA = {
         mean13:         [48.56, 49.45]
       } }
   ],
-  // Table 2: compute and efficiency (Transformer-only parameters; extra forward FLOPs relative to the standard Transformer; per-GPU training
-  // throughput and peak memory; prefill on one H100)
-  compute: {
-    columns: [
-      { key: 'params', label: 'Params (M)', fmt: 2 },
-      { key: 'flops', label: 'Extra FLOPs', text: true },
-      { key: 'tps', label: 'Train tok/s/GPU', text: true, higher: true },
-      { key: 'mem', label: 'Peak GiB/GPU', fmt: 0, lower: true },
-      { key: 'prefill', label: 'Prefill tok/s', text: true, higher: true }
-    ],
-    scales: [
-      { key: '191M', title: '191M, [2 → 4×4 → 2], 3.82B tokens, 16 sequences per GPU', rows: [
-        ['dense',     141.59, '—',   '222k', 38, '885k'],
-        ['plain',     56.64,  '+0.00%', '226k', 38, '886k'],
-        ['mhc',       56.93,  '+0.15%', '169k', 42, '594k'],
-        ['hc',        56.65,  '+0.07%', '186k', 42, '671k'],
-        ['ihc',       57.04,  '+0.17%', '116k', 67, '370k'],
-        ['hyperloop', 56.79,  '+0.08%', '186k', 42, '743k'],
-        ['mhar',      56.64,  '+0.01%', '204k', 41, '810k'],
-        ['loopback',  56.65,  '+0.08%', '167k', 42, '601k'] ] },
-      { key: '374M', title: '374M, [2 → 10×2 → 2], 7.47B tokens, 8 sequences per GPU', rows: [
-        ['dense',     308.33, '—',   '128k', 26, '492k'],
-        ['plain',     179.86, '+0.00%', '130k', 26, '491k'],
-        ['mhc',       180.06, '+0.05%', '115k', 29, '422k'],
-        ['hc',        179.87, '+0.02%', '120k', 30, '439k'],
-        ['ihc',       180.53, '+0.15%', '68k',  52, '220k'],
-        ['hyperloop', 179.96, '+0.03%', '120k', 29, '457k'],
-        ['mhar',      179.86, '+0.00%', '126k', 27, '480k'],
-        ['loopback',  179.88, '+0.08%', '98k',  32, '352k'] ] },
-      { key: '778M', title: '778M, [2 → 8×2 → 6], 15.60B tokens, 8 sequences per GPU', rows: [
-        ['dense',    679.55, '—',   '75k', 38, '269k'],
-        ['plain',    453.04, '+0.00%', '76k', 37, '269k'],
-        ['mhc',      453.33, '+0.04%', '68k', 42, '240k'],
-        ['loopback', 453.06, '+0.04%', '63k', 44, '217k'] ] }
-    ]
-  }
 };
