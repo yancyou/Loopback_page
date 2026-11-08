@@ -197,7 +197,7 @@ svg text { font-family: var(--body); }
     <div id="o-sub" class="fade">Towards a Unified View of Residual Looped Transformers</div>
     <div class="ores fade" id="o-r1" style="top:476px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Lower loss with 40&ndash;75% of the parameters, 191M to 3B</div>
     <div class="ores fade" id="o-r2" style="top:556px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Lowest loss and highest 13-task average of nine designs at 191M, 374M and 778M</div>
-    <div class="ores fade" id="o-r3" style="top:636px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Higher 13-task average at 1.4B and 3B</div>
+    <div class="ores fade" id="o-r3" style="top:636px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>More than double the word-problem accuracy at 3B: 2.6% &rarr; 6.4%</div>
   </div>
 
   <div id="subs"></div>
@@ -207,9 +207,9 @@ svg text { font-family: var(--body); }
 <script src="live_data.js"></script>
 <script>
 'use strict';
-var DUR = 158.5;
-var SC = { title: [0, 6.83], live: [6.83, 24.84], hook: [24.84, 36.05], analysis: [36.05, 48.7], method: [48.7, 61.71], scale: [61.71, 77.33], nine: [77.33, 89.29],
-           math: [89.29, 103.15], visits: [103.15, 113.27], ablation: [113.27, 123.79], depth: [123.79, 133.3], eff: [133.3, 147.16], outro: [147.16, 158.5] };
+var DUR = 84.1;
+var SC = { title: [0, 4.09], hook: [4.09, 16.2], method: [16.2, 30.81], live: [30.81, 42.39], scale: [42.39, 54.48], nine: [54.48, 65.06],
+           math: [65.06, 75.65], outro: [75.65, 84.1] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -948,9 +948,8 @@ function renderSubs(t) {
 }
 
 /* ---------------------------------------------------------------- frame */
-var SCENES = [['title', renderTitle], ['live', renderLive], ['hook', renderHook], ['analysis', renderAnalysis], ['method', renderMethod], ['scale', renderScale],
-              ['nine', renderNine], ['math', renderMath], ['visits', renderVisits], ['ablation', renderAblation], ['depth', renderDepth],
-              ['eff', renderEff], ['outro', renderOutro]];
+var SCENES = [['title', renderTitle], ['hook', renderHook], ['method', renderMethod], ['live', renderLive], ['scale', renderScale],
+              ['nine', renderNine], ['math', renderMath], ['outro', renderOutro]];   // v20 (11-08): analysis, visits, ablation, depth and eff left out
 function renderAt(t) {
   SCENES.forEach(function (s) {
     var r = SC[s[0]], node = $('s-' + s[0]);
@@ -958,7 +957,7 @@ function renderAt(t) {
     node.style.opacity = o;
     if (o > 0) { s[1](t); }
   });
-  $('brand').style.opacity = Math.min(prog(t, SC.live[0], SC.live[0] + .6), 1 - prog(t, SC.outro[0] - .5, SC.outro[0]));
+  $('brand').style.opacity = Math.min(prog(t, SC.hook[0], SC.hook[0] + .6), 1 - prog(t, SC.outro[0] - .5, SC.outro[0]));
   renderSubs(t);
   $('bar').style.width = (t / DUR * 1920) + 'px';
 }

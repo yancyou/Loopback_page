@@ -19,8 +19,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FPS = 30
 _page = open(os.path.join(HERE, "promo.html"), encoding="utf-8").read()
 DUR = float(re.search(r"var DUR = ([0-9.]+);", _page).group(1))                       # the page's length and scene windows
+TITLE_END = float(re.search(r"title: \[[0-9.]+, ([0-9.]+)\]", _page).group(1))
 SCALE_END = float(re.search(r"scale: \[[0-9.]+, ([0-9.]+)\]", _page).group(1))
-POSTER_T, HERO_T = 4.2, SCALE_END - 0.7     # title card (og:image); the finished five-scale results, shown before play
+POSTER_T, HERO_T = TITLE_END - 0.8, SCALE_END - 0.7   # the drawn title card (og:image); the finished five-scale results, shown before play
 VO = os.path.join(HERE, "voiceover")
 NO_CAPTIONS = {"title"}
 
