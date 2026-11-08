@@ -100,6 +100,14 @@ svg text { font-family: var(--body); }
     <div id="t-note" class="fade"><sup>*</sup>Equal contribution &ensp;&middot;&ensp; <sup>&#9993;</sup>Corresponding author</div>
   </div>
 
+  <!-- 1b live read: two models read the same held-out text (live_data.js, measured on one H100) -->
+  <div class="scene" id="s-live">
+    <div class="eyebrow fade" id="lv-e">Live read &middot; 4,096 held-out tokens &middot; 1.4B scale</div>
+    <div class="h fade" id="lv-h">Two models read the <b>same new text</b></div>
+    <div class="note fade" id="lv-n" style="top:212px">The first 4,096 tokens of the held-out validation stream, eight documents, read token by token on one H100.</div>
+    <svg id="lv-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+  </div>
+
   <!-- 2 hook -->
   <div class="scene" id="s-hook">
     <div class="h fade" id="hk-h">Looped Transformers apply the <b>same blocks</b> again and again</div>
@@ -196,11 +204,12 @@ svg text { font-family: var(--body); }
   <div id="bar"></div>
 </div>
 
+<script src="live_data.js"></script>
 <script>
 'use strict';
-var DUR = 142.02;
-var SC = { title: [0, 6.97], hook: [6.97, 18.32], analysis: [18.32, 31.11], method: [31.11, 44.26], scale: [44.26, 60.02], nine: [60.02, 72.11],
-           math: [72.11, 86.12], visits: [86.12, 96.37], ablation: [96.37, 107.03], depth: [107.03, 116.68], eff: [116.68, 130.68], outro: [130.68, 142.02] };
+var DUR = 158.5;
+var SC = { title: [0, 6.83], live: [6.83, 24.84], hook: [24.84, 36.05], analysis: [36.05, 48.7], method: [48.7, 61.71], scale: [61.71, 77.33], nine: [77.33, 89.29],
+           math: [89.29, 103.15], visits: [103.15, 113.27], ablation: [113.27, 123.79], depth: [123.79, 133.3], eff: [133.3, 147.16], outro: [147.16, 158.5] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -826,6 +835,97 @@ function renderTitle(t) {
   appear($('t-auth'), t, 1.7, .7); appear($('t-aff'), t, 2.1, .7); appear($('t-note'), t, 2.5, .7);
 }
 
+/* ---------------------------------------------------------------- scene 1b: live read (LIVE from live_data.js) */
+var LV = { x0: 1230, x1: 1790, yb: 770, yt: 330, lo: 1.5, hi: 2.6, N: LIVE.n, tx: 110, rows: [] };
+function lvY(v) { return LV.yb - (v - LV.lo) / (LV.hi - LV.lo) * (LV.yb - LV.yt); }
+function lvX(i) { return LV.x0 + i / LV.N * (LV.x1 - LV.x0); }
+function lvTitle(a, b) {
+  var s = LIVE.tokens.slice(a, Math.min(b, a + 24)).join('').replace(/<0x0A>/g, ' ').replace(/\s+/g, ' ').trim();
+  return s.length > 34 ? s.slice(0, 33).replace(/\s+\S*$/, '') + '…' : s;
+}
+(function buildLive() {
+  var s = $('lv-svg'), g = el('g', { id: 'lv-g', opacity: 0 }, s);
+  // the chart: running mean loss against tokens read
+  for (var v = 1.6; v < 2.65; v += .2) {
+    var y = lvY(v);
+    el('line', { x1: LV.x0, x2: LV.x1, y1: y, y2: y, stroke: C.grid, 'stroke-width': 1.5 }, g);
+    txt(g, LV.x0 - 16, y + 8, v.toFixed(1), { 'text-anchor': 'end', 'font-size': 22, fill: C.muted });
+  }
+  el('line', { x1: LV.x0, x2: LV.x1, y1: LV.yb, y2: LV.yb, stroke: C.axis, 'stroke-width': 1.5 }, g);
+  for (var k = 0; k <= 4; k++) { txt(g, lvX(k * 1024), LV.yb + 36, k ? k + 'k' : '0', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted }); }
+  txt(g, (LV.x0 + LV.x1) / 2, LV.yb + 72, 'tokens read', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted });
+  txt(g, LV.x0 - 16, LV.yt - 56, 'running mean loss (nats, lower is better)', { 'font-size': 24, fill: C.ink3 });
+  // legend with the two models' sizes
+  var lg = el('g', {}, g);
+  el('rect', { x: LV.x0 - 16, y: LV.yt - 28, width: 22, height: 6, rx: 3, fill: C.grey }, lg);
+  txt(lg, LV.x0 + 16, LV.yt - 20, 'Standard Transformer · ' + (LIVE.std.params / 1e9).toFixed(2) + 'B parameters · ' + LIVE.std.gib.toFixed(2) + ' GiB', { 'font-size': 22, fill: C.ink2 });
+  el('rect', { x: LV.x0 - 16, y: LV.yt + 6, width: 22, height: 6, rx: 3, fill: C.navy }, lg);
+  txt(lg, LV.x0 + 16, LV.yt + 14, 'Loopback · ' + (LIVE.lb.params / 1e9).toFixed(2) + 'B parameters (' + Math.round(100 * LIVE.lb.params / LIVE.std.params) + '%) · ' + LIVE.lb.gib.toFixed(2) + ' GiB', { 'font-size': 22, fill: C.navy, 'font-weight': 600 });
+  LV.pS = el('path', { fill: 'none', stroke: C.grey, 'stroke-width': 4, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, g);
+  LV.pL = el('path', { fill: 'none', stroke: C.navy, 'stroke-width': 4, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, g);
+  LV.hS = el('circle', { r: 7, fill: C.grey, stroke: C.bg, 'stroke-width': 3 }, g);
+  LV.hL = el('circle', { r: 7, fill: C.navy, stroke: C.bg, 'stroke-width': 3 }, g);
+  LV.eS = txt(g, 0, 0, '', { 'font-size': 24, fill: C.grey, 'font-weight': 600, class: 'halo' });
+  LV.eL = txt(g, 0, 0, '', { 'font-size': 24, fill: C.navy, 'font-weight': 600, class: 'halo' });
+  // the documents, one row each, in with the stream
+  var tx = LV.tx, cols = { tok: 720, s: 870, l: 1030 }, y0 = 324, dy = 50;
+  txt(g, tx, y0 - 30, 'document', { 'font-size': 21, fill: C.muted, 'font-weight': 600, 'letter-spacing': '.1em' });
+  txt(g, cols.tok, y0 - 30, 'tokens', { 'text-anchor': 'end', 'font-size': 21, fill: C.muted, 'font-weight': 600, 'letter-spacing': '.1em' });
+  txt(g, cols.s, y0 - 30, 'Standard', { 'text-anchor': 'end', 'font-size': 21, fill: C.muted, 'font-weight': 600, 'letter-spacing': '.1em' });
+  txt(g, cols.l, y0 - 30, 'Loopback', { 'text-anchor': 'end', 'font-size': 21, fill: C.navy, 'font-weight': 600, 'letter-spacing': '.1em' });
+  el('line', { x1: tx, x2: cols.l + 6, y1: y0 - 14, y2: y0 - 14, stroke: C.axis, 'stroke-width': 1.5 }, g);
+  var starts = LIVE.doc_starts.concat([LIVE.n]);
+  function mean(a, b, arr) { var s = 0; for (var i = a; i < b; i++) { s += arr[i]; } return s / (b - a); }
+  for (var i = 0; i + 1 < starts.length; i++) {
+    var a = starts[i], b = starts[i + 1], ms = mean(a, b, LIVE.std.nll), ml = mean(a, b, LIVE.lb.nll);
+    var rg = el('g', { opacity: 0 }, g), y = y0 + i * dy + 22;
+    txt(rg, tx, y, (i + 1) + ' ' + lvTitle(a, b), { 'font-size': 24, fill: C.ink2 });
+    txt(rg, cols.tok, y, b - a, { 'text-anchor': 'end', 'font-size': 25, fill: C.ink3, class: 'mono' });
+    txt(rg, cols.s, y, ms.toFixed(3), { 'text-anchor': 'end', 'font-size': 25, fill: ml < ms ? C.ink3 : C.ink, 'font-weight': ml < ms ? 400 : 600, class: 'mono' });
+    txt(rg, cols.l, y, ml.toFixed(3), { 'text-anchor': 'end', 'font-size': 25, fill: C.navy, 'font-weight': ml < ms ? 700 : 400, class: 'mono' });
+    LV.rows.push({ g: rg, end: b });
+  }
+  // the running totals under the table, and the closing line
+  var yb = y0 + starts.length * dy + 8;
+  el('line', { x1: tx, x2: cols.l + 6, y1: yb - 30, y2: yb - 30, stroke: C.axis, 'stroke-width': 1.5 }, g);
+  LV.tProg = txt(g, tx, yb + 2, '', { 'font-size': 25, fill: C.ink2, 'font-weight': 600 });
+  LV.tS = txt(g, cols.s, yb + 2, '', { 'text-anchor': 'end', 'font-size': 25, fill: C.ink, 'font-weight': 600, class: 'mono' });
+  LV.tL = txt(g, cols.l, yb + 2, '', { 'text-anchor': 'end', 'font-size': 25, fill: C.navy, 'font-weight': 700, class: 'mono' });
+  LV.close = el('g', { opacity: 0 }, s);
+  var cb = el('rect', { x: 110, y: 850, width: 1700, height: 66, rx: 14, fill: C.numbg, stroke: C.line, 'stroke-width': 1.5 }, LV.close);
+  var dlt = LIVE.lb.cum[LIVE.n - 1] - LIVE.std.cum[LIVE.n - 1];
+  LV.closeT = txt(LV.close, 960, 893, 'Loopback − Standard: ' + (dlt < 0 ? '−' : '+') + Math.abs(dlt).toFixed(3) + ' nats over the 4,096 tokens, with ' + Math.round(100 - 100 * LIVE.lb.params / LIVE.std.params) + '% fewer parameters', { 'text-anchor': 'middle', 'font-size': 30, fill: C.ink, 'font-weight': 600 });
+})();
+function lvPath(cum, u) {
+  if (u < 2) { return ''; }
+  var d = '', step = Math.max(1, Math.floor(u / 400));
+  for (var i = 1; i < u; i += step) { d += (d ? ' L' : 'M') + lvX(i).toFixed(1) + ' ' + lvY(clamp(cum[i], LV.lo, LV.hi)).toFixed(1); }
+  d += ' L' + lvX(u - 1).toFixed(1) + ' ' + lvY(clamp(cum[u - 1], LV.lo, LV.hi)).toFixed(1);
+  return d;
+}
+function renderLive(t) {
+  var r = SC.live;
+  appear($('lv-e'), t, r[0] + .2, .5); appear($('lv-h'), t, r[0] + .35, .6); appear($('lv-n'), t, r[0] + .8, .6);
+  $('lv-g').setAttribute('opacity', easeOut(prog(t, r[0] + 1.0, r[0] + 1.6)));
+  var t0 = r[0] + 1.8, t1 = r[1] - 3.4;
+  var u = Math.round(clamp((t - t0) / (t1 - t0), 0, 1) * LV.N);              // tokens read so far
+  LV.pS.setAttribute('d', lvPath(LIVE.std.cum, u)); LV.pL.setAttribute('d', lvPath(LIVE.lb.cum, u));
+  var vis = u >= 2 ? 1 : 0, i = Math.max(1, u) - 1;
+  [[LV.hS, LIVE.std.cum], [LV.hL, LIVE.lb.cum]].forEach(function (p) {
+    p[0].setAttribute('opacity', vis); p[0].setAttribute('cx', lvX(i)); p[0].setAttribute('cy', lvY(clamp(p[1][i], LV.lo, LV.hi)));
+  });
+  var done = u >= LV.N, ys = lvY(LIVE.std.cum[LV.N - 1]), yl = lvY(LIVE.lb.cum[LV.N - 1]);
+  if (Math.abs(ys - yl) < 30) { var m = (ys + yl) / 2; ys = ys < yl ? m - 15 : m + 15; yl = ys < yl ? m + 15 : m - 15; }
+  [[LV.eS, LIVE.std.cum, ys], [LV.eL, LIVE.lb.cum, yl]].forEach(function (p) {
+    p[0].setAttribute('opacity', done ? easeOut(prog(t, t1, t1 + .4)) : 0); p[0].setAttribute('x', LV.x1 + 14); p[0].setAttribute('y', p[2] + 8);
+    p[0].textContent = p[1][LV.N - 1].toFixed(3);
+  });
+  LV.rows.forEach(function (row) { row.g.setAttribute('opacity', easeOut(clamp((u - row.end) / 90 + 1, 0, 1)) * (u > 0 ? 1 : 0)); });
+  LV.tProg.textContent = u > 0 ? (u >= LV.N ? 'all 4,096 tokens' : u.toLocaleString('en-US') + ' tokens read') : '';
+  LV.tS.textContent = u > 0 ? LIVE.std.cum[i].toFixed(3) : ''; LV.tL.textContent = u > 0 ? LIVE.lb.cum[i].toFixed(3) : '';
+  LV.close.setAttribute('opacity', easeOut(prog(t, t1 + .5, t1 + 1.1)));
+}
+
 /* ---------------------------------------------------------------- burned-in captions */
 // window.CUES (render.py): [{start, end, last, words: [[text, t], ...]}], one per spoken phrase. Each word fades up when it
 // is spoken and stays white; the word being spoken is in the accent colour. The title carries its words on screen.
@@ -848,7 +948,7 @@ function renderSubs(t) {
 }
 
 /* ---------------------------------------------------------------- frame */
-var SCENES = [['title', renderTitle], ['hook', renderHook], ['analysis', renderAnalysis], ['method', renderMethod], ['scale', renderScale],
+var SCENES = [['title', renderTitle], ['live', renderLive], ['hook', renderHook], ['analysis', renderAnalysis], ['method', renderMethod], ['scale', renderScale],
               ['nine', renderNine], ['math', renderMath], ['visits', renderVisits], ['ablation', renderAblation], ['depth', renderDepth],
               ['eff', renderEff], ['outro', renderOutro]];
 function renderAt(t) {
@@ -858,7 +958,7 @@ function renderAt(t) {
     node.style.opacity = o;
     if (o > 0) { s[1](t); }
   });
-  $('brand').style.opacity = Math.min(prog(t, SC.hook[0], SC.hook[0] + .6), 1 - prog(t, SC.outro[0] - .5, SC.outro[0]));
+  $('brand').style.opacity = Math.min(prog(t, SC.live[0], SC.live[0] + .6), 1 - prog(t, SC.outro[0] - .5, SC.outro[0]));
   renderSubs(t);
   $('bar').style.width = (t / DUR * 1920) + 'px';
 }

@@ -16,7 +16,7 @@ and their lengths without fitting or writing, to set the scene timing from. Capt
 aligned to `say` as synth.py aligns Kokoro's tokens. Chatterbox marks its output with Resemble's inaudible Perth watermark.
 Needs chatterbox-tts 0.1.7, faster-whisper and setuptools<81 (perth imports pkg_resources).
 """
-import argparse, hashlib, json, os, subprocess, sys, tempfile
+import argparse, re, hashlib, json, os, subprocess, sys, tempfile
 from synth import BUILD, LEAD, SR, TAIL, align, duration, load, plain, repo
 from asr_check import rejoin, tokens, wer
 
@@ -60,7 +60,9 @@ def transcribe(asr, audio):
 
 def score(norm, say, words):
     ref = tokens(norm, plain(say))
-    return wer(ref, rejoin(tokens(norm, " ".join(w for w, _, _ in words)), ref))
+    heard = " ".join(w for w, _, _ in words)
+    heard = re.sub(r"(\w) ([,.\-])(\w)", r"\1\2\3", heard)   # Whisper word pieces "4 ,000", "1 .4", "held -out" -> one token each
+    return wer(ref, rejoin(tokens(norm, heard), ref))
 
 def main():
     ap = argparse.ArgumentParser()
