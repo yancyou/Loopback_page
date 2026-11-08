@@ -708,7 +708,6 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
           <li><a href="#large">1.4B and 3B</a></li>
           <li><a href="#math">Code and math</a></li>
           <li><a href="#visits">Extra visits</a></li>
-          <li><a href="#ablations">Ablations</a></li>
           <li><a href="#depth">Depth</a></li>
           <li><a href="#memory-readers">Readers</a></li>
         </ol>
@@ -809,47 +808,6 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
     </div>
 
     <div class="section__head sub-head">
-      <span class="eyebrow">Ablations</span>
-      <h3 id="ablations">Decay, attention and initialization</h3>
-      <p class="lead">Decay controls the accumulated update weight, and attention allocates it by content. The complete design has the lowest loss at both scales: removing attention raises loss by 0.0033 and 0.0028 nats at 191M and 374M, and removing decay raises it by 0.0434 and 0.0337. Under three weight initializations at both scales, with learning rates held fixed, Loopback stays below the standard Transformer and Plain Loop in all six settings and has the lowest loss in five.</p>
-    </div>
-    <div class="card-grid">
-      <div class="card card--table">
-        <h3>Decay and attention at two scales</h3>
-        <p>Validation loss. Fixed allocation uses zero queries; the last row is the standard Transformer at the same depth and tokens. 374M is the 24-layer shape.</p>
-        <div class="tbl-wrap"><table class="tbl tbl--t2">
-          <thead><tr><th>Decay</th><th>Allocation</th><th>191M</th><th>374M, 24 layers</th></tr></thead>
-          <tbody>
-            <tr><td>off (<i>&lambda;</i> = 1)</td><td>fixed (Plain Loop)</td><td>2.6802</td><td>2.4415</td></tr>
-            <tr><td>off (<i>&lambda;</i> = 1)</td><td>learned</td><td>2.6621</td><td>2.4308</td></tr>
-            <tr><td>on (<i>&lambda;</i> = 1/4)</td><td>fixed</td><td>2.6220</td><td>2.3999</td></tr>
-            <tr class="ours"><td>on (<i>&lambda;</i> = 1/4)</td><td>learned (Loopback)</td><td class="best">2.6187</td><td class="best">2.3971</td></tr>
-            <tr><td>Standard</td><td>same depth and tokens</td><td>2.6234</td><td>2.4198</td></tr>
-          </tbody>
-        </table></div>
-      </div>
-      <div class="card card--table">
-        <h3>Weight initialization at 191M and 374M</h3>
-        <p>Validation loss under three initializations, with learning rates held fixed; mHC is the closest looped baseline of Table 1. N(0, 0.02<sup>2</sup>) draws linear and embedding weights at a fixed scale; GPT-2 also scales attention-output and MLP down-projections by 1/&radic;(2<i>D</i>), with <i>D</i> the executed depth; PyTorch uses Kaiming-uniform linear weights and N(0, 1) embeddings. Hyperloop reports that its advantage over the standard Transformer does not survive GPT-2 initialization with retuned learning rates, which motivates this check. The green number under each Loopback loss is its difference from the standard Transformer.</p>
-        <div class="tbl-wrap"><table class="tbl">
-          <thead><tr><th>Model</th><th>Params (M)</th><th>N(0, 0.02<sup>2</sup>)</th><th>GPT-2</th><th>PyTorch</th></tr></thead>
-          <tbody>
-            <tr class="sub"><th colspan="5">191M, 20 layers</th></tr>
-            <tr><td>Standard</td><td>141.59</td><td>2.6234</td><td>2.6419</td><td>2.7145</td></tr>
-            <tr><td>Plain Loop</td><td>56.64</td><td>2.6802</td><td>2.6977</td><td>2.6642</td></tr>
-            <tr><td>mHC</td><td>56.93</td><td>2.6250</td><td>2.6408</td><td>2.6278</td></tr>
-            <tr class="ours"><td>Loopback</td><td>56.65</td><td class="best">2.6187<br><span class="gain">&minus;0.0047</span></td><td class="best">2.6178<br><span class="gain">&minus;0.0241</span></td><td class="best">2.6138<br><span class="gain">&minus;0.1007</span></td></tr>
-            <tr class="sub"><th colspan="5">374M, 24 layers</th></tr>
-            <tr><td>Standard</td><td>308.33</td><td>2.4198</td><td>2.4252</td><td>2.4296</td></tr>
-            <tr><td>Plain Loop</td><td>179.86</td><td>2.4415</td><td>2.4272</td><td>2.4334</td></tr>
-            <tr><td>mHC</td><td>180.06</td><td>2.4062</td><td class="best">2.4091</td><td>2.4093</td></tr>
-            <tr class="ours"><td>Loopback</td><td>179.88</td><td class="best">2.3971<br><span class="gain">&minus;0.0227</span></td><td>2.4117<br><span class="gain">&minus;0.0135</span></td><td class="best">2.3938<br><span class="gain">&minus;0.0358</span></td></tr>
-          </tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <div class="section__head sub-head">
       <span class="eyebrow">Depth</span>
       <h3 id="depth">Depth at fixed parameters</h3>
       <p class="lead">At 374M and 778M, every configuration trains from scratch with the training tokens held fixed and total parameters approximately fixed while width is traded for depth from 16 to 64 layers; the loop visits stay fixed at two. The standard Transformer loses ground as it gets deeper and narrower: it is best at 24 layers and, at 64, is 0.076 worse at 374M and 0.035 worse at 778M. Among the looped rules, Loopback is lowest at nine of the ten points, and its best tested depth moves from 24 layers at 374M to 48 at 778M. At the sweep endpoints, its margin over the standard Transformer increases from 0.003 at 16 layers to 0.073 at 64 layers at 374M, and from 0.002 to 0.028 at 778M.</p>
@@ -874,32 +832,6 @@ details.more > div > p { color: var(--text-3); font-size: .9rem; margin-bottom: 
         <figcaption class="fig__caption"><strong>Reading updates beats reading states, and no reader reaches Loopback.</strong> ClimbMix validation-loss reduction over Plain Loop at (a) 191M with 20 layers and (b) 374M with 24 layers, for the update interface (solid) and the state interface (hatched) of each reader: linear attention, RetNet, GLA, Mamba-2, HGRN-2, DeltaNet, Gated DeltaNet, KDA, RWKV-7, Mesa and a LaCT-inspired reader. The standard Transformer and Loopback are references.</figcaption>
       </figure>
     </div>
-    <details class="more" id="readers">
-      <summary>All eleven readers at two scales</summary>
-      <div>
-        <p>ClimbMix validation loss with matched machine and budget within each scale. Updates and states use one and eight heads, respectively, with different output blends. Underlined: best reader in each column.</p>
-        <div class="tbl-wrap"><table class="tbl">
-          <thead><tr><th>Reader</th><th>191M, updates</th><th>191M, states</th><th>374M (24 layers), updates</th><th>374M (24 layers), states</th></tr></thead>
-          <tbody>
-            <tr><td>Gated DeltaNet</td><td class="best">2.6489</td><td>2.6685</td><td>2.4308</td><td>2.4333</td></tr>
-            <tr><td>HGRN-2</td><td>2.6522</td><td>2.6619</td><td class="best">2.4256</td><td>2.4333</td></tr>
-            <tr><td>RWKV-7</td><td>2.6532</td><td>2.6791</td><td>2.4371</td><td>2.4398</td></tr>
-            <tr><td>Mesa</td><td>2.6539</td><td class="best">2.6603</td><td>2.4277</td><td>2.4342</td></tr>
-            <tr><td>DeltaNet</td><td>2.6542</td><td>2.6664</td><td>2.4310</td><td>2.4329</td></tr>
-            <tr><td>KDA</td><td>2.6543</td><td>2.6612</td><td>2.4290</td><td class="best">2.4295</td></tr>
-            <tr><td>Mamba-2</td><td>2.6544</td><td>2.6759</td><td>2.4308</td><td>2.4319</td></tr>
-            <tr><td>LaCT-inspired</td><td>2.6558</td><td>2.6774</td><td>2.4308</td><td>2.4336</td></tr>
-            <tr><td>GLA</td><td>2.6640</td><td>2.6773</td><td>2.4352</td><td>2.4419</td></tr>
-            <tr><td>RetNet</td><td>2.6650</td><td>2.6827</td><td>2.4338</td><td>2.4396</td></tr>
-            <tr><td>Linear attention</td><td>2.6697</td><td>2.6846</td><td>2.4346</td><td>2.4417</td></tr>
-            <tr class="sub"><th colspan="5">Reference models</th></tr>
-            <tr><td>Plain Loop</td><td colspan="2">2.6802</td><td colspan="2">2.4415</td></tr>
-            <tr><td>Standard</td><td colspan="2">2.6234</td><td colspan="2">2.4198</td></tr>
-            <tr class="ours"><td>Loopback</td><td colspan="2" class="best">2.6187</td><td colspan="2" class="best">2.3971</td></tr>
-          </tbody>
-        </table></div>
-      </div>
-    </details>
 
         </div>
     </div>
