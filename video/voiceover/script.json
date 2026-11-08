@@ -1,10 +1,10 @@
 {
  "voice": "af_heart",
- "duration": 84.1,
+ "duration": 77.9,
  "video": "video/voiceover/build/loopback_promo_silent.mp4",
  "out": "videos/loopback_promo.mp4",
  "music": {
-  "path": "video/music/build/bed_84.wav",
+  "path": "video/music/build/bed_v21.wav",
   "gap_db": -6.0,
   "fade_in": 0.5,
   "fade_out": 1.2
@@ -13,56 +13,56 @@
   {
    "id": "title",
    "start": 0.5,
-   "end": 3.79,
-   "say": "Loopback Transformer.",
-   "display": "Loopback Transformer."
+   "end": 6.11,
+   "say": "Loopback Transformer. Towards a unified view of residual looped transformers.",
+   "display": "Loopback Transformer: Towards a Unified View of Residual Looped Transformers."
   },
   {
    "id": "hook",
-   "start": 4.59,
-   "end": 15.9,
+   "start": 6.91,
+   "end": 16.58,
    "say": "A looped transformer runs the same blocks again and again. That saves parameters, but with plain addition, the updates from every pass just pile up.",
    "display": "A looped Transformer runs the same blocks again and again. That saves parameters, but with plain addition, the updates from every pass just pile up."
   },
   {
    "id": "method",
-   "start": 16.7,
-   "end": 30.51,
+   "start": 17.38,
+   "end": 29.3,
    "say": "So we built Loopback. It stores each block's update and keeps the input on its own path. A decay limits how much old updates count, and attention picks which ones to read.",
    "display": "So we built Loopback. It stores each block's update and keeps the input on its own path. A decay limits how much old updates count, and attention picks which ones to read."
   },
   {
    "id": "live",
-   "start": 31.31,
-   "end": 42.09,
-   "say": "Here a standard transformer and Loopback read the same new text. Loopback is twenty-nine percent smaller, and its loss still ends lower.",
-   "display": "Here a standard Transformer and Loopback read the same new text. Loopback is 29% smaller, and its loss still ends lower."
+   "start": 30.1,
+   "end": 40.52,
+   "say": "Here a standard transformer and Loopback, both at three billion scale, read the same new text. Loopback is twenty-three percent smaller, and its loss still ends lower.",
+   "display": "Here a standard Transformer and Loopback, both at 3B scale, read the same new text. Loopback is 23% smaller, and its loss still ends lower."
   },
   {
    "id": "scale",
-   "start": 42.89,
-   "end": 54.18,
+   "start": 41.32,
+   "end": 51.01,
    "say": "From one hundred ninety-one million to three billion parameters, Loopback gets lower loss than the standard transformer with forty to seventy-five percent of its parameters.",
    "display": "From 191M to 3B parameters, Loopback gets lower loss than the standard Transformer with 40–75% of its parameters."
   },
   {
    "id": "nine",
-   "start": 54.98,
-   "end": 64.76,
+   "start": 51.81,
+   "end": 60.51,
    "say": "Against seven other looped designs, it has the lowest loss and the highest benchmark average at all three sizes we tested.",
    "display": "Against seven other looped designs, it has the lowest loss and the highest benchmark average at all three sizes we tested."
   },
   {
    "id": "math",
-   "start": 65.56,
-   "end": 75.35,
+   "start": 61.31,
+   "end": 70.2,
    "say": "And at three billion parameters, it more than doubles word-problem accuracy, from two point six to six point four percent.",
    "display": "And at 3B parameters, it more than doubles word-problem accuracy, from 2.6% to 6.4%."
   },
   {
    "id": "outro",
-   "start": 76.15,
-   "end": 83.8,
+   "start": 71.0,
+   "end": 77.6,
    "say": "That's Loopback. Fewer parameters, lower loss. The paper and code are on our project page.",
    "display": "That's Loopback. Fewer parameters, lower loss. The paper and code are on our project page."
   }

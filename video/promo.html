@@ -100,9 +100,9 @@ svg text { font-family: var(--body); }
     <div id="t-note" class="fade"><sup>*</sup>Equal contribution &ensp;&middot;&ensp; <sup>&#9993;</sup>Corresponding author</div>
   </div>
 
-  <!-- 1b live read: two models read the same held-out text (live_data.js, measured on one H100) -->
+  <!-- 1b live read: two 3B-scale models read the same held-out text (live_data.js from live/live_3b.json, measured on one H100) -->
   <div class="scene" id="s-live">
-    <div class="eyebrow fade" id="lv-e">Live read &middot; 4,096 held-out tokens &middot; 1.4B scale</div>
+    <div class="eyebrow fade" id="lv-e">Live read &middot; 4,096 held-out tokens &middot; 3B scale</div>
     <div class="h fade" id="lv-h">Two models read the <b>same new text</b></div>
     <div class="note fade" id="lv-n" style="top:212px">The first 4,096 tokens of the held-out validation stream, eight documents, read token by token on one H100.</div>
     <svg id="lv-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
@@ -207,9 +207,9 @@ svg text { font-family: var(--body); }
 <script src="live_data.js"></script>
 <script>
 'use strict';
-var DUR = 84.1;
-var SC = { title: [0, 4.09], hook: [4.09, 16.2], method: [16.2, 30.81], live: [30.81, 42.39], scale: [42.39, 54.48], nine: [54.48, 65.06],
-           math: [65.06, 75.65], outro: [75.65, 84.1] };
+var DUR = 77.9;
+var SC = { title: [0, 6.41], hook: [6.41, 16.88], method: [16.88, 29.6], live: [29.6, 40.82], scale: [40.82, 51.31], nine: [51.31, 60.81],
+           math: [60.81, 70.5], outro: [70.5, 77.9] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -836,7 +836,7 @@ function renderTitle(t) {
 }
 
 /* ---------------------------------------------------------------- scene 1b: live read (LIVE from live_data.js) */
-var LV = { x0: 1230, x1: 1790, yb: 770, yt: 330, lo: 1.5, hi: 2.6, N: LIVE.n, tx: 110, rows: [] };
+var LV = { x0: 1230, x1: 1790, yb: 770, yt: 362, ly: 330, lo: 1.35, hi: 2.6, N: LIVE.n, tx: 110, rows: [] };   // 3B: running means reach 1.44; ly: legend row, above the plot top yt
 function lvY(v) { return LV.yb - (v - LV.lo) / (LV.hi - LV.lo) * (LV.yb - LV.yt); }
 function lvX(i) { return LV.x0 + i / LV.N * (LV.x1 - LV.x0); }
 function lvTitle(a, b) {
@@ -846,7 +846,7 @@ function lvTitle(a, b) {
 (function buildLive() {
   var s = $('lv-svg'), g = el('g', { id: 'lv-g', opacity: 0 }, s);
   // the chart: running mean loss against tokens read
-  for (var v = 1.6; v < 2.65; v += .2) {
+  for (var v = Math.ceil(LV.lo * 5 - 1e-9) / 5; v < LV.hi + .05; v += .2) {   // gridlines every 0.2 above lo
     var y = lvY(v);
     el('line', { x1: LV.x0, x2: LV.x1, y1: y, y2: y, stroke: C.grid, 'stroke-width': 1.5 }, g);
     txt(g, LV.x0 - 16, y + 8, v.toFixed(1), { 'text-anchor': 'end', 'font-size': 22, fill: C.muted });
@@ -854,13 +854,13 @@ function lvTitle(a, b) {
   el('line', { x1: LV.x0, x2: LV.x1, y1: LV.yb, y2: LV.yb, stroke: C.axis, 'stroke-width': 1.5 }, g);
   for (var k = 0; k <= 4; k++) { txt(g, lvX(k * 1024), LV.yb + 36, k ? k + 'k' : '0', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted }); }
   txt(g, (LV.x0 + LV.x1) / 2, LV.yb + 72, 'tokens read', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted });
-  txt(g, LV.x0 - 16, LV.yt - 56, 'running mean loss (nats, lower is better)', { 'font-size': 24, fill: C.ink3 });
+  txt(g, LV.x0 - 16, LV.ly - 56, 'running mean loss (nats, lower is better)', { 'font-size': 24, fill: C.ink3 });
   // legend with the two models' sizes
   var lg = el('g', {}, g);
-  el('rect', { x: LV.x0 - 16, y: LV.yt - 28, width: 22, height: 6, rx: 3, fill: C.grey }, lg);
-  txt(lg, LV.x0 + 16, LV.yt - 20, 'Standard Transformer · ' + (LIVE.std.params / 1e9).toFixed(2) + 'B parameters · ' + LIVE.std.gib.toFixed(2) + ' GiB', { 'font-size': 22, fill: C.ink2 });
-  el('rect', { x: LV.x0 - 16, y: LV.yt + 6, width: 22, height: 6, rx: 3, fill: C.navy }, lg);
-  txt(lg, LV.x0 + 16, LV.yt + 14, 'Loopback · ' + (LIVE.lb.params / 1e9).toFixed(2) + 'B parameters (' + Math.round(100 * LIVE.lb.params / LIVE.std.params) + '%) · ' + LIVE.lb.gib.toFixed(2) + ' GiB', { 'font-size': 22, fill: C.navy, 'font-weight': 600 });
+  el('rect', { x: LV.x0 - 16, y: LV.ly - 28, width: 22, height: 6, rx: 3, fill: C.grey }, lg);
+  txt(lg, LV.x0 + 16, LV.ly - 20, 'Standard Transformer · ' + (LIVE.std.params / 1e9).toFixed(2) + 'B parameters · ' + LIVE.std.gib.toFixed(2) + ' GiB', { 'font-size': 22, fill: C.ink2 });
+  el('rect', { x: LV.x0 - 16, y: LV.ly + 6, width: 22, height: 6, rx: 3, fill: C.navy }, lg);
+  txt(lg, LV.x0 + 16, LV.ly + 14, 'Loopback · ' + (LIVE.lb.params / 1e9).toFixed(2) + 'B parameters (' + Math.round(100 * LIVE.lb.params / LIVE.std.params) + '%) · ' + LIVE.lb.gib.toFixed(2) + ' GiB', { 'font-size': 22, fill: C.navy, 'font-weight': 600 });
   LV.pS = el('path', { fill: 'none', stroke: C.grey, 'stroke-width': 4, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, g);
   LV.pL = el('path', { fill: 'none', stroke: C.navy, 'stroke-width': 4, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, g);
   LV.hS = el('circle', { r: 7, fill: C.grey, stroke: C.bg, 'stroke-width': 3 }, g);

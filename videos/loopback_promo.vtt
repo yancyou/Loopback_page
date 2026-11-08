@@ -1,107 +1,119 @@
 WEBVTT
 
 title-1
-00:00:00.500 --> 00:00:01.670
-Loopback Transformer.
+00:00:00.500 --> 00:00:01.810
+Loopback Transformer:
 
-hook-2
-00:00:04.590 --> 00:00:08.700
+title-2
+00:00:02.300 --> 00:00:05.510
+Towards a Unified View of
+Residual Looped Transformers.
+
+hook-3
+00:00:06.910 --> 00:00:10.440
 A looped Transformer runs the
 same blocks again and again.
 
-hook-3
-00:00:09.230 --> 00:00:10.700
+hook-4
+00:00:10.810 --> 00:00:12.140
 That saves parameters,
 
-hook-4
-00:00:11.130 --> 00:00:12.460
+hook-5
+00:00:12.470 --> 00:00:13.620
 but with plain addition,
 
-hook-5
-00:00:12.670 --> 00:00:15.400
+hook-6
+00:00:13.830 --> 00:00:16.120
 the updates from every pass just pile up.
 
-method-6
-00:00:16.700 --> 00:00:18.450
+method-7
+00:00:17.380 --> 00:00:19.010
 So we built Loopback.
 
-method-7
-00:00:19.100 --> 00:00:23.330
+method-8
+00:00:19.500 --> 00:00:23.210
 It stores each block's update and
 keeps the input on its own path.
 
-method-8
-00:00:24.100 --> 00:00:26.990
+method-9
+00:00:23.800 --> 00:00:26.230
 A decay limits how much old updates count,
 
-method-9
-00:00:27.380 --> 00:00:29.730
+method-10
+00:00:26.540 --> 00:00:28.470
 and attention picks which ones to read.
 
-live-10
-00:00:31.310 --> 00:00:35.580
-Here a standard Transformer and
-Loopback read the same new text.
-
 live-11
-00:00:36.390 --> 00:00:38.430
-Loopback is 29% smaller,
+00:00:30.100 --> 00:00:32.520
+Here a standard Transformer and Loopback,
 
 live-12
-00:00:38.430 --> 00:00:40.320
+00:00:32.520 --> 00:00:34.020
+both at 3B scale,
+
+live-13
+00:00:34.020 --> 00:00:35.670
+read the same new text.
+
+live-14
+00:00:36.120 --> 00:00:37.920
+Loopback is 23% smaller,
+
+live-15
+00:00:37.920 --> 00:00:39.790
 and its loss still ends lower.
 
-scale-13
-00:00:42.890 --> 00:00:46.220
+scale-16
+00:00:41.320 --> 00:00:44.310
 From 191M to 3B parameters,
 
-scale-14
-00:00:46.730 --> 00:00:49.640
+scale-17
+00:00:44.720 --> 00:00:47.310
 Loopback gets lower loss than the standard
 
-scale-15
-00:00:49.640 --> 00:00:52.700
+scale-18
+00:00:47.310 --> 00:00:50.050
 Transformer with 40–75% of its parameters.
 
-nine-16
-00:00:54.980 --> 00:00:57.230
+nine-19
+00:00:51.810 --> 00:00:53.820
 Against seven other looped designs,
 
-nine-17
-00:00:57.600 --> 00:01:00.032
+nine-20
+00:00:54.170 --> 00:00:56.343
 it has the lowest loss and the highest
 
-nine-18
-00:01:00.032 --> 00:01:03.190
+nine-21
+00:00:56.343 --> 00:00:59.180
 benchmark average at all
 three sizes we tested.
 
-math-19
-00:01:05.560 --> 00:01:07.200
+math-22
+00:01:01.310 --> 00:01:02.790
 And at 3B parameters,
 
-math-20
-00:01:07.200 --> 00:01:10.130
+math-23
+00:01:02.790 --> 00:01:05.460
 it more than doubles
 word-problem accuracy,
 
-math-21
-00:01:10.560 --> 00:01:13.510
+math-24
+00:01:05.630 --> 00:01:08.480
 from 2.6% to 6.4%.
 
-outro-22
-00:01:16.150 --> 00:01:17.280
+outro-25
+00:01:11.000 --> 00:01:11.970
 That's Loopback.
 
-outro-23
-00:01:17.670 --> 00:01:18.460
+outro-26
+00:01:12.280 --> 00:01:12.950
 Fewer parameters,
 
-outro-24
-00:01:18.990 --> 00:01:19.520
+outro-27
+00:01:13.340 --> 00:01:13.850
 lower loss.
 
-outro-25
-00:01:20.550 --> 00:01:22.660
+outro-28
+00:01:14.480 --> 00:01:16.250
 The paper and code are
 on our project page.

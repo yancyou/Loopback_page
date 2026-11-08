@@ -41,6 +41,8 @@ SPEEDS = [0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.04, 1.08, 1.12]
 TARGET_WPM, MARGIN = 140, 0.15
 CB_EXAG, CB_CFG = 0.4, 0.3
 HY_EXAG, HY_CFG, HY_WPM, HY_MIN_TEMPO = 0.3, 0.3, 148, 0.9   # hybrid: no conversion follows, so slow a take by at most 10%
+HY_OUT_WPM, HY_MAX_TEMPO, HY_KEEP_PACE = 165, 1.2, ()   # pick plays the chosen take at about HY_OUT_WPM (v21, 11-08: the
+# 140-148 wpm takes sounded slow), sped up with atempo (pitch kept) by at most HY_MAX_TEMPO; ids in HY_KEEP_PACE keep their pace
 VC_DIR = os.path.join(BUILD, "vc")
 TAKES_HY = os.path.join(BUILD, "takes_hy")
 
@@ -167,12 +169,33 @@ def source_chatterbox(s, takes, only=None, pins=None, ref=None):
 
 ACCENT_MIN = 0.99   # pick: a take counts as a standard American reading when the accent classifier gives P(us) at least this
 
-def pick(s, report, only=None):
+PAUSE_CAP = 0.55   # pick (v21): a pause inside a take longer than this is shortened to it (the 0.8 s sentence gaps dragged)
+
+def cap_pauses(clip, cap=PAUSE_CAP, top_db=35):
+    """The clip with every internal pause longer than cap seconds shortened to cap: the non-silent intervals are librosa's
+    (top_db below the peak); the middle of a longer gap is left out, with a 10 ms crossfade where its two halves meet."""
+    import numpy as np, librosa
+    iv = librosa.effects.split(clip, top_db=top_db, frame_length=1024, hop_length=256)
+    if len(iv) < 2:
+        return clip
+    half, fade = int(cap / 2 * SR), int(0.01 * SR)
+    x = np.linspace(0, 1, fade, dtype=np.float32)
+    out = [clip[:iv[0][1]]]
+    for (a0, a1), (b0, b1) in zip(iv[:-1], iv[1:]):
+        if b0 - a1 > 2 * half:
+            left, right = clip[a1:a1 + half], clip[b0 - half:b1]
+            out += [left[:-fade], left[-fade:] * (1 - x) + right[:fade] * x, right[fade:]]
+        else:
+            out.append(clip[a1:b1])
+    out.append(clip[iv[-1][1]:])
+    return np.concatenate(out).astype(np.float32)
+
+def pick(s, report, only=None, exact=False, near_out=False):
     """Each segment's take from build/takes_hy (source --engine hybrid) by a voice_sim.py report of those takes: a word error
     rate within one word (or 0.05) of the segment's best take, a standard American accent (P(us) >= ACCENT_MIN), a fit in the
     window once slowed toward HY_WPM (by at most HY_MIN_TEMPO), a pace within 8 wpm of the take nearest HY_WPM; of those,
-    the one the two independent speaker-verification models (WavLM, ECAPA) find most like the reference. Writes it, slowed
-    if faster than HY_WPM, as build/vc/<id>.wav for convert --no-vc."""
+    the one the two independent speaker-verification models (WavLM, ECAPA) find most like the reference. Writes it, re-paced
+    to about HY_OUT_WPM (at most HY_MAX_TEMPO faster; ids in HY_KEEP_PACE keep theirs), as build/vc/<id>.wav for convert --no-vc."""
     import numpy as np, soundfile as sf
     from transformers.models.whisper.english_normalizer import EnglishTextNormalizer
     from asr_check import tokens
@@ -190,19 +213,22 @@ def pick(s, report, only=None):
                           "wpm": nwords / (len(clip) / SR) * 60})
         if not takes:
             sys.exit(f"segment {g['id']!r}: no scored takes in {report}")
-        factor = lambda t: max(HY_MIN_TEMPO, min(1.0, HY_WPM / t["wpm"]))
-        slack = max(0.05, 1 / max(1, len(tokens(norm, plain(g["say"]))))) + 1e-9
+        factor = lambda t: max(HY_MIN_TEMPO, min(1.0, HY_WPM / t["wpm"]))       # selection, as before: slowed toward HY_WPM
+        out = lambda t: 1.0 if g["id"] in HY_KEEP_PACE else max(HY_MIN_TEMPO, min(HY_MAX_TEMPO, HY_OUT_WPM / t["wpm"]))   # playback pace
+        slack = 1e-9 if exact else max(0.05, 1 / max(1, len(tokens(norm, plain(g["say"]))))) + 1e-9   # --exact: best-WER takes only
+        target, fit = (HY_OUT_WPM, out) if near_out else (HY_WPM, factor)   # --near-out: the pace nearest the playback target
         best = min(t["wer"] for t in takes)
-        ok = [t for t in takes if t["wer"] <= best + slack and t["p_us"] >= ACCENT_MIN and len(t["clip"]) / SR / factor(t) <= win]
+        ok = [t for t in takes if t["wer"] <= best + slack and t["p_us"] >= ACCENT_MIN and len(t["clip"]) / SR / fit(t) <= win]
         if not ok:
             sys.exit(f"segment {g['id']!r}: no take passes (WER, accent, window): "
                      + ", ".join(f"s{t['seed']} {t['wer']:.2f} {t['p_us']:.2f}" for t in takes) + "; read more takes")
-        near = min(abs(t["wpm"] - HY_WPM) for t in ok)
-        t = max((t for t in ok if abs(t["wpm"] - HY_WPM) <= near + 8), key=lambda t: t["wavlm"] + t["ecapa"])
-        f = factor(t)
-        clip = tempo(t["clip"], f) if f < 1.0 else t["clip"]
+        near = min(abs(t["wpm"] - target) for t in ok)
+        t = max((t for t in ok if abs(t["wpm"] - target) <= near + 8), key=lambda t: t["wavlm"] + t["ecapa"])
+        f = out(t)
+        clip = tempo(t["clip"], f) if abs(f - 1.0) > 1e-3 else t["clip"]
+        clip = cap_pauses(clip)
         sf.write(os.path.join(VC_DIR, f"{g['id']}.wav"), clip.astype(np.float32), SR, subtype="FLOAT")
-        json.dump({"say": g["say"], "voice": "hybrid", "speed": round(1 / f, 3), "seed": t["seed"], "p_us": round(t["p_us"], 3),
+        json.dump({"say": g["say"], "voice": "hybrid", "speed": round(1 / f, 3), "tempo": round(f, 3), "seed": t["seed"], "p_us": round(t["p_us"], 3),
                    "wavlm": round(t["wavlm"], 3), "ecapa": round(t["ecapa"], 3)}, open(os.path.join(VC_DIR, f"{g['id']}.json"), "w"))
         print(f"{g['id']:<9}{t['seed']:5d}{t['wer']:6.2f}{t['p_us']:7.3f}{t['wavlm']:7.3f}{t['ecapa']:7.3f}{t['wpm']:6.0f}{f:7.3f}  "
               + " ".join(f"{x['seed']}:{x['wer']:.2f},{x['p_us']:.2f}" for x in sorted(takes, key=lambda x: x["seed"])))
@@ -296,6 +322,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("step", choices=["source", "pick", "convert", "place"]); ap.add_argument("script")
     ap.add_argument("--report", help="pick: voice_sim.py report.json of build/takes_hy")
+    ap.add_argument("--exact", action="store_true", help="pick: only takes at the segment's best word error rate")
+    ap.add_argument("--near-out", action="store_true", help="pick: prefer the pace nearest HY_OUT_WPM (least re-pacing)")
     ap.add_argument("--voice", default="am_michael"); ap.add_argument("--ref")
     ap.add_argument("--engine", choices=["kokoro", "chatterbox", "hybrid"], default="kokoro"); ap.add_argument("--takes", type=int, default=6)
     ap.add_argument("--seeds", type=int, default=4, help="convert: decoder seeds tried per segment")
@@ -315,7 +343,7 @@ def main():
     elif a.step == "pick":
         if not a.report:
             sys.exit("pick needs --report")
-        pick(s, a.report, a.only)
+        pick(s, a.report, a.only, exact=a.exact, near_out=a.near_out)
     elif a.step == "place":
         convert(s, None, 0, [])
     else:
