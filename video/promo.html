@@ -228,9 +228,9 @@ svg text { font-family: var(--body); }
 <script src="live_data.js"></script>
 <script>
 'use strict';
-var DUR = 96.533;
-var SC = { title: [0, 6.37], memory: [6.37, 21.17], knobs: [21.17, 36.33], method: [36.33, 48.39], live: [48.39, 59.57], scale: [59.57, 70.02], nine: [70.02, 79.48],
-           math: [79.48, 89.13], outro: [89.13, 96.53] };
+var DUR = 108.933;
+var SC = { title: [0, 6.81], memory: [6.81, 30.89], knobs: [30.89, 46.5], method: [46.5, 59.01], live: [59.01, 70.63], scale: [70.63, 81.53], nine: [81.53, 91.43],
+           math: [91.43, 101.53], outro: [101.53, 108.93] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -344,6 +344,17 @@ var MM = { xs: [640, 860, 1080, 1300, 1520], bw: 118, bh: 60, cw: 92, ch: 40,
   lane('dep', 'Residual stream', 'memory over depth', 'f', '&#948;', 'h',
        'h<tspan font-size="0.6em" dy="0.35em">l</tspan><tspan dy="-0.35em"> = h</tspan><tspan font-size="0.6em" dy="0.35em">l&#8722;1</tspan><tspan dy="-0.35em"> + &#948;</tspan><tspan font-size="0.6em" dy="0.35em">l</tspan>',
        function (i) { return i % 2 ? [C.peachF, C.peachS] : [C.blueF, C.blueS]; });
+  // v23: the correspondence, said as "Layers play the role of tokens, and the stream plays the role of the state"
+  // v23b: box clear of the S label (x ~525) and of the "Residual stream" heading (y ~613)
+  var mp = el('g', { id: 'mm-map', opacity: 0 }, s), mx = [150, 340], my = [430, 472, 512, 552];
+  el('rect', { x: 132, y: 400, width: 376, height: 172, rx: 14, fill: '#ffffff', stroke: C.line, 'stroke-width': 1.5 }, mp);
+  txt(mp, mx[0], my[0], 'linear attention', { 'font-size': 21, fill: C.muted, 'font-weight': 600 });
+  txt(mp, mx[1], my[0], 'residual stream', { 'font-size': 21, fill: C.muted, 'font-weight': 600 });
+  [['token', 'layer'], ['state S', 'stream h'], ['write v k\u1D40', 'update \u03B4']].forEach(function (r, i) {
+    txt(mp, mx[0], my[i + 1], r[0], { 'font-size': 26, fill: C.ink2 });
+    txt(mp, mx[1] - 34, my[i + 1], '\u2194', { 'font-size': 26, fill: C.navy, 'text-anchor': 'middle' });
+    txt(mp, mx[1], my[i + 1], r[1], { 'font-size': 26, fill: C.navy, 'font-weight': 600 });
+  });
   // the closing tag: one interface
   var tg = el('g', { id: 'mm-tag', opacity: 0 }, s);
   el('path', { d: 'M1640 296 Q1662 296 1662 320 L1662 520 Q1662 540 1682 540 Q1662 540 1662 560 L1662 768 Q1662 792 1640 792', fill: 'none', stroke: C.navy, 'stroke-width': 3 }, tg);
@@ -367,13 +378,15 @@ function laneAt(o, t, a, b) {          // five steps between a and b: item light
 function renderMemory(t) {
   var r = SC.memory;
   appear($('mm-e'), t, r[0] + .1, .5); appear($('mm-h'), t, r[0] + .25, .6);
-  var ta = wt('memory', 'each', 2.6) - .25, tb = wt('memory', 'residual', 6.6) - .2, tc = wt('memory', 'block', tb + 2.6) - .25;
-  var te = Math.min(r[1] - 1.9, tc + 4.2);
+  // v23: about 1.1 s per step; the correspondence table comes in with "role", the bracket after it
+  var ta = wt('memory', 'each', 2.6) - .25, tb = wt('memory', 'residual', 8.3) - .2, tc = wt('memory', 'block', tb + 3.0) - .25;
+  var tm = wt('memory', 'role', tc + 5.6) - .2, te = Math.min(tm - .2, tc + 6.0);
   MM.tok.g.setAttribute('opacity', easeOut(prog(t, r[0] + .6, r[0] + 1.2)));
-  laneAt(MM.tok, t, ta, Math.min(tb - .3, ta + 4.0));
+  laneAt(MM.tok, t, ta, Math.min(tb - .4, ta + 6.0));
   MM.dep.g.setAttribute('opacity', easeOut(prog(t, tb - .2, tb + .4)));
   laneAt(MM.dep, t, tc, te);
-  $('mm-tag').setAttribute('opacity', easeOut(prog(t, te + .1, te + .7)));
+  $('mm-map').setAttribute('opacity', easeOut(prog(t, tm, tm + .6)));
+  $('mm-tag').setAttribute('opacity', easeOut(prog(t, tm + 1.6, tm + 2.2)));
 }
 
 /* ---------------------------------------------------------------- scene 2 (v21): the loop */
@@ -1076,12 +1089,11 @@ function renderSubs(t) {
     if (cue) { cue.words.forEach(function (w, k) { if (k) { box.appendChild(document.createTextNode(' ')); } var sp = document.createElement('span'); sp.textContent = w[0]; box.appendChild(sp); }); }
   }
   if (!cue) { return; }
-  var out = 1 - prog(t, cue.end - .22, cue.end), spans = box.querySelectorAll('span');
-  for (i = 0; i < spans.length; i++) {
-    var w0 = cue.words[i][1], w1 = i + 1 < spans.length ? cue.words[i + 1][1] : cue.last, p = easeOut(prog(t, w0 - .05, w0 + .13));
-    spans[i].style.opacity = p * out;
-    spans[i].style.transform = 'translateY(' + ((1 - p) * 12) + 'px)';
-    spans[i].style.color = t >= w0 - .05 && t < w1 ? C.navy : C.ink;
+  var pin = easeOut(prog(t, cue.start - .05, cue.start + .15)), out = 1 - prog(t, cue.end - .22, cue.end), spans = box.querySelectorAll('span');
+  for (i = 0; i < spans.length; i++) {   // v23 (11-09, user: captions should come in together): the phrase fades in as one
+    spans[i].style.opacity = pin * out;
+    spans[i].style.transform = 'none';
+    spans[i].style.color = C.ink;
   }
 }
 

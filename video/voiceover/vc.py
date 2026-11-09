@@ -41,7 +41,8 @@ SPEEDS = [0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.04, 1.08, 1.12]
 TARGET_WPM, MARGIN = 140, 0.15
 CB_EXAG, CB_CFG = 0.4, 0.3
 HY_EXAG, HY_CFG, HY_WPM, HY_MIN_TEMPO = 0.3, 0.3, 148, 0.9   # hybrid: no conversion follows, so slow a take by at most 10%
-HY_OUT_WPM, HY_MAX_TEMPO, HY_KEEP_PACE = 165, 1.2, ()   # pick plays the chosen take at about HY_OUT_WPM (v21, 11-08: the
+HY_OUT_WPM, HY_MAX_TEMPO, HY_KEEP_PACE = 165, 1.2, ()
+OUT_WPM_ID = {"memory": 150}   # v23 (11-09): the linear-attention scene was too fast at 165   # pick plays the chosen take at about HY_OUT_WPM (v21, 11-08: the
 # 140-148 wpm takes sounded slow), sped up with atempo (pitch kept) by at most HY_MAX_TEMPO; ids in HY_KEEP_PACE keep their pace
 VC_DIR = os.path.join(BUILD, "vc")
 TAKES_HY = os.path.join(BUILD, "takes_hy")
@@ -190,7 +191,7 @@ def cap_pauses(clip, cap=PAUSE_CAP, top_db=35):
     out.append(clip[iv[-1][1]:])
     return np.concatenate(out).astype(np.float32)
 
-def pick(s, report, only=None, exact=False, near_out=False):
+def pick(s, report, only=None, exact=False, near_out=False, acc_sim=None):
     """Each segment's take from build/takes_hy (source --engine hybrid) by a voice_sim.py report of those takes: a word error
     rate within one word (or 0.05) of the segment's best take, a standard American accent (P(us) >= ACCENT_MIN), a fit in the
     window once slowed toward HY_WPM (by at most HY_MIN_TEMPO), a pace within 8 wpm of the take nearest HY_WPM; of those,
@@ -201,6 +202,7 @@ def pick(s, report, only=None, exact=False, near_out=False):
     from asr_check import tokens
     from clone import tempo
     R, norm = json.load(open(report)), EnglishTextNormalizer({})
+    A = json.load(open(acc_sim)) if acc_sim else {}   # v23: accent_sim.py closeness to the accepted clips ("cen")
     print(f"{'id':<9}{'seed':>5}{'WER':>6}{'P(us)':>7}{'wavlm':>7}{'ecapa':>7}{'wpm':>6}{'tempo':>7}  of (seed: WER, P(us))")
     for g in picked(s, only):
         win, nwords, takes = g["end"] - g["start"] - MARGIN, len(plain(g["say"]).split()), []
@@ -210,20 +212,22 @@ def pick(s, report, only=None, exact=False, near_out=False):
             seed = int(k.rsplit("_s", 1)[1])
             clip = sf.read(os.path.join(TAKES_HY, f"{g['id']}_s{seed}.wav"), dtype="float32")[0]
             takes.append({"seed": seed, "clip": clip, "wer": v["wer"], "p_us": v.get("p_us", 0.0), "wavlm": v["wavlm"], "ecapa": v["ecapa"],
-                          "wpm": nwords / (len(clip) / SR) * 60})
+                          "wpm": nwords / (len(clip) / SR) * 60, "acc": A.get(k, {}).get("cen", 0.0)})
         if not takes:
             sys.exit(f"segment {g['id']!r}: no scored takes in {report}")
         factor = lambda t: max(HY_MIN_TEMPO, min(1.0, HY_WPM / t["wpm"]))       # selection, as before: slowed toward HY_WPM
-        out = lambda t: 1.0 if g["id"] in HY_KEEP_PACE else max(HY_MIN_TEMPO, min(HY_MAX_TEMPO, HY_OUT_WPM / t["wpm"]))   # playback pace
+        tw = OUT_WPM_ID.get(g["id"], HY_OUT_WPM)
+        out = lambda t: 1.0 if g["id"] in HY_KEEP_PACE else max(HY_MIN_TEMPO, min(HY_MAX_TEMPO, tw / t["wpm"]))   # playback pace
         slack = 1e-9 if exact else max(0.05, 1 / max(1, len(tokens(norm, plain(g["say"]))))) + 1e-9   # --exact: best-WER takes only
-        target, fit = (HY_OUT_WPM, out) if near_out else (HY_WPM, factor)   # --near-out: the pace nearest the playback target
+        target, fit = (tw, out) if near_out else (HY_WPM, factor)   # --near-out: the pace nearest the playback target
         best = min(t["wer"] for t in takes)
         ok = [t for t in takes if t["wer"] <= best + slack and t["p_us"] >= ACCENT_MIN and len(t["clip"]) / SR / fit(t) <= win]
         if not ok:
             sys.exit(f"segment {g['id']!r}: no take passes (WER, accent, window): "
                      + ", ".join(f"s{t['seed']} {t['wer']:.2f} {t['p_us']:.2f}" for t in takes) + "; read more takes")
         near = min(abs(t["wpm"] - target) for t in ok)
-        t = max((t for t in ok if abs(t["wpm"] - target) <= near + 8), key=lambda t: t["wavlm"] + t["ecapa"])
+        band = 15 if A else 8   # v23: with --accent-sim, accent closeness to the accepted clips decides within a wider pace band
+        t = max((t for t in ok if abs(t["wpm"] - target) <= near + band), key=(lambda t: (t["acc"], t["wavlm"] + t["ecapa"])) if A else (lambda t: t["wavlm"] + t["ecapa"]))
         f = out(t)
         clip = tempo(t["clip"], f) if abs(f - 1.0) > 1e-3 else t["clip"]
         clip = cap_pauses(clip)
@@ -324,6 +328,7 @@ def main():
     ap.add_argument("--report", help="pick: voice_sim.py report.json of build/takes_hy")
     ap.add_argument("--exact", action="store_true", help="pick: only takes at the segment's best word error rate")
     ap.add_argument("--near-out", action="store_true", help="pick: prefer the pace nearest HY_OUT_WPM (least re-pacing)")
+    ap.add_argument("--accent-sim", help="pick (v23): accent_sim.py output; the take closest in accent to the accepted clips wins")
     ap.add_argument("--voice", default="am_michael"); ap.add_argument("--ref")
     ap.add_argument("--engine", choices=["kokoro", "chatterbox", "hybrid"], default="kokoro"); ap.add_argument("--takes", type=int, default=6)
     ap.add_argument("--seeds", type=int, default=4, help="convert: decoder seeds tried per segment")
@@ -344,7 +349,7 @@ def main():
     elif a.step == "pick":
         if not a.report:
             sys.exit("pick needs --report")
-        pick(s, a.report, a.only, exact=a.exact, near_out=a.near_out)
+        pick(s, a.report, a.only, exact=a.exact, near_out=a.near_out, acc_sim=a.accent_sim)
     elif a.step == "place":
         convert(s, None, 0, [])
     else:
