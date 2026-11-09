@@ -42,7 +42,7 @@ TARGET_WPM, MARGIN = 140, 0.15
 CB_EXAG, CB_CFG = 0.4, 0.3
 HY_EXAG, HY_CFG, HY_WPM, HY_MIN_TEMPO = 0.3, 0.3, 148, 0.9   # hybrid: no conversion follows, so slow a take by at most 10%
 HY_OUT_WPM, HY_MAX_TEMPO, HY_KEEP_PACE = 165, 1.2, ()
-OUT_WPM_ID = {"memory": 150, "memmid": 150}   # v23 (11-09): the linear-attention scene was too fast at 165; v25: memmid is its middle   # pick plays the chosen take at about HY_OUT_WPM (v21, 11-08: the
+OUT_WPM_ID = {"memory": 150, "memmid": 150, "knobs": 155, "knobshc": 155}   # v23 (11-09): the linear-attention scene was too fast at 165; v25: memmid is its middle   # pick plays the chosen take at about HY_OUT_WPM (v21, 11-08: the
 # 140-148 wpm takes sounded slow), sped up with atempo (pitch kept) by at most HY_MAX_TEMPO; ids in HY_KEEP_PACE keep their pace
 VC_DIR = os.path.join(BUILD, "vc")
 TAKES_HY = os.path.join(BUILD, "takes_hy")

@@ -146,9 +146,11 @@ svg text { font-family: var(--body); }
     <div class="kq fade" id="kn-q1" style="left:300px"><b>a</b>input strength</div>
     <div class="kq fade" id="kn-q2" style="left:740px"><b>B = &Sigma;<sub>i</sub> c<sub>i</sub></b>total update weight</div>
     <div class="kq fade" id="kn-q3" style="left:1180px"><b>c<sub>i</sub> / B</b>allocation</div>
-    <div class="note fade" id="kn-n" style="top:414px">Residual addition, Attention Residuals, Hyper-Connections, and linear-attention and state-space recurrences all take this form.</div>
-    <div class="panel k fade" id="ru-p0" style="left:350px"><h4>Residual addition</h4><svg width="432" height="264" viewBox="0 0 540 330" id="ru-c0"></svg><div class="lab" id="ru-l0"></div></div>
-    <div class="panel k fade" id="ru-p1" style="left:1030px"><h4>Joint softmax <span style="font-weight:400;font-style:italic;color:#79818e;font-size:.72em">(AttnRes)</span></h4><svg width="432" height="264" viewBox="0 0 540 330" id="ru-c1"></svg><div class="lab" id="ru-l1"></div></div>
+    <div class="note fade" id="kn-n" style="top:414px">Residual addition, Hyper-Connections, Attention Residuals and linear-attention recurrences all unroll to this form.</div>
+    <!-- v26 (11-09, user: "你这里的softmax什么意思？这里是不是得提到所有的residual 的共性？比如HC， Attention residual"): three rules, each card says how it sets the three -->
+    <div class="panel k fade" id="ru-p0" style="left:120px"><h4>Residual addition</h4><svg width="432" height="264" viewBox="0 0 540 330" id="ru-c0"></svg><div class="lab" id="ru-l0"></div></div>
+    <div class="panel k fade" id="ru-ph" style="left:700px"><h4>Hyper-Connections <span style="font-weight:400;font-style:italic;color:#79818e;font-size:.72em">(HC, mHC)</span></h4><svg width="432" height="264" viewBox="0 0 540 330" id="ru-ch"></svg><div class="lab" id="ru-lh"></div></div>
+    <div class="panel k fade" id="ru-p1" style="left:1280px"><h4>Attention Residuals <span style="font-weight:400;font-style:italic;color:#79818e;font-size:.72em">(AttnRes)</span></h4><svg width="432" height="264" viewBox="0 0 540 330" id="ru-c1"></svg><div class="lab" id="ru-l1"></div></div>
   </div>
 
   <!-- 4 method -->
@@ -239,9 +241,9 @@ svg text { font-family: var(--body); }
 <script src="vendor/mathjax/tex-svg-full.js"></script>   <!-- v24: MathJax 3.2.2 (Apache-2.0), every formula on screen -->
 <script>
 'use strict';
-var DUR = 117.233;
-var SC = { title: [0, 6.85], memory: [6.85, 37.58], knobs: [37.58, 53.23], method: [53.23, 65.77], train: [65.77, 76.3], scale: [76.3, 87.24], nine: [87.24, 97.18],
-           depth: [97.18, 109.83], outro: [109.83, 117.23] };
+var DUR = 125.5;
+var SC = { title: [0, 6.46], memory: [6.46, 36.81], knobs: [36.81, 63.43], method: [63.43, 75.58], train: [75.58, 85.73], scale: [85.73, 96.28], nine: [96.28, 105.83],
+           depth: [105.83, 118.1], outro: [118.1, 125.5] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -603,25 +605,57 @@ function ruTimelineFast(dt) {                     // v22 knobs: as ruTimeline wi
     dt -= hold;
   }
 }
-// knobs: the three quantities light up with "strength", "total", "shared"; the two rules' bars run three passes from "repeat"
+// knobs (v26): the three quantities light up with "strength", "total", "shared"; then one card per rule as the narration names it:
+// residual addition (every update weight one: the total grows with every pass), Hyper-Connections (one learned weight per
+// stream: a stream holds the input and some updates, so they are scaled together), Attention Residuals (one softmax over the
+// input and the updates: a + B = 1, the input competes with the updates).
 var KN = { q: [['strength', 2.7], ['total', 4.2], ['shared', 6.3]] };
+var HC = { streams: [[1, 3], [2], [1, 2, 4], [3, 4]], inp: 66, seg: 44, x0: 96, bw: 64, gap: 50, base: 268 };
+HC.chart = (function buildHC() {
+  var s = $('ru-ch'), o = { stacks: [] }, shade = ['#8f96a1', '#a9b0ba', '#7c8592', '#bcc2ca'];
+  el('line', { x1: 40, x2: 534, y1: HC.base, y2: HC.base, stroke: C.axis, 'stroke-width': 2 }, s);
+  HC.streams.forEach(function (ups, k) {
+    var x = HC.x0 + k * (HC.bw + HC.gap), g = el('g', {}, s), y = HC.base;
+    el('rect', { x: x, y: y - HC.inp, width: HC.bw, height: HC.inp, rx: 4, fill: C.dark }, g); y -= HC.inp + 3;
+    ups.forEach(function (u) { el('rect', { x: x, y: y - HC.seg, width: HC.bw, height: HC.seg, rx: 4, fill: shade[u - 1] }, g); y -= HC.seg + 3; });
+    txt(s, x + HC.bw / 2, HC.base + 30, 'stream ' + (k + 1), { 'text-anchor': 'middle', 'font-size': 19, fill: C.muted });
+    var wl = txt(s, x + HC.bw / 2, 0, '× p' + '₁₂₃₄'[k], { 'text-anchor': 'middle', 'font-size': 24, class: 'math', fill: C.ink, opacity: 0 });
+    o.stacks.push({ g: g, top: y + 3, wl: wl });
+  });
+  el('rect', { x: 56, y: 24, width: 16, height: 16, rx: 3, fill: C.dark }, s); txt(s, 78, 38, 'input', { 'font-size': 19, fill: C.muted });
+  el('rect', { x: 146, y: 24, width: 16, height: 16, rx: 3, fill: '#a9b0ba' }, s); txt(s, 168, 38, 'updates', { 'font-size': 19, fill: C.muted });
+  return o;
+})();
+function red(text, a) { return '<br><span style="color:#b64342;opacity:' + a.toFixed(2) + '">' + text + '</span>'; }
 function renderKnobs(t) {
   var r = SC.knobs;
   appear($('kn-h'), t, r[0] + .2, .6); appear($('kn-f'), t, r[0] + .6, .6);
   var tq = KN.q.map(function (w) { return wt('knobs', w[0], w[1]); }), cur = -1;
   tq.forEach(function (s, k) { if (t >= s - .1) { cur = k; } });
   tq.forEach(function (s, k) { var e = $('kn-q' + (k + 1)); appear(e, t, s - .25, .5, 14); e.style.color = k === cur ? C.navy : C.ink3; });
-  appear($('kn-n'), t, tq[2] + .9, .6);
-  appear($('ru-p0'), t, tq[2] + 1.2, .6); appear($('ru-p1'), t, tq[2] + 1.4, .6);
-  var tl = ruTimelineFast(t - (wt('knobs', 'repeat', 9.4) - .2)), u = tl.u, n = tl.n, grow = tl.grow;
-  var A = RU.charts[0];
+  appear($('kn-n'), t, tq[2] + .7, .6);
+  // "Residual addition gives every update a weight of one, so the total grows with every pass. Hyper-Connections give each stream
+  // one weight, so the input and the updates in it move together. Attention Residuals weigh the input and the updates with one
+  // softmax, so they compete for a fixed total."
+  var tA = wt('knobs', 'addition', 10.6) - .25, tH = wt('knobs', 'hyperconnections', 16.0) - .25, tR = wt('knobs', 'attention', 21.8) - .25;
+  var tG = wt('knobs', 'grows', 12.6), tS = wt('knobs', 'together', 19.6), tC = wt('knobs', 'compete', 26.0);
+  appear($('ru-p0'), t, tA - .2, .6); appear($('ru-ph'), t, tH - .2, .6); appear($('ru-p1'), t, tR - .2, .6);
+  var tl = ruTimelineFast(t - tA), u = tl.u, n = tl.n, grow = tl.grow, A = RU.charts[0];
   setBar(A.input, 1, true);
   A.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? 1 : i === n - 1 ? easeOut(grow) : 0, i < n && u > 0); });
-  $('ru-l0').innerHTML = 'input 1 &middot; total ' + (u === 0 ? 0 : n) + '<br><span style="color:#b64342">grows with every pass</span>';
-  var S = RU.charts[1], ws = 1 / (n + 1);
-  setBar(S.input, u === 0 ? 1 : ws, true);
-  S.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? ws : i === n - 1 ? ws * easeOut(grow) : 0, i < n && u > 0); });
-  $('ru-l1').innerHTML = 'input 1/' + (u === 0 ? 1 : n + 1) + ' &middot; total ' + (u === 0 ? '0' : fmt2(n / (n + 1))) + '<br><span style="color:#b64342">the input competes with the updates</span>';
+  $('ru-l0').innerHTML = 'input 1 &middot; total ' + (u === 0 ? 0 : n) + red('grows with every pass', easeOut(prog(t, tG - .1, tG + .4)));
+  var ub = easeOut(prog(t, tH, tH + .8));
+  HC.chart.stacks.forEach(function (st, k) {
+    var p = Math.max(.001, ub * (.64 + .3 * (.5 + .5 * Math.sin(2 * Math.PI * (t - tH) / 2.4 + k * 1.7))));
+    st.g.setAttribute('transform', 'matrix(1 0 0 ' + p.toFixed(4) + ' 0 ' + (HC.base * (1 - p)).toFixed(2) + ')');
+    st.wl.setAttribute('y', (HC.base - (HC.base - st.top) * p - 12).toFixed(1)); st.wl.setAttribute('opacity', ub);
+  });
+  $('ru-lh').innerHTML = 'one learned weight per stream' + red('the input moves with the updates', easeOut(prog(t, tS - .1, tS + .4)));
+  var tl2 = ruTimelineFast(t - tR), u2 = tl2.u, n2 = tl2.n, S = RU.charts[1], ws = 1 / (n2 + 1);
+  setBar(S.input, u2 === 0 ? 1 : ws, true);
+  S.bars.forEach(function (b, i) { setBar(b, i < n2 - 1 ? ws : i === n2 - 1 ? ws * easeOut(tl2.grow) : 0, i < n2 && u2 > 0); });
+  $('ru-l1').innerHTML = 'one softmax: input 1/' + (u2 === 0 ? 1 : n2 + 1) + ' &middot; total ' + (u2 === 0 ? '0' : fmt2(n2 / (n2 + 1)))
+    + red('the input competes with the updates', easeOut(prog(t, tC - .1, tC + .4)));
 }
 function renderAnalysis(t) {
   var r = SC.analysis;
@@ -974,21 +1008,53 @@ function renderAblation(t) {
 }
 
 /* ---------------------------------------------------------------- scene 10: depth at a fixed parameter budget */
-var VI = { W: 600, top: 400, bot: 800 };            // plot box of the two depth panels
+var VI = { W: 600, top: 412, bot: 800 };            // plot box of the two depth panels
 var DLAY = [16, 24, 32, 48, 64];
+// v25b (11-09, user: "这里把所有baseline画出来"): every rule of the paper's depth figure, ClimbMix loss after 20 TPP, from
+// figure/depth_sweep/depth_sweep_data.json (loss20; the values of tab:depth-loss); colours and markers as the paper's fig_depth_sweep
+var DEL = {
+  '374M': { plain: [2.4536, 2.4415, 2.4371, 2.4425, 2.4695], mhcf4: [2.4234, 2.4062, 2.4118, 2.4089, 2.4328], hc4: [2.4406, 2.4249, 2.4273, 2.4327, 2.4537], ihc4block: [2.4355, 2.4217, 2.4199, 2.4297, 2.4607], hyperloop4b0: [2.4327, 2.4179, 2.4147, 2.4154, 2.4346], blockstate: [2.4312, 2.4065, 2.4166, 2.4168, 2.4415], mhar8: [2.4453, 2.4223, 2.4310, 2.4360, 2.4515], dense: [2.4218, 2.4198, 2.4395, 2.4544, 2.4958], ours: [2.4191, 2.3971, 2.4008, 2.4005, 2.4224] },
+  '778M': { plain: [2.2857, 2.2713, 2.2737, 2.2737, 2.2816], mhcf4: [2.2626, 2.2432, 2.2471, 2.2454, 2.2495], hc4: [2.2741, 2.2579, 2.2627, 2.2642, 2.2684], ihc4block: [2.2613, 2.2461, 2.2498, 2.2523, 2.2580], hyperloop4b0: [2.2696, 2.2551, 2.2536, 2.2539, 2.2614], blockstate: [2.2735, 2.2495, 2.2453, 2.2529, 2.2507], mhar8: [2.2739, 2.2595, 2.2612, 2.2646, 2.2738], dense: [2.2604, 2.2441, 2.2471, 2.2644, 2.2788], ours: [2.2583, 2.2425, 2.2415, 2.2404, 2.2512] }
+};
+var DSTY = {   // colour, width, dash, marker (O Loopback, r ring, s open square, o dot, d diamond), marker size: the paper's figure
+  plain: ['#9CA3AF', 3, '2 6', 's', 6.5], mhcf4: ['#EB6834', 2.6, '', 'o', 6], hc4: ['#1BAF7A', 2.6, '', 'o', 6],
+  ihc4block: ['#C98500', 2.6, '', 'o', 6], hyperloop4b0: ['#E87BA4', 2.6, '', 'o', 6], blockstate: ['#008300', 2.6, '', 'd', 7.5],
+  mhar8: ['#6250D6', 2.6, '', 'd', 7.5], dense: ['#4B5563', 3.6, '11 6', 'r', 8], ours: [C.navy, 5, '', 'O', 10] };
+var DNAME = { plain: 'Plain Loop', mhcf4: 'mHC', hc4: 'HC', ihc4block: 'iHC', hyperloop4b0: 'Hyperloop', blockstate: 'AttnRes', mhar8: 'MHAR',
+              dense: 'Standard Transformer', ours: 'Loopback' };
+var DKEYS = ['plain', 'mhcf4', 'hc4', 'ihc4block', 'hyperloop4b0', 'blockstate', 'mhar8', 'dense', 'ours'];
 var DE = [
-  { title: '(a) 374M', X0: 265, lo: 2.38, hi: 2.52, ticks: [2.40, 2.44, 2.48, 2.52],
-    std: [2.4218, 2.4198, 2.4395, 2.4544, 2.4958], lb: [2.4191, 2.3971, 2.4008, 2.4005, 2.4224], m0: '0.003', m1: '0.073' },
-  { title: '(b) 778M', X0: 1145, lo: 2.230, hi: 2.290, ticks: [2.24, 2.26, 2.28],
-    std: [2.2604, 2.2441, 2.2471, 2.2644, 2.2788], lb: [2.2583, 2.2425, 2.2415, 2.2404, 2.2512], m0: '0.002', m1: '0.028' }
+  { sc: '374M', title: '(a) 374M', X0: 265, lo: 2.38, hi: 2.52, ticks: [2.40, 2.44, 2.48, 2.52], m0: '0.003', m1: '0.073' },
+  { sc: '778M', title: '(b) 778M', X0: 1145, lo: 2.232, hi: 2.292, ticks: [2.24, 2.26, 2.28], m0: '0.002', m1: '0.028' }
 ];
+function dMark(p, kind, x, y, col, r) {
+  if (kind === 'O') { return el('circle', { cx: x, cy: y, r: r, fill: col, stroke: C.bg, 'stroke-width': 3 }, p); }
+  if (kind === 'o') { return el('circle', { cx: x, cy: y, r: r, fill: col, stroke: C.bg, 'stroke-width': 2 }, p); }
+  if (kind === 'r') { return el('circle', { cx: x, cy: y, r: r, fill: C.bg, stroke: col, 'stroke-width': 3.2 }, p); }
+  if (kind === 's') { return el('rect', { x: x - r, y: y - r, width: 2 * r, height: 2 * r, fill: C.bg, stroke: col, 'stroke-width': 2.6 }, p); }
+  return el('path', { d: 'M' + x + ' ' + (y - r) + ' L' + (x + r) + ' ' + y + ' L' + x + ' ' + (y + r) + ' L' + (x - r) + ' ' + y + ' Z',
+                      fill: col, stroke: C.bg, 'stroke-width': 2 }, p);
+}
 (function buildDepth() {
   var s = $('de-svg'), g = el('g', { id: 'de-g' }, s);
-  legend(g, 690, 300, [['Loopback', C.navy, 'dot'], ['Standard Transformer', C.grey, 'ring']]);
+  LATE.push(function () {                          // the paper's legend rows: Loopback, Standard, Plain; then the six looped baselines
+    [['ours', 'dense', 'plain'], ['mhcf4', 'hc4', 'ihc4block', 'hyperloop4b0', 'blockstate', 'mhar8']].forEach(function (row, ri) {
+      var y = 284 + ri * 38, items = [], tot = 0;
+      row.forEach(function (k) {
+        var gg = el('g', {}, g), st = DSTY[k];
+        el('line', { x1: 0, x2: 44, y1: 0, y2: 0, stroke: st[0], 'stroke-width': Math.min(st[1], 4), 'stroke-dasharray': st[2] || 'none' }, gg);
+        dMark(gg, st[3], 22, 0, st[0], Math.min(st[4], 8));
+        var tt = txt(gg, 56, 8, DNAME[k], { 'font-size': 22, fill: k === 'ours' ? C.navy : C.ink2, 'font-weight': k === 'ours' ? 700 : 400 });
+        items.push([gg, 56 + tt.getComputedTextLength()]); tot += items[items.length - 1][1];
+      });
+      var x = 960 - (tot + 40 * (items.length - 1)) / 2;
+      items.forEach(function (it) { it[0].setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y + ')'); x += it[1] + 40; });
+    });
+  });
   DE.forEach(function (d) {
     var X0 = d.X0, xOf = function (L) { return X0 + 60 + (Math.log2(L) - 4) / 2 * 420; };
     var yOf = function (v) { return VI.bot - (v - d.lo) / (d.hi - d.lo) * (VI.bot - VI.top); }, pg = el('g', {}, g);
-    txt(pg, X0 + VI.W / 2, 362, d.title, { 'text-anchor': 'middle', 'font-size': 28, 'font-weight': 700, fill: C.ink });
+    txt(pg, X0 + VI.W / 2, 376, d.title, { 'text-anchor': 'middle', 'font-size': 28, 'font-weight': 700, fill: C.ink });
     d.ticks.forEach(function (v) {
       var y = yOf(v);
       el('line', { x1: X0, x2: X0 + VI.W, y1: y, y2: y, stroke: C.grid, 'stroke-width': 1.5 }, pg);
@@ -999,26 +1065,22 @@ var DE = [
     var yl = txt(pg, 0, 0, 'validation loss', { 'text-anchor': 'middle', 'font-size': 21, fill: C.muted });
     yl.setAttribute('transform', 'translate(' + (X0 - 84) + ' ' + ((VI.top + VI.bot) / 2) + ') rotate(-90)');
     DLAY.forEach(function (L) { txt(pg, xOf(L), VI.bot + 38, String(L), { 'text-anchor': 'middle', 'font-size': 25, 'font-weight': 500, fill: C.ink2 }); });
-    d.series = [['std', C.grey], ['lb', C.navy]].map(function (q) {
-      var vals = d[q[0]], pts = vals.map(function (v, i) { return [xOf(DLAY[i]), yOf(v)]; }), ref = q[0] === 'std';
-      var path = el('path', { d: '', fill: 'none', stroke: q[1], 'stroke-width': ref ? 4 : 4.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, pg);
-      var marks = pts.map(function (p) {
-        return ref ? el('circle', { cx: p[0], cy: p[1], r: 8.5, fill: C.bg, stroke: q[1], 'stroke-width': 3.5, opacity: 0 }, pg)
-                   : el('circle', { cx: p[0], cy: p[1], r: 10, fill: q[1], stroke: C.bg, 'stroke-width': 3, opacity: 0 }, pg);
-      });
-      var e = pts[pts.length - 1];
-      var val = txt(pg, ref ? e[0] : e[0] + 4, e[1] + (ref ? -20 : 36), vals[vals.length - 1].toFixed(4), { 'text-anchor': ref ? 'middle' : 'start', 'font-size': 21,
-        'font-weight': ref ? 500 : 700, fill: ref ? C.ink3 : C.navy, class: 'mono halo', opacity: 0 });
-      return { pts: pts, path: path, marks: marks, val: val };
+    d.base = el('g', {}, pg); d.series = {};
+    DKEYS.forEach(function (k) {
+      var st = DSTY[k], vals = DEL[d.sc][k], par = k === 'dense' || k === 'ours' ? pg : d.base;
+      var pts = vals.map(function (v, i) { return [xOf(DLAY[i]), yOf(v)]; });
+      var path = el('path', { d: '', fill: 'none', stroke: st[0], 'stroke-width': st[1], 'stroke-dasharray': st[2] || 'none',
+                              'stroke-linejoin': 'round', 'stroke-linecap': st[2] ? 'butt' : 'round' }, par);
+      var marks = pts.map(function (p) { var m = dMark(par, st[3], p[0], p[1], st[0], st[4]); m.setAttribute('opacity', 0); return m; });
+      d.series[k] = { pts: pts, path: path, marks: marks };
     });
-    // the margin, Standard minus Loopback, at 16 and 64 layers
-    var a = d.series[0].pts, b = d.series[1].pts;
+    // the margin over the standard Transformer: a bracket at 64 layers, with the 16-layer margin under it (paper: 0.003 -> 0.073, 0.002 -> 0.028)
+    var a = d.series.dense.pts[4], b = d.series.ours.pts[4], bx = a[0] + 26;
     d.mg = el('g', { opacity: 0 }, pg);
-    var bx = a[4][0] + 24;
-    el('path', { d: 'M' + (bx - 7) + ' ' + a[4][1] + ' H' + bx + ' V' + b[4][1] + ' H' + (bx - 7), fill: 'none', stroke: C.navy, 'stroke-width': 2.5 }, d.mg);
-    txt(d.mg, bx + 12, (a[4][1] + b[4][1]) / 2 + 11, d.m1, { class: 'mr', 'font-size': 32, 'font-weight': 800, fill: C.navy });
-    txt(d.mg, a[0][0], a[0][1] - 22, d.m0, { class: 'mr halo', 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 800, fill: C.navy });
-    txt(d.mg, a[0][0], a[0][1] - 50, 'margin', { class: 'halo', 'text-anchor': 'middle', 'font-size': 18, fill: C.muted });
+    el('path', { d: 'M' + (bx - 7) + ' ' + a[1] + ' H' + bx + ' V' + b[1] + ' H' + (bx - 7), fill: 'none', stroke: C.navy, 'stroke-width': 2.5 }, d.mg);
+    var my = (a[1] + b[1]) / 2;
+    txt(d.mg, bx + 12, my + 6, d.m1, { class: 'mr', 'font-size': 34, 'font-weight': 800, fill: C.navy });
+    txt(d.mg, bx + 12, my + 34, 'from ' + d.m0 + ' at 16', { 'font-size': 18, fill: C.ink3 });
   });
   txt(g, 960, 890, 'layers  (same parameters and tokens)', { 'text-anchor': 'middle', 'font-size': 23, fill: C.muted });
 })();
@@ -1027,18 +1089,19 @@ function renderDepth(t) {
   appear($('de-h'), t, r[0] + .2, .6); appear($('de-n'), t, r[0] + .5, .6);
   $('de-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.2));
   // v25 line: "We also held the parameter count fixed and traded width for depth. As the model gets deeper and narrower, the standard
-  // transformer loses ground, while Loopback's margin grows at both scales." Standard draws with "traded width for depth",
-  // Loopback with "deeper and narrower", Standard's 64-layer loss shows with "loses ground", the margins with "grows".
-  var tS = wt('depth', 'traded', 2.4) - .1, tL = wt('depth', 'deeper', 4.6) - .1, tG = wt('depth', 'loses', 6.5), tM = wt('depth', 'grows', 8.8);
+  // transformer loses ground, while Loopback's margin grows at both scales." The seven looped baselines and Plain draw with "traded
+  // width for depth", the standard Transformer just after, Loopback with "deeper and narrower"; the standard Transformer's line
+  // pulses with "loses ground"; with "grows" the margins come in and the baselines step back.
+  var tB = wt('depth', 'traded', 2.4) - .3, tS = tB + .5, tL = wt('depth', 'deeper', 4.6) - .1, tG = wt('depth', 'loses', 6.5), tM = wt('depth', 'grows', 8.8);
   DE.forEach(function (d, k) {
-    d.series.forEach(function (sr, j) {
-      var t0 = (j ? tL : tS) + k * .3, t1 = t0 + 1.7, u = ease(prog(t, t0, t1));
+    DKEYS.forEach(function (key) {
+      var sr = d.series[key], t0 = (key === 'ours' ? tL : key === 'dense' ? tS : tB) + k * .3, u = ease(prog(t, t0, t0 + 1.6));
       var xc = lerp(sr.pts[0][0], sr.pts[sr.pts.length - 1][0], u);
       sr.path.setAttribute('d', u > 0 ? partialPath(sr.pts, xc) : '');
       sr.marks.forEach(function (m, i) { m.setAttribute('opacity', u > 0 ? clamp((xc - sr.pts[i][0] + 14) / 14, 0, 1) : 0); });
-      var tv = j ? t1 - .1 : Math.max(t1 - .1, tG - .15 + k * .2);
-      sr.val.setAttribute('opacity', easeOut(prog(t, tv, tv + .45)));
     });
+    d.series.dense.path.setAttribute('stroke-width', (3.6 + 2.2 * pulse(t, tG + k * .2)).toFixed(2));
+    d.base.setAttribute('opacity', (1 - .42 * easeOut(prog(t, tM, tM + .6))).toFixed(3));
     d.mg.setAttribute('opacity', easeOut(prog(t, tM + k * .3, tM + .5 + k * .3)));
   });
 }

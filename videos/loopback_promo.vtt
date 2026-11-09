@@ -10,163 +10,182 @@ Towards a Unified View of
 Residual Looped Transformers.
 
 memory-3
-00:00:07.350 --> 00:00:09.940
+00:00:06.960 --> 00:00:09.550
 Linear attention is a memory over tokens:
 
 memory-4
-00:00:10.590 --> 00:00:13.680
+00:00:10.200 --> 00:00:13.290
 each token writes its key
 and value into a state,
 
 memory-5
-00:00:14.030 --> 00:00:15.330
+00:00:13.640 --> 00:00:14.940
 the state is passed along,
 
 memory-6
-00:00:15.330 --> 00:00:17.640
+00:00:14.940 --> 00:00:17.250
 and later tokens read from it.
 
 memory-7
-00:00:18.010 --> 00:00:20.980
+00:00:17.620 --> 00:00:20.590
 The residual stream does
 the same over depth.
 
 memory-8
-00:00:21.490 --> 00:00:24.280
+00:00:21.100 --> 00:00:23.890
 Each block writes its
 update into the stream.
 
 memory-9
-00:00:24.650 --> 00:00:26.250
+00:00:24.260 --> 00:00:25.860
 The stream carries it forward,
 
 memory-10
-00:00:26.250 --> 00:00:28.640
+00:00:25.860 --> 00:00:28.250
 and later blocks read from it.
 
 memory-11
-00:00:28.890 --> 00:00:32.150
+00:00:28.500 --> 00:00:31.760
 Unrolled, every read is a
 weighted sum of what was written;
 
 memory-12
-00:00:32.150 --> 00:00:36.040
+00:00:31.760 --> 00:00:35.650
 plain residual addition
 fixes every weight at one.
 
 knobs-13
-00:00:38.080 --> 00:00:38.930
+00:00:37.310 --> 00:00:38.090
 In this view,
 
 knobs-14
-00:00:38.980 --> 00:00:41.390
+00:00:38.090 --> 00:00:40.340
 every residual rule sets three things:
 
 knobs-15
-00:00:41.520 --> 00:00:42.650
+00:00:40.390 --> 00:00:41.380
 the input's strength,
 
 knobs-16
-00:00:43.140 --> 00:00:44.590
+00:00:41.610 --> 00:00:42.840
 the total weight of the updates,
 
 knobs-17
-00:00:44.920 --> 00:00:46.450
+00:00:42.850 --> 00:00:44.260
 and how that weight is shared.
 
 knobs-18
-00:00:47.120 --> 00:00:48.610
-When the same blocks repeat,
+00:00:44.850 --> 00:00:47.550
+Residual addition gives
+every update a weight of one,
 
 knobs-19
-00:00:49.160 --> 00:00:51.610
-plain addition lets the
-total grow with every pass.
+00:00:47.550 --> 00:00:49.400
+so the total grows with every pass.
 
-method-20
-00:00:53.730 --> 00:00:55.720
+knobs-20
+00:00:50.170 --> 00:00:52.980
+Hyper-Connections give
+each stream one weight,
+
+knobs-21
+00:00:53.090 --> 00:00:56.280
+so the input and the
+updates in it move together.
+
+knobs-22
+00:00:56.890 --> 00:01:00.500
+Attention Residuals weigh the input
+and the updates with one softmax,
+
+knobs-23
+00:01:00.610 --> 00:01:02.260
+so they compete for a fixed total.
+
+method-24
+00:01:03.930 --> 00:01:05.920
 Loopback sets the three separately.
 
-method-21
-00:00:56.330 --> 00:00:58.720
+method-25
+00:01:06.530 --> 00:01:08.920
 The input keeps weight
 one on its own path,
 
-method-22
-00:00:58.950 --> 00:01:00.420
+method-26
+00:01:09.150 --> 00:01:10.620
 a decay bounds the total,
 
-method-23
-00:01:00.770 --> 00:01:03.360
+method-27
+00:01:10.970 --> 00:01:13.560
 and attention shares it
 across the stored updates.
 
-train-24
-00:01:06.270 --> 00:01:09.500
+train-28
+00:01:16.080 --> 00:01:19.310
 Here are our training
 curves at all five scales.
 
-train-25
-00:01:10.210 --> 00:01:14.220
+train-29
+00:01:20.020 --> 00:01:24.030
 Loopback's loss is lower from early
 in training all the way to the end.
 
-scale-26
-00:01:16.800 --> 00:01:19.790
+scale-30
+00:01:26.230 --> 00:01:29.220
 From 191M to 3B parameters,
 
-scale-27
-00:01:20.200 --> 00:01:22.790
+scale-31
+00:01:29.630 --> 00:01:32.220
 Loopback gets lower loss than the standard
 
-scale-28
-00:01:22.790 --> 00:01:25.530
+scale-32
+00:01:32.220 --> 00:01:34.960
 Transformer with 40–75% of its parameters.
 
-nine-29
-00:01:27.740 --> 00:01:29.750
+nine-33
+00:01:36.780 --> 00:01:38.790
 Against seven other looped designs,
 
-nine-30
-00:01:30.100 --> 00:01:32.273
+nine-34
+00:01:39.140 --> 00:01:41.313
 it has the lowest loss and the highest
 
-nine-31
-00:01:32.273 --> 00:01:35.110
+nine-35
+00:01:41.313 --> 00:01:44.150
 benchmark average at all
 three sizes we tested.
 
-depth-32
-00:01:37.680 --> 00:01:41.350
+depth-36
+00:01:46.330 --> 00:01:50.000
 We also held the parameter count
 fixed and traded width for depth.
 
-depth-33
-00:01:41.660 --> 00:01:43.470
+depth-37
+00:01:50.310 --> 00:01:52.120
 As the model gets deeper and narrower,
 
-depth-34
-00:01:43.800 --> 00:01:45.750
+depth-38
+00:01:52.450 --> 00:01:54.400
 the standard Transformer loses ground,
 
-depth-35
-00:01:45.940 --> 00:01:48.250
+depth-39
+00:01:54.590 --> 00:01:56.900
 while Loopback's margin
 grows at both scales.
 
-outro-36
-00:01:50.330 --> 00:01:51.300
+outro-40
+00:01:58.600 --> 00:01:59.570
 That's Loopback.
 
-outro-37
-00:01:51.610 --> 00:01:52.280
+outro-41
+00:01:59.880 --> 00:02:00.550
 Fewer parameters,
 
-outro-38
-00:01:52.670 --> 00:01:53.180
+outro-42
+00:02:00.940 --> 00:02:01.450
 lower loss.
 
-outro-39
-00:01:53.810 --> 00:01:55.580
+outro-43
+00:02:02.080 --> 00:02:03.850
 The paper and code are
 on our project page.
