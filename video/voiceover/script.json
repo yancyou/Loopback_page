@@ -1,10 +1,10 @@
 {
  "voice": "af_heart",
- "duration": 77.9,
+ "duration": 96.533,
  "video": "video/voiceover/build/loopback_promo_silent.mp4",
  "out": "videos/loopback_promo.mp4",
  "music": {
-  "path": "video/music/build/bed_v21.wav",
+  "path": "video/music/build/bed_v22.wav",
   "gap_db": -6.0,
   "fade_in": 0.5,
   "fade_out": 1.2
@@ -13,56 +13,63 @@
   {
    "id": "title",
    "start": 0.5,
-   "end": 6.11,
+   "end": 6.07,
    "say": "Loopback Transformer. Towards a unified view of residual looped transformers.",
    "display": "Loopback Transformer: Towards a Unified View of Residual Looped Transformers."
   },
   {
-   "id": "hook",
-   "start": 6.91,
-   "end": 16.58,
-   "say": "A looped transformer runs the same blocks again and again. That saves parameters, but with plain addition, the updates from every pass just pile up.",
-   "display": "A looped Transformer runs the same blocks again and again. That saves parameters, but with plain addition, the updates from every pass just pile up."
+   "id": "memory",
+   "start": 6.87,
+   "end": 20.87,
+   "say": "Linear attention keeps a memory over tokens: each token writes to a state that later tokens read. A residual stream is the same kind of memory over depth: each block writes an update that later blocks read.",
+   "display": "Linear attention keeps a memory over tokens: each token writes to a state that later tokens read. A residual stream is the same kind of memory over depth: each block writes an update that later blocks read."
+  },
+  {
+   "id": "knobs",
+   "start": 21.67,
+   "end": 36.03,
+   "say": "In this view, every residual rule sets three things: the input's strength, the total weight of the updates, and how that weight is shared. When the same blocks repeat, plain addition lets the total grow with every pass.",
+   "display": "In this view, every residual rule sets three things: the input's strength, the total weight of the updates, and how that weight is shared. When the same blocks repeat, plain addition lets the total grow with every pass."
   },
   {
    "id": "method",
-   "start": 17.38,
-   "end": 29.3,
-   "say": "So we built Loopback. It stores each block's update and keeps the input on its own path. A decay limits how much old updates count, and attention picks which ones to read.",
-   "display": "So we built Loopback. It stores each block's update and keeps the input on its own path. A decay limits how much old updates count, and attention picks which ones to read."
+   "start": 36.83,
+   "end": 48.09,
+   "say": "Loopback sets the three separately. The input keeps weight one on its own path, a decay bounds the total, and attention shares it across the stored updates.",
+   "display": "Loopback sets the three separately. The input keeps weight one on its own path, a decay bounds the total, and attention shares it across the stored updates."
   },
   {
    "id": "live",
-   "start": 30.1,
-   "end": 40.52,
+   "start": 48.89,
+   "end": 59.27,
    "say": "Here a standard transformer and Loopback, both at three billion scale, read the same new text. Loopback is twenty-three percent smaller, and its loss still ends lower.",
    "display": "Here a standard Transformer and Loopback, both at 3B scale, read the same new text. Loopback is 23% smaller, and its loss still ends lower."
   },
   {
    "id": "scale",
-   "start": 41.32,
-   "end": 51.01,
+   "start": 60.07,
+   "end": 69.72,
    "say": "From one hundred ninety-one million to three billion parameters, Loopback gets lower loss than the standard transformer with forty to seventy-five percent of its parameters.",
    "display": "From 191M to 3B parameters, Loopback gets lower loss than the standard Transformer with 40–75% of its parameters."
   },
   {
    "id": "nine",
-   "start": 51.81,
-   "end": 60.51,
+   "start": 70.52,
+   "end": 79.18,
    "say": "Against seven other looped designs, it has the lowest loss and the highest benchmark average at all three sizes we tested.",
    "display": "Against seven other looped designs, it has the lowest loss and the highest benchmark average at all three sizes we tested."
   },
   {
    "id": "math",
-   "start": 61.31,
-   "end": 70.2,
+   "start": 79.98,
+   "end": 88.83,
    "say": "And at three billion parameters, it more than doubles word-problem accuracy, from two point six to six point four percent.",
    "display": "And at 3B parameters, it more than doubles word-problem accuracy, from 2.6% to 6.4%."
   },
   {
    "id": "outro",
-   "start": 71.0,
-   "end": 77.6,
+   "start": 89.63,
+   "end": 96.23,
    "say": "That's Loopback. Fewer parameters, lower loss. The paper and code are on our project page.",
    "display": "That's Loopback. Fewer parameters, lower loss. The paper and code are on our project page."
   }

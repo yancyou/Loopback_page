@@ -8,111 +8,144 @@ Towards a Unified View of
 Residual Looped Transformers.
 
 3
-00:00:06,910 --> 00:00:10,440
-A looped Transformer runs the
-same blocks again and again.
+00:00:06,870 --> 00:00:09,580
+Linear attention keeps
+a memory over tokens:
 
 4
-00:00:10,810 --> 00:00:12,140
-That saves parameters,
+00:00:09,970 --> 00:00:13,200
+each token writes to a state
+that later tokens read.
 
 5
-00:00:12,470 --> 00:00:13,620
-but with plain addition,
+00:00:13,490 --> 00:00:16,980
+A residual stream is the same
+kind of memory over depth:
 
 6
-00:00:13,830 --> 00:00:16,120
-the updates from every pass just pile up.
+00:00:17,290 --> 00:00:20,240
+each block writes an update
+that later blocks read.
 
 7
-00:00:17,380 --> 00:00:19,010
-So we built Loopback.
+00:00:21,670 --> 00:00:22,520
+In this view,
 
 8
-00:00:19,500 --> 00:00:23,210
-It stores each block's update and
-keeps the input on its own path.
+00:00:22,570 --> 00:00:24,980
+every residual rule sets three things:
 
 9
-00:00:23,800 --> 00:00:26,230
-A decay limits how much old updates count,
+00:00:25,110 --> 00:00:26,240
+the input's strength,
 
 10
-00:00:26,540 --> 00:00:28,470
-and attention picks which ones to read.
+00:00:26,730 --> 00:00:28,180
+the total weight of the updates,
 
 11
-00:00:30,100 --> 00:00:32,520
-Here a standard Transformer and Loopback,
+00:00:28,510 --> 00:00:30,040
+and how that weight is shared.
 
 12
-00:00:32,520 --> 00:00:34,020
-both at 3B scale,
+00:00:30,710 --> 00:00:32,200
+When the same blocks repeat,
 
 13
-00:00:34,020 --> 00:00:35,670
-read the same new text.
+00:00:32,750 --> 00:00:35,200
+plain addition lets the
+total grow with every pass.
 
 14
-00:00:36,120 --> 00:00:37,920
-Loopback is 23% smaller,
+00:00:36,830 --> 00:00:38,580
+Loopback sets the three separately.
 
 15
-00:00:37,920 --> 00:00:39,790
-and its loss still ends lower.
+00:00:39,290 --> 00:00:41,860
+The input keeps weight
+one on its own path,
 
 16
-00:00:41,320 --> 00:00:44,310
-From 191M to 3B parameters,
+00:00:42,370 --> 00:00:43,490
+a decay bounds the total,
 
 17
-00:00:44,720 --> 00:00:47,310
-Loopback gets lower loss than the standard
+00:00:43,490 --> 00:00:46,380
+and attention shares it
+across the stored updates.
 
 18
-00:00:47,310 --> 00:00:50,050
-Transformer with 40–75% of its parameters.
+00:00:48,890 --> 00:00:51,310
+Here a standard Transformer and Loopback,
 
 19
-00:00:51,810 --> 00:00:53,820
-Against seven other looped designs,
+00:00:51,310 --> 00:00:52,810
+both at 3B scale,
 
 20
-00:00:54,170 --> 00:00:56,343
-it has the lowest loss and the highest
+00:00:52,810 --> 00:00:54,460
+read the same new text.
 
 21
-00:00:56,343 --> 00:00:59,180
+00:00:54,910 --> 00:00:56,710
+Loopback is 23% smaller,
+
+22
+00:00:56,710 --> 00:00:58,580
+and its loss still ends lower.
+
+23
+00:01:00,070 --> 00:01:03,060
+From 191M to 3B parameters,
+
+24
+00:01:03,470 --> 00:01:06,060
+Loopback gets lower loss than the standard
+
+25
+00:01:06,060 --> 00:01:08,800
+Transformer with 40–75% of its parameters.
+
+26
+00:01:10,520 --> 00:01:12,530
+Against seven other looped designs,
+
+27
+00:01:12,880 --> 00:01:15,053
+it has the lowest loss and the highest
+
+28
+00:01:15,053 --> 00:01:17,890
 benchmark average at all
 three sizes we tested.
 
-22
-00:01:01,310 --> 00:01:02,790
+29
+00:01:19,980 --> 00:01:21,460
 And at 3B parameters,
 
-23
-00:01:02,790 --> 00:01:05,460
+30
+00:01:21,460 --> 00:01:24,130
 it more than doubles
 word-problem accuracy,
 
-24
-00:01:05,630 --> 00:01:08,480
+31
+00:01:24,300 --> 00:01:27,150
 from 2.6% to 6.4%.
 
-25
-00:01:11,000 --> 00:01:11,970
+32
+00:01:29,630 --> 00:01:30,600
 That's Loopback.
 
-26
-00:01:12,280 --> 00:01:12,950
+33
+00:01:30,910 --> 00:01:31,580
 Fewer parameters,
 
-27
-00:01:13,340 --> 00:01:13,850
+34
+00:01:31,970 --> 00:01:32,480
 lower loss.
 
-28
-00:01:14,480 --> 00:01:16,250
+35
+00:01:33,110 --> 00:01:34,880
 The paper and code are
 on our project page.
 

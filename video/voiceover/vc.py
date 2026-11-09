@@ -103,7 +103,7 @@ def source(s, voice, only=None):
         json.dump({"say": g["say"], "voice": voice, "speed": sp}, open(os.path.join(VC_DIR, f"{g['id']}.json"), "w"))
         print(f"{g['id']:<9}{g['start']:6.2f}-{g['end']:<6.2f}{sp:7.2f}{len(clip) / SR:7.2f}{wpm:6.0f}")
 
-def source_chatterbox(s, takes, only=None, pins=None, ref=None):
+def source_chatterbox(s, takes, only=None, pins=None, ref=None, first=0):
     import warnings
     warnings.filterwarnings("ignore")
     import numpy as np, soundfile as sf, torch
@@ -135,7 +135,7 @@ def source_chatterbox(s, takes, only=None, pins=None, ref=None):
     print(f"{'id':<9}{'window':>13}{'seed':>5}{'dur':>7}{'wpm':>6}{'WER':>6}  takes (s)")
     for g in picked(s, only):
         win, nwords, cand = g["end"] - g["start"] - MARGIN, len(plain(g["say"]).split()), []
-        for seed in [pins[g["id"]]] if g["id"] in (pins or {}) else range(takes):
+        for seed in [pins[g["id"]]] if g["id"] in (pins or {}) else range(first, first + takes):   # v22: --first-seed splits takes across processes
             torch.manual_seed(seed)
             clip = m.generate(plain(g["say"]), exaggeration=ex, cfg_weight=cfg).squeeze(0).numpy()
             clip = trim(ffilter(clip, POST) if ref else clip)     # hybrid takes are final: clean them as convert would
@@ -327,6 +327,7 @@ def main():
     ap.add_argument("--voice", default="am_michael"); ap.add_argument("--ref")
     ap.add_argument("--engine", choices=["kokoro", "chatterbox", "hybrid"], default="kokoro"); ap.add_argument("--takes", type=int, default=6)
     ap.add_argument("--seeds", type=int, default=4, help="convert: decoder seeds tried per segment")
+    ap.add_argument("--first-seed", type=int, default=0, help="source (chatterbox/hybrid): first seed of the --takes range (v22)")
     ap.add_argument("--no-vc", action="store_true", help="convert: place the readings as they are (they are in the reference voice)")
     ap.add_argument("--only", nargs="+", metavar="ID", help="just these segments; convert keeps the others' previous takes")
     ap.add_argument("--seed", action="append", default=[], metavar="ID=N", help="source (chatterbox): read segment ID with seed N only")
@@ -339,7 +340,7 @@ def main():
         if a.engine == "kokoro":
             source(s, a.voice, a.only)
         else:
-            source_chatterbox(s, a.takes, a.only, pins, a.ref if a.engine == "hybrid" else None)
+            source_chatterbox(s, a.takes, a.only, pins, a.ref if a.engine == "hybrid" else None, first=a.first_seed)
     elif a.step == "pick":
         if not a.report:
             sys.exit("pick needs --report")

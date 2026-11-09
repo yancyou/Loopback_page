@@ -76,7 +76,7 @@ def main():
     video, out = repo(s["video"]), repo(s["out"])
     if [(g["id"], g["say"]) for g in s["segments"]] != [(g["id"], g["say"]) for g in tm["segments"]]:
         sys.exit("build/timings.json does not match the script (ids or say text changed); rerun synth.py")
-    if abs(duration(video) - tm["video_duration"]) > 0.001:
+    if abs(duration(video) - tm["video_duration"]) > 0.02:   # v22: under one 30 fps frame (96.533 s renders as 96.534 in the container)
         sys.exit(f"{s['video']} is not {tm['video_duration']} s long any more; rerun synth.py")
     if os.path.abspath(out) == os.path.abspath(video):
         sys.exit("out must not be the input video")

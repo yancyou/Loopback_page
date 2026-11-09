@@ -52,6 +52,16 @@ svg text { font-family: var(--body); }
 .panel h4 { margin: 0; font: 500 40px/1.2 var(--display); color: var(--ink); }
 .panel p { margin: 10px 0 0; font: 400 25px/1.4 var(--body); color: var(--ink3); min-height: 70px; }
 .panel .lab { margin-top: 10px; font: 500 24px/1.35 var(--mono); color: var(--ink2); min-height: 68px; }
+/* knobs (v22): the decomposition every residual rule sets */
+#kn-f { position: absolute; left: 0; right: 0; top: 214px; text-align: center; font: italic 500 60px/1 var(--display); color: var(--ink); letter-spacing: -.01em; }
+#kn-f sub { font-size: .55em; }
+.kq { position: absolute; top: 302px; width: 440px; text-align: center; font: 500 26px/1.3 var(--body); color: var(--ink3); }
+.kq b { display: block; font: italic 500 38px/1.1 var(--display); color: inherit; margin-bottom: 4px; }
+.kq b sub { font-size: .55em; }
+.panel.k { top: 478px; }
+.panel.k h4 { font-size: 34px; }
+.panel.k svg { display: block; margin: 8px 0 0 54px; }
+.panel.k .lab { margin-top: 4px; min-height: 60px; font-size: 22px; }
 /* method */
 .mstep { position: absolute; left: 1100px; width: 700px; display: flex; align-items: center; gap: 26px; }
 .mstep .num { flex: none; display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; box-sizing: border-box; background: var(--bg2); border: 1.5px solid var(--border2); color: var(--ink2); font: 600 27px/1 var(--mono); }
@@ -108,30 +118,40 @@ svg text { font-family: var(--body); }
     <svg id="lv-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
   </div>
 
-  <!-- 2 hook -->
+  <!-- 2 memory (v22): linear attention is a memory over tokens; the residual stream is one over depth -->
+  <div class="scene" id="s-memory">
+    <div class="eyebrow fade" id="mm-e">The insight</div>
+    <div class="h fade" id="mm-h" style="top:118px">One memory, over <b>tokens</b> and over <b>depth</b></div>
+    <svg id="mm-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+  </div>
+
+  <!-- 2 hook (v21; kept for reference, not in SCENES) -->
   <div class="scene" id="s-hook">
     <div class="h fade" id="hk-h">Looped Transformers apply the <b>same blocks</b> again and again</div>
     <svg id="hk-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
   </div>
 
-  <!-- 3 residual connections as depth memory -->
-  <div class="scene" id="s-analysis">
-    <div class="h fade" id="an-h">Residual connections as <b>depth memory</b></div>
-    <div class="note fade" id="an-n" style="top:212px">The next block reads the input plus the updates stored so far; the residual rule sets their weights.</div>
-    <div class="panel fade" id="ru-p0" style="left:350px"><h4>Residual addition</h4><p>Every stored update keeps weight 1.</p><svg width="540" height="330" id="ru-c0"></svg><div class="lab" id="ru-l0"></div></div>
-    <div class="panel fade" id="ru-p1" style="left:1030px"><h4>Joint softmax <span style="font-weight:400;font-style:italic;color:#79818e;font-size:.72em">(AttnRes)</span></h4><p>Input and updates share one unit of weight.</p><svg width="540" height="330" id="ru-c1"></svg><div class="lab" id="ru-l1"></div></div>
+  <!-- 3 knobs (v22): every residual rule sets the input's strength, the total update weight and its allocation -->
+  <div class="scene" id="s-knobs">
+    <div class="h fade" id="kn-h">Every residual rule sets <b>three things</b></div>
+    <div id="kn-f" class="fade"><i>h</i> = a&thinsp;<i>h</i><sub>0</sub> + &Sigma;<sub>i</sub> c<sub>i</sub>&thinsp;&delta;<sub>i</sub></div>
+    <div class="kq fade" id="kn-q1" style="left:300px"><b>a</b>input strength</div>
+    <div class="kq fade" id="kn-q2" style="left:740px"><b>B = &Sigma;<sub>i</sub> c<sub>i</sub></b>total update weight</div>
+    <div class="kq fade" id="kn-q3" style="left:1180px"><b>c<sub>i</sub> / B</b>allocation</div>
+    <div class="note fade" id="kn-n" style="top:414px">Residual addition, Attention Residuals, Hyper-Connections, and linear-attention and state-space recurrences all take this form.</div>
+    <div class="panel k fade" id="ru-p0" style="left:350px"><h4>Residual addition</h4><svg width="432" height="264" viewBox="0 0 540 330" id="ru-c0"></svg><div class="lab" id="ru-l0"></div></div>
+    <div class="panel k fade" id="ru-p1" style="left:1030px"><h4>Joint softmax <span style="font-weight:400;font-style:italic;color:#79818e;font-size:.72em">(AttnRes)</span></h4><svg width="432" height="264" viewBox="0 0 540 330" id="ru-c1"></svg><div class="lab" id="ru-l1"></div></div>
   </div>
 
   <!-- 4 method -->
   <div class="scene" id="s-method">
-    <div class="eyebrow fade" id="me-e">The method</div>
-    <div class="h fade" id="me-h" style="top:118px">Loopback controls how <b>stored updates</b> are reused</div>
+    <div class="eyebrow fade" id="me-e">Loopback</div>
+    <div class="h fade" id="me-h" style="top:118px">Loopback sets the three <b>separately</b></div>
     <svg id="ru-c2" width="864" height="528" viewBox="0 0 540 330" style="position:absolute;left:150px;top:276px;opacity:0"></svg>
     <div id="me-lab" class="fade"></div>
-    <div class="mstep fade" id="me-1" style="top:300px"><span class="num">1</span><span class="tx">Store updates<small>each block's update, not its full output</small></span></div>
-    <div class="mstep fade" id="me-2" style="top:430px"><span class="num">2</span><span class="tx">Input on its own path<small>held at weight 1</small></span></div>
-    <div class="mstep fade" id="me-3" style="top:560px"><span class="num">3</span><span class="tx">Decay sets the total<small>every weight &times;&lambda; at each iteration end, &lambda; = 1/4</small></span></div>
-    <div class="mstep fade" id="me-4" style="top:690px"><span class="num">4</span><span class="tx">Attention allocates it<small>learned queries move weight; same total</small></span></div>
+    <div class="mstep fade" id="me-1" style="top:330px"><span class="num"><i style="font:italic 500 34px/1 var(--display)">a</i></span><span class="tx">Input on its own path<small>input strength held at 1</small></span></div>
+    <div class="mstep fade" id="me-2" style="top:480px"><span class="num"><i style="font:italic 500 34px/1 var(--display)">B</i></span><span class="tx">Decay bounds the total<small>every weight &times;&lambda; at each iteration end, &lambda; = 1/4</small></span></div>
+    <div class="mstep fade" id="me-3" style="top:630px"><span class="num"><i style="font:italic 500 34px/1 var(--display)">c</i></span><span class="tx">Attention shares it<small>learned queries over the stored updates; same total</small></span></div>
   </div>
 
   <!-- 5 scale -->
@@ -195,9 +215,10 @@ svg text { font-family: var(--body); }
   <div class="scene" id="s-outro">
     <div id="o-title" class="fade"><span class="grad">Loopback</span> Transformer</div>
     <div id="o-sub" class="fade">Towards a Unified View of Residual Looped Transformers</div>
-    <div class="ores fade" id="o-r1" style="top:476px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Lower loss with 40&ndash;75% of the parameters, 191M to 3B</div>
-    <div class="ores fade" id="o-r2" style="top:556px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Lowest loss and highest 13-task average of nine designs at 191M, 374M and 778M</div>
-    <div class="ores fade" id="o-r3" style="top:636px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>More than double the word-problem accuracy at 3B: 2.6% &rarr; 6.4%</div>
+    <div class="ores fade" id="o-ins" style="top:428px;font:italic 500 38px/1.2 var(--display);color:#0f4d92">A memory view of depth, and a residual rule built from it</div>
+    <div class="ores fade" id="o-r1" style="top:516px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Lower loss with 40&ndash;75% of the parameters, 191M to 3B</div>
+    <div class="ores fade" id="o-r2" style="top:596px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Lowest loss and highest 13-task average of nine designs at 191M, 374M and 778M</div>
+    <div class="ores fade" id="o-r3" style="top:676px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>More than double the word-problem accuracy at 3B: 2.6% &rarr; 6.4%</div>
   </div>
 
   <div id="subs"></div>
@@ -207,9 +228,9 @@ svg text { font-family: var(--body); }
 <script src="live_data.js"></script>
 <script>
 'use strict';
-var DUR = 77.9;
-var SC = { title: [0, 6.41], hook: [6.41, 16.88], method: [16.88, 29.6], live: [29.6, 40.82], scale: [40.82, 51.31], nine: [51.31, 60.81],
-           math: [60.81, 70.5], outro: [70.5, 77.9] };
+var DUR = 96.533;
+var SC = { title: [0, 6.37], memory: [6.37, 21.17], knobs: [21.17, 36.33], method: [36.33, 48.39], live: [48.39, 59.57], scale: [59.57, 70.02], nine: [70.02, 79.48],
+           math: [79.48, 89.13], outro: [89.13, 96.53] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -269,7 +290,93 @@ function partialPath(pts, xcut) {                 // the polyline up to x = xcut
   return d;
 }
 
-/* ---------------------------------------------------------------- scene 2: the loop */
+/* ---------------------------------------------------------------- scene 2 (v22): one memory, over tokens and over depth */
+// Top lane: linear attention over tokens (each token writes v k^T into the state S, the state is carried on, later tokens
+// read it with their query). Bottom lane: the residual stream over depth (each block writes its update delta into the
+// stream h, the stream carries it, later blocks read the stream). The same write / carry / read interface; the last tag says so.
+var MM = { xs: [640, 860, 1080, 1300, 1520], bw: 118, bh: 60, cw: 92, ch: 40,
+           lanes: { tok: { y: 320, sy: 446 }, dep: { y: 636, sy: 762 } } };
+(function buildMemory() {
+  var s = $('mm-svg'), defs = el('defs', {}, s);
+  [['mmA', C.dark], ['mmN', C.navy]].forEach(function (m) {
+    var mk = el('marker', { id: m[0], viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+    el('path', { d: 'M0 0 L10 5 L0 10 z', fill: m[1] }, mk);
+  });
+  function sub(t, base, k, sup) { t.innerHTML = base + '<tspan font-size="0.6em" dy="0.35em">' + k + '</tspan>' + (sup ? '<tspan font-size="0.6em" dy="-0.75em">' + sup + '</tspan>' : ''); }
+  function lane(key, title, subt, itemBase, chipBase, memName, formula, colours) {
+    var L = MM.lanes[key], g = el('g', { id: 'mm-' + key, opacity: 0 }, s), o = { g: g, items: [], chips: [], w: [], rd: [] };
+    txt(g, 150, L.y + 4, title, { 'font-size': 40, fill: C.ink, style: 'font-family: var(--display); font-weight: 500' });
+    txt(g, 150, L.y + 40, subt, { 'font-size': 24, fill: C.muted });
+    var x0 = MM.xs[0] - MM.bw / 2 - 26, x1 = MM.xs[4] + MM.bw / 2 + 26;
+    el('rect', { x: x0, y: L.sy - MM.bh / 2, width: x1 - x0, height: MM.bh, rx: 14, fill: C.navySoft || '#e7eef7', stroke: C.ring2 || '#9db9dd', 'stroke-width': 2 }, g);
+    txt(g, x0 - 16, L.sy + 9, memName, { 'text-anchor': 'end', 'font-size': 30, class: 'math', fill: C.navy });
+    for (var i = 0; i < 4; i++) {   // carry chevrons along the memory, between write positions
+      var cx = (MM.xs[i] + MM.xs[i + 1]) / 2;
+      el('path', { d: 'M-7 -9 L5 0 L-7 9', fill: 'none', stroke: C.blueS, 'stroke-width': 3, 'stroke-linecap': 'round', transform: 'translate(' + cx + ' ' + L.sy + ')' }, g);
+    }
+    MM.xs.forEach(function (x, i) {
+      var ig = el('g', {}, g);
+      var rc = el('rect', { x: x - MM.bw / 2, y: L.y - MM.bh / 2, width: MM.bw, height: MM.bh, rx: 12, fill: colours(i)[0], stroke: colours(i)[1], 'stroke-width': 2.5 }, ig);
+      sub(txt(ig, x, L.y + 11, '', { 'text-anchor': 'middle', 'font-size': 34, class: 'math', fill: C.ink }), itemBase, i + 1);
+      o.items.push({ rect: rc, base: colours(i)[1] });
+      var cg = el('g', { opacity: 0 }, g);
+      el('rect', { x: x - MM.cw / 2, y: L.sy - MM.ch / 2, width: MM.cw, height: MM.ch, rx: 9, fill: '#ffffff', stroke: C.navy, 'stroke-width': 2 }, cg);
+      var ct = txt(cg, x, L.sy + 9, '', { 'text-anchor': 'middle', 'font-size': 25, class: 'math', fill: C.navy });
+      if (key === 'tok') { ct.innerHTML = 'v<tspan font-size="0.6em" dy="0.35em">' + (i + 1) + '</tspan><tspan dy="-0.35em">k</tspan><tspan font-size="0.6em" dy="0.35em">' + (i + 1) + '</tspan><tspan font-size="0.6em" dy="-0.85em">&#8868;</tspan>'; }
+      else { sub(ct, '&#948;', i + 1); }
+      o.chips.push(cg);
+      o.w.push(el('line', { x1: x, x2: x, y1: L.y + MM.bh / 2 + 4, y2: L.sy - MM.ch / 2 - 6, stroke: C.dark, 'stroke-width': 3, 'marker-end': 'url(#mmA)', opacity: 0 }, g));
+      if (i < 4) {
+        var xn = MM.xs[i + 1];
+        o.rd.push(el('line', { x1: x + MM.cw / 2 + 8, y1: L.sy - MM.ch / 2 - 2, x2: xn - MM.bw / 2 + 10, y2: L.y + MM.bh / 2 + 6, stroke: C.navy, 'stroke-width': 3, 'stroke-dasharray': '7 6', 'marker-end': 'url(#mmN)', opacity: 0 }, g));
+      }
+    });
+    o.lw = txt(g, MM.xs[0] + 12, (L.y + L.sy) / 2 + 8, 'write', { 'font-size': 22, fill: C.dark, opacity: 0 });
+    o.lr = txt(g, (MM.xs[0] + MM.xs[1]) / 2 - 9, (L.y + L.sy) / 2 - 12, 'read', { 'text-anchor': 'middle', 'font-size': 22, fill: C.navy, opacity: 0 });
+    o.lc = txt(g, (MM.xs[1] + MM.xs[2]) / 2, L.sy + MM.bh / 2 + 28, 'carry', { 'text-anchor': 'middle', 'font-size': 22, fill: C.blueS, opacity: 0 });
+    var f = txt(g, x1, L.sy + MM.bh / 2 + 28, '', { 'text-anchor': 'end', 'font-size': 25, class: 'math', fill: C.ink3 });
+    f.innerHTML = formula;
+    MM[key] = o;
+  }
+  lane('tok', 'Linear attention', 'memory over tokens', 'x', 'v', 'S',
+       'S<tspan font-size="0.6em" dy="0.35em">t</tspan><tspan dy="-0.35em"> = S</tspan><tspan font-size="0.6em" dy="0.35em">t&#8722;1</tspan><tspan dy="-0.35em"> + v</tspan><tspan font-size="0.6em" dy="0.35em">t</tspan><tspan dy="-0.35em">k</tspan><tspan font-size="0.6em" dy="0.35em">t</tspan><tspan font-size="0.6em" dy="-0.85em">&#8868;</tspan>',
+       function () { return [C.grayF, C.grey]; });
+  lane('dep', 'Residual stream', 'memory over depth', 'f', '&#948;', 'h',
+       'h<tspan font-size="0.6em" dy="0.35em">l</tspan><tspan dy="-0.35em"> = h</tspan><tspan font-size="0.6em" dy="0.35em">l&#8722;1</tspan><tspan dy="-0.35em"> + &#948;</tspan><tspan font-size="0.6em" dy="0.35em">l</tspan>',
+       function (i) { return i % 2 ? [C.peachF, C.peachS] : [C.blueF, C.blueS]; });
+  // the closing tag: one interface
+  var tg = el('g', { id: 'mm-tag', opacity: 0 }, s);
+  el('path', { d: 'M1640 296 Q1662 296 1662 320 L1662 520 Q1662 540 1682 540 Q1662 540 1662 560 L1662 768 Q1662 792 1640 792', fill: 'none', stroke: C.navy, 'stroke-width': 3 }, tg);
+  txt(tg, 1700, 526, 'one interface', { 'font-size': 30, fill: C.navy, style: 'font-family: var(--display); font-weight: 500; font-style: italic' });
+  txt(tg, 1700, 566, 'write · carry · read', { 'font-size': 24, fill: C.ink3 });
+})();
+function laneAt(o, t, a, b) {          // five steps between a and b: item lights, write, chip, then read into the next item
+  var per = (b - a) / 5;
+  o.items.forEach(function (it, i) {
+    var p = (t - a) / per - i, on = p >= 0 && p < .55;
+    it.rect.setAttribute('stroke', on ? C.navy : it.base); it.rect.setAttribute('stroke-width', on ? 5 : 2.5);
+    o.w[i].setAttribute('opacity', easeOut(clamp((p - .1) / .25, 0, 1)));
+    o.chips[i].setAttribute('opacity', easeOut(clamp((p - .3) / .25, 0, 1)));
+    if (i < 4) { o.rd[i].setAttribute('opacity', easeOut(clamp((p - .6) / .25, 0, 1))); }
+  });
+  var p0 = (t - a) / per;
+  o.lw.setAttribute('opacity', easeOut(clamp((p0 - .1) / .3, 0, 1)));
+  o.lr.setAttribute('opacity', easeOut(clamp((p0 - .6) / .3, 0, 1)));
+  o.lc.setAttribute('opacity', easeOut(clamp((p0 - 1.3) / .3, 0, 1)));
+}
+function renderMemory(t) {
+  var r = SC.memory;
+  appear($('mm-e'), t, r[0] + .1, .5); appear($('mm-h'), t, r[0] + .25, .6);
+  var ta = wt('memory', 'each', 2.6) - .25, tb = wt('memory', 'residual', 6.6) - .2, tc = wt('memory', 'block', tb + 2.6) - .25;
+  var te = Math.min(r[1] - 1.9, tc + 4.2);
+  MM.tok.g.setAttribute('opacity', easeOut(prog(t, r[0] + .6, r[0] + 1.2)));
+  laneAt(MM.tok, t, ta, Math.min(tb - .3, ta + 4.0));
+  MM.dep.g.setAttribute('opacity', easeOut(prog(t, tb - .2, tb + .4)));
+  laneAt(MM.dep, t, tc, te);
+  $('mm-tag').setAttribute('opacity', easeOut(prog(t, te + .1, te + .7)));
+}
+
+/* ---------------------------------------------------------------- scene 2 (v21): the loop */
 var HK = { cx: 560, cy: 585, r: 215, K: 4, R: 3 };
 (function buildHook() {
   var s = $('hk-svg');
@@ -403,6 +510,36 @@ function setBar(b, w, show) {
   b.setAttribute('height', show ? hgt : 0); b.setAttribute('y', RU.y0 + RU.ch - (show ? hgt : 0));
 }
 function fmt2(x) { return x.toFixed(2); }
+function ruTimelineFast(dt) {                     // v22 knobs: as ruTimeline without decay, 0.25 s per application, 0.5 s per hold
+  var per = .25, hold = .5, seg = RU.K * per;
+  if (dt <= 0) { return { u: 0, n: 1, grow: 0, dec: 0 }; }
+  for (var v = 0; v < 3; v++) {
+    if (dt < seg) { var u = v * RU.K + dt / per, n = v * RU.K + Math.max(1, Math.ceil(dt / per - 1e-9)); return { u: u, n: n, grow: clamp(u - (n - 1), 0, 1), dec: 0 }; }
+    dt -= seg;
+    if (dt < hold || v === 2) { return { u: (v + 1) * RU.K, n: (v + 1) * RU.K, grow: 1, dec: 0 }; }
+    dt -= hold;
+  }
+}
+// knobs: the three quantities light up with "strength", "total", "shared"; the two rules' bars run three passes from "repeat"
+var KN = { q: [['strength', 2.7], ['total', 4.2], ['shared', 6.3]] };
+function renderKnobs(t) {
+  var r = SC.knobs;
+  appear($('kn-h'), t, r[0] + .2, .6); appear($('kn-f'), t, r[0] + .6, .6);
+  var tq = KN.q.map(function (w) { return wt('knobs', w[0], w[1]); }), cur = -1;
+  tq.forEach(function (s, k) { if (t >= s - .1) { cur = k; } });
+  tq.forEach(function (s, k) { var e = $('kn-q' + (k + 1)); appear(e, t, s - .25, .5, 14); e.style.color = k === cur ? C.navy : C.ink3; });
+  appear($('kn-n'), t, tq[2] + .9, .6);
+  appear($('ru-p0'), t, tq[2] + 1.2, .6); appear($('ru-p1'), t, tq[2] + 1.4, .6);
+  var tl = ruTimelineFast(t - (wt('knobs', 'repeat', 9.4) - .2)), u = tl.u, n = tl.n, grow = tl.grow;
+  var A = RU.charts[0];
+  setBar(A.input, 1, true);
+  A.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? 1 : i === n - 1 ? easeOut(grow) : 0, i < n && u > 0); });
+  $('ru-l0').innerHTML = 'input 1 &middot; total ' + (u === 0 ? 0 : n) + '<br><span style="color:#b64342">grows with every pass</span>';
+  var S = RU.charts[1], ws = 1 / (n + 1);
+  setBar(S.input, u === 0 ? 1 : ws, true);
+  S.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? ws : i === n - 1 ? ws * easeOut(grow) : 0, i < n && u > 0); });
+  $('ru-l1').innerHTML = 'input 1/' + (u === 0 ? 1 : n + 1) + ' &middot; total ' + (u === 0 ? '0' : fmt2(n / (n + 1))) + '<br><span style="color:#b64342">the input competes with the updates</span>';
+}
 function renderAnalysis(t) {
   var r = SC.analysis;
   appear($('an-h'), t, r[0] + .2, .6); appear($('an-n'), t, r[0] + .5, .6);
@@ -419,10 +556,10 @@ function renderAnalysis(t) {
 }
 // method: the four moves light up with the narration's "stores", "keeps", "decay", "attention" (fallback: these many s into the
 // scene); the chart starts with the first, and attention reallocates once the third iteration has decayed and it has been said
-var ME = { steps: [['stores', 1.0], ['keeps', 3.2], ['decay', 6.1], ['attention', 8.4]] };
+var ME = { steps: [['keeps', 2.6], ['decay', 5.0], ['attention', 7.0]] };   // v22: one step per quantity (a, B, c)
 function renderMethod(t) {
-  var r = SC.method, st = ME.steps.map(function (w) { return wt('method', w[0], w[1]); }), c0 = st[0] - .2;
-  var re = Math.max(st[3], c0 + 7.7);
+  var r = SC.method, st = ME.steps.map(function (w) { return wt('method', w[0], w[1]); }), c0 = r[0] + .7;
+  var re = Math.max(st[2], c0 + 7.7);
   appear($('me-e'), t, r[0] + .1, .5); appear($('me-h'), t, r[0] + .2, .6);
   $('ru-c2').style.opacity = easeOut(prog(t, r[0] + .5, r[0] + 1.0));
   appear($('me-lab'), t, r[0] + .8, .5, 0);
@@ -452,7 +589,7 @@ function renderMethod(t) {
     e.querySelector('.num').style.color = on ? '#ffffff' : C.ink2;
     e.querySelector('.tx').style.color = on ? C.ink : C.ink3;
   });
-  L.input.setAttribute('stroke-width', cur === 1 ? 3 : 0);     // the input, on its own path
+  L.input.setAttribute('stroke-width', cur === 0 ? 3 : 0);     // the input, on its own path
 }
 
 /* ---------------------------------------------------------------- scene 5: five scales */
@@ -828,7 +965,8 @@ function renderEff(t) {
 function renderOutro(t) {
   var r = SC.outro;
   appear($('o-title'), t, r[0] + .2, .8, 30); appear($('o-sub'), t, r[0] + .8, .7);
-  appear($('o-r1'), t, r[0] + 1.6, .6); appear($('o-r2'), t, r[0] + 2.2, .6); appear($('o-r3'), t, r[0] + 2.8, .6);
+  appear($('o-ins'), t, r[0] + 1.3, .6);
+  appear($('o-r1'), t, r[0] + 1.9, .6); appear($('o-r2'), t, r[0] + 2.5, .6); appear($('o-r3'), t, r[0] + 3.1, .6);
 }
 function renderTitle(t) {
   appear($('t-title'), t, .4, .8, 36); appear($('t-sub'), t, 1.1, .7);
@@ -948,8 +1086,8 @@ function renderSubs(t) {
 }
 
 /* ---------------------------------------------------------------- frame */
-var SCENES = [['title', renderTitle], ['hook', renderHook], ['method', renderMethod], ['live', renderLive], ['scale', renderScale],
-              ['nine', renderNine], ['math', renderMath], ['outro', renderOutro]];   // v20 (11-08): analysis, visits, ablation, depth and eff left out
+var SCENES = [['title', renderTitle], ['memory', renderMemory], ['knobs', renderKnobs], ['method', renderMethod], ['live', renderLive],
+              ['scale', renderScale], ['nine', renderNine], ['math', renderMath], ['outro', renderOutro]];   // v22 (11-09): insight first (memory, knobs); hook, visits, ablation, depth and eff left out
 function renderAt(t) {
   SCENES.forEach(function (s) {
     var r = SC[s[0]], node = $('s-' + s[0]);
@@ -957,7 +1095,7 @@ function renderAt(t) {
     node.style.opacity = o;
     if (o > 0) { s[1](t); }
   });
-  $('brand').style.opacity = Math.min(prog(t, SC.hook[0], SC.hook[0] + .6), 1 - prog(t, SC.outro[0] - .5, SC.outro[0]));
+  $('brand').style.opacity = Math.min(prog(t, SC.memory[0], SC.memory[0] + .6), 1 - prog(t, SC.outro[0] - .5, SC.outro[0]));
   renderSubs(t);
   $('bar').style.width = (t / DUR * 1920) + 'px';
 }

@@ -58,7 +58,7 @@ def cues():
         out[-1]["end"] = out[-1]["last"] + 0.6
     return out
 
-async def frames(times, out_dir, prefix, captions=(), words=None):
+async def frames(times, out_dir, prefix, captions=(), words=None, start=0):
     """Screenshots of #stage at the given times. captions: the burned-in cues; words: the narration's word times the scenes
     time their animations by (default: the captions; posters get the words but no captions)."""
     async with async_playwright() as p:
@@ -74,7 +74,7 @@ async def frames(times, out_dir, prefix, captions=(), words=None):
         paths = []
         for i, t in enumerate(times):
             await pg.evaluate("t => renderAt(t)", t)
-            path = os.path.join(out_dir, f"{prefix}{i:05d}.png")
+            path = os.path.join(out_dir, f"{prefix}{start + i:05d}.png")   # start: this page's offset when RENDER_JOBS > 1
             await stage.screenshot(path=path)
             paths.append(path)
             if i % 150 == 0:
@@ -104,7 +104,16 @@ def main():
         print("preview:", paths, "-> contact.png")
         return
     n = round(DUR * FPS)                 # int() would drop a frame when DUR * FPS lands just under a whole number
-    asyncio.run(frames([i / FPS for i in range(n)], a.tmp, "f", cues()))
+    for old in [q for q in os.listdir(a.tmp) if re.fullmatch(r"f\d{5}\.png", q)]:   # v22: no stale frames from a longer render
+        os.remove(os.path.join(a.tmp, old))
+    ts, cs, jobs = [i / FPS for i in range(n)], cues(), max(1, int(os.environ.get("RENDER_JOBS", "1")))
+    if jobs > 1:                         # v22: contiguous chunks on parallel pages (every frame is a pure function of t)
+        k = (n + jobs - 1) // jobs
+        async def run_all():
+            await asyncio.gather(*[frames(ts[j:j + k], a.tmp, "f", cs, start=j) for j in range(0, n, k)])
+        asyncio.run(run_all())
+    else:
+        asyncio.run(frames(ts, a.tmp, "f", cs))
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(a.tmp, "f%05d.png"),
                     "-c:v", "libx264", "-preset", "slow", "-crf", "20", "-profile:v", "high", "-level:v", "4.1", "-x264-params", "ref=4",
                     "-pix_fmt", "yuv420p", "-movflags", "+faststart",

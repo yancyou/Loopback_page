@@ -10,7 +10,7 @@ import argparse, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 LEAD, TAIL_GAP, PAUSE, END_HOLD = 0.5, 0.3, 0.8, 1.3
-MINLEN = {"title": 5.0, "hook": 9.5, "method": 12.0, "live": 10.6, "scale": 10.4, "nine": 9.4, "math": 9.6, "outro": 7.4}   # v21: narration at ~165 wpm
+MINLEN = {"title": 5.0, "memory": 14.5, "knobs": 14.5, "method": 12.0, "live": 10.6, "scale": 10.4, "nine": 9.4, "math": 9.6, "outro": 7.4}   # v22: insight scenes
 
 def main():
     ap = argparse.ArgumentParser()
