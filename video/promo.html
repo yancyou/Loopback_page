@@ -114,7 +114,7 @@ svg text { font-family: var(--body); }
   <div class="scene" id="s-live">
     <div class="eyebrow fade" id="lv-e">Live read &middot; 4,096 held-out tokens &middot; 3B scale</div>
     <div class="h fade" id="lv-h">Two models read the <b>same new text</b></div>
-    <div class="note fade" id="lv-n" style="top:212px">The first 4,096 tokens of the held-out validation stream, eight documents, read token by token on one H100.</div>
+    <div class="note fade" id="lv-n" style="top:200px">The first 4,096 tokens of the held-out validation stream, eight documents, read token by token on one H100.</div>
     <svg id="lv-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
   </div>
 
@@ -226,11 +226,13 @@ svg text { font-family: var(--body); }
 </div>
 
 <script src="live_data.js"></script>
+<script>window.MathJax = { tex: { packages: { '[+]': ['html', 'color'] } }, svg: { fontCache: 'none' }, startup: { typeset: false } };</script>
+<script src="vendor/mathjax/tex-svg-full.js"></script>   <!-- v24: MathJax 3.2.2 (Apache-2.0), every formula on screen -->
 <script>
 'use strict';
-var DUR = 108.933;
-var SC = { title: [0, 6.81], memory: [6.81, 30.89], knobs: [30.89, 46.5], method: [46.5, 59.01], live: [59.01, 70.63], scale: [70.63, 81.53], nine: [81.53, 91.43],
-           math: [91.43, 101.53], outro: [101.53, 108.93] };
+var DUR = 117.233;
+var SC = { title: [0, 7.13], memory: [7.13, 37.27], knobs: [37.27, 53.2], method: [53.2, 66.02], live: [66.02, 77.97], scale: [77.97, 89.19], nine: [89.19, 99.41],
+           math: [99.41, 109.83], outro: [109.83, 117.23] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -257,12 +259,12 @@ function sceneOpacity(t, r, fin, fout) {
 }
 // When the narration says `word` in scene `id`: its time from window.WORDS (render.py sets them from the voiceover's word
 // times, the same cues as the captions), else the scene start + `fallback` s. Words compare by their letters and digits.
-function wt(id, word, fallback) {
-  var r = SC[id], cues = window.WORDS || [], want = String(word).toLowerCase().replace(/[^a-z0-9]/g, '');
+function wt(id, word, fallback, nth) {           // v24: nth (default 1) picks a later occurrence of the word in the scene
+  var r = SC[id], cues = window.WORDS || [], want = String(word).toLowerCase().replace(/[^a-z0-9]/g, ''), seen = 0;
   for (var i = 0; i < cues.length; i++) {
     if (cues[i].start < r[0] - .3 || cues[i].start >= r[1]) { continue; }
     for (var j = 0; j < cues[i].words.length; j++) {
-      if (cues[i].words[j][0].toLowerCase().replace(/[^a-z0-9]/g, '') === want) { return cues[i].words[j][1]; }
+      if (cues[i].words[j][0].toLowerCase().replace(/[^a-z0-9]/g, '') === want && ++seen === (nth || 1)) { return cues[i].words[j][1]; }
     }
   }
   return r[0] + fallback;
@@ -290,103 +292,159 @@ function partialPath(pts, xcut) {                 // the polyline up to x = xcut
   return d;
 }
 
-/* ---------------------------------------------------------------- scene 2 (v22): one memory, over tokens and over depth */
-// Top lane: linear attention over tokens (each token writes v k^T into the state S, the state is carried on, later tokens
-// read it with their query). Bottom lane: the residual stream over depth (each block writes its update delta into the
-// stream h, the stream carries it, later blocks read the stream). The same write / carry / read interface; the last tag says so.
-var MM = { xs: [640, 860, 1080, 1300, 1520], bw: 118, bh: 60, cw: 92, ch: 40,
-           lanes: { tok: { y: 320, sy: 446 }, dep: { y: 636, sy: 762 } } };
-(function buildMemory() {
+/* ---------------------------------------------------------------- scene 2 (v24): one memory, over tokens and over depth */
+// v24 (11-09, user: "公式不够精致" "你还要引出我们如何connect linear attention还有residual的，整个画面精致一点"): every formula is
+// typeset by MathJax (SVG output, vendored in vendor/mathjax). The narration says the connection: linear attention writes,
+// transports and reads a memory over tokens; the same three operations along depth are the residual stream; unrolled, every read
+// is a weighted sum of what was written, and residual addition fixes every weight at one. Each lane plays its writes, then the
+// transport along the memory, then the reads; its write and read rules sit under its title. The closing view: the two unrolled
+// reads, "=" aligned, the weights boxed (query-key products against ones), which the next scene's h = a h0 + sum c_i delta_i opens up.
+var MJX = [];                                     // builders that need MathJax, run once it is ready (after the web fonts)
+function mjSVG(src, size, color) {                // TeX -> MathJax SVG sized for `size` px (1000 viewBox units per em)
+  var node = MathJax.tex2svg(src, { display: false }), svg = node.querySelector('svg');
+  var vb = svg.getAttribute('viewBox').split(/[\s,]+/).map(Number), k = size / 1000;
+  ['style', 'role', 'focusable', 'aria-hidden'].forEach(function (q) { svg.removeAttribute(q); });
+  svg.setAttribute('width', (vb[2] * k).toFixed(2)); svg.setAttribute('height', (vb[3] * k).toFixed(2));
+  svg.setAttribute('overflow', 'visible');
+  if (color) { svg.style.color = color; }
+  return { svg: svg, w: vb[2] * k, asc: -vb[1] * k, desc: (vb[3] + vb[1]) * k };
+}
+function tex(p, x, y, src, size, color, anchor) { // TeX on baseline y in an SVG parent; anchor start | middle | end
+  var m = mjSVG(src, size, color || C.ink), x0 = anchor === 'middle' ? x - m.w / 2 : anchor === 'end' ? x - m.w : x;
+  m.svg.setAttribute('x', x0.toFixed(2)); m.svg.setAttribute('y', (y - m.asc).toFixed(2)); p.appendChild(m.svg);
+  m.x0 = x0; m.x1 = x0 + m.w; return m;
+}
+function texHTML(e, src, size) {                  // TeX into an HTML element on its baseline; the colour follows the element's
+  var m = mjSVG(src, size, null);
+  m.svg.style.verticalAlign = (-m.desc).toFixed(2) + 'px'; e.textContent = ''; e.appendChild(m.svg); return m;
+}
+function partBox(root, id) {                      // box of a \cssId{id}{..} part, in the coordinates of the SVG root `root`
+  var r = root.getBoundingClientRect(), b = root.querySelector('[id="' + id + '"]').getBoundingClientRect();
+  return { x0: b.left - r.left, x1: b.right - r.left, y0: b.top - r.top, y1: b.bottom - r.top, cx: (b.left + b.right) / 2 - r.left };
+}
+var MM = { xs: [730, 945, 1160, 1375, 1590], bw: 118, bh: 60, cw: 96, ch: 42,
+           lanes: { tok: { y: 318, sy: 442 }, dep: { y: 634, sy: 758 } } };
+MJX.push(function buildMemory() {
   var s = $('mm-svg'), defs = el('defs', {}, s);
   [['mmA', C.dark], ['mmN', C.navy]].forEach(function (m) {
-    var mk = el('marker', { id: m[0], viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+    var mk = el('marker', { id: m[0], viewBox: '0 0 10 10', refX: 8.5, refY: 5, markerWidth: 6.5, markerHeight: 6.5, orient: 'auto-start-reverse' }, defs);
     el('path', { d: 'M0 0 L10 5 L0 10 z', fill: m[1] }, mk);
   });
-  function sub(t, base, k, sup) { t.innerHTML = base + '<tspan font-size="0.6em" dy="0.35em">' + k + '</tspan>' + (sup ? '<tspan font-size="0.6em" dy="-0.75em">' + sup + '</tspan>' : ''); }
-  function lane(key, title, subt, itemBase, chipBase, memName, formula, colours) {
-    var L = MM.lanes[key], g = el('g', { id: 'mm-' + key, opacity: 0 }, s), o = { g: g, items: [], chips: [], w: [], rd: [] };
-    txt(g, 150, L.y + 4, title, { 'font-size': 40, fill: C.ink, style: 'font-family: var(--display); font-weight: 500' });
-    txt(g, 150, L.y + 40, subt, { 'font-size': 24, fill: C.muted });
+  var lanes = el('g', { id: 'mm-lanes' }, s);
+  function tag(p, y, label, colour) { txt(p, 150, y, label, { 'font-size': 16, fill: colour, 'letter-spacing': '2.6', style: 'font-family: var(--mono); font-weight: 600' }); }
+  function lane(key, title, subt, item, chip, mem, eqW, eqR, colours) {
+    var L = MM.lanes[key], g = el('g', { opacity: 0 }, lanes), o = { g: g, items: [], chips: [], w: [], rd: [], chev: [] };
+    txt(g, 150, L.y - 4, title, { 'font-size': 40, fill: C.ink, style: 'font-family: var(--display); font-weight: 500' });
+    txt(g, 150, L.y + 30, subt, { 'font-size': 24, fill: C.muted });
+    o.eqW = el('g', { opacity: 0 }, g); tag(o.eqW, L.y + 97, 'WRITE', C.dark); tex(o.eqW, 236, L.y + 98, eqW, 30);
+    o.eqR = el('g', { opacity: 0 }, g); tag(o.eqR, L.y + 145, 'READ', C.navy); tex(o.eqR, 236, L.y + 146, eqR, 30);
     var x0 = MM.xs[0] - MM.bw / 2 - 26, x1 = MM.xs[4] + MM.bw / 2 + 26;
-    el('rect', { x: x0, y: L.sy - MM.bh / 2, width: x1 - x0, height: MM.bh, rx: 14, fill: C.navySoft || '#e7eef7', stroke: C.ring2 || '#9db9dd', 'stroke-width': 2 }, g);
-    txt(g, x0 - 16, L.sy + 9, memName, { 'text-anchor': 'end', 'font-size': 30, class: 'math', fill: C.navy });
-    for (var i = 0; i < 4; i++) {   // carry chevrons along the memory, between write positions
+    o.track = el('rect', { x: x0, y: L.sy - MM.bh / 2, width: x1 - x0, height: MM.bh, rx: 14, fill: '#e7eef7', stroke: '#9db9dd', 'stroke-width': 2 }, g);
+    tex(g, x0 - 16, L.sy + 11, mem, 32, C.navy, 'end');
+    for (var i = 0; i < 4; i++) {
       var cx = (MM.xs[i] + MM.xs[i + 1]) / 2;
-      el('path', { d: 'M-7 -9 L5 0 L-7 9', fill: 'none', stroke: C.blueS, 'stroke-width': 3, 'stroke-linecap': 'round', transform: 'translate(' + cx + ' ' + L.sy + ')' }, g);
+      o.chev.push(el('path', { d: 'M-6 -9 L5 0 L-6 9', fill: 'none', stroke: C.blueS, 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', transform: 'translate(' + cx + ' ' + L.sy + ')' }, g));
     }
     MM.xs.forEach(function (x, i) {
-      var ig = el('g', {}, g);
-      var rc = el('rect', { x: x - MM.bw / 2, y: L.y - MM.bh / 2, width: MM.bw, height: MM.bh, rx: 12, fill: colours(i)[0], stroke: colours(i)[1], 'stroke-width': 2.5 }, ig);
-      sub(txt(ig, x, L.y + 11, '', { 'text-anchor': 'middle', 'font-size': 34, class: 'math', fill: C.ink }), itemBase, i + 1);
-      o.items.push({ rect: rc, base: colours(i)[1] });
+      var c = colours(i), rc = el('rect', { x: x - MM.bw / 2, y: L.y - MM.bh / 2, width: MM.bw, height: MM.bh, rx: 12, fill: c[0], stroke: c[1], 'stroke-width': 2.5 }, g);
+      tex(g, x, L.y + 11, item(i + 1), 32, C.ink, 'middle');
+      o.items.push({ rect: rc, base: c[1] });
       var cg = el('g', { opacity: 0 }, g);
       el('rect', { x: x - MM.cw / 2, y: L.sy - MM.ch / 2, width: MM.cw, height: MM.ch, rx: 9, fill: '#ffffff', stroke: C.navy, 'stroke-width': 2 }, cg);
-      var ct = txt(cg, x, L.sy + 9, '', { 'text-anchor': 'middle', 'font-size': 25, class: 'math', fill: C.navy });
-      if (key === 'tok') { ct.innerHTML = 'v<tspan font-size="0.6em" dy="0.35em">' + (i + 1) + '</tspan><tspan dy="-0.35em">k</tspan><tspan font-size="0.6em" dy="0.35em">' + (i + 1) + '</tspan><tspan font-size="0.6em" dy="-0.85em">&#8868;</tspan>'; }
-      else { sub(ct, '&#948;', i + 1); }
+      tex(cg, x, L.sy + 8, chip(i + 1), 24, C.navy, 'middle');
       o.chips.push(cg);
-      o.w.push(el('line', { x1: x, x2: x, y1: L.y + MM.bh / 2 + 4, y2: L.sy - MM.ch / 2 - 6, stroke: C.dark, 'stroke-width': 3, 'marker-end': 'url(#mmA)', opacity: 0 }, g));
+      o.w.push(el('line', { x1: x, x2: x, y1: L.y + MM.bh / 2 + 5, y2: L.sy - MM.ch / 2 - 8, stroke: C.dark, 'stroke-width': 3, 'marker-end': 'url(#mmA)', opacity: 0 }, g));
       if (i < 4) {
         var xn = MM.xs[i + 1];
-        o.rd.push(el('line', { x1: x + MM.cw / 2 + 8, y1: L.sy - MM.ch / 2 - 2, x2: xn - MM.bw / 2 + 10, y2: L.y + MM.bh / 2 + 6, stroke: C.navy, 'stroke-width': 3, 'stroke-dasharray': '7 6', 'marker-end': 'url(#mmN)', opacity: 0 }, g));
+        o.rd.push(el('line', { x1: x + MM.cw / 2 + 4, y1: L.sy - MM.ch / 2 - 4, x2: xn - MM.bw / 2 + 18, y2: L.y + MM.bh / 2 + 12, stroke: C.navy, 'stroke-width': 3, 'stroke-dasharray': '7 6', 'marker-end': 'url(#mmN)', opacity: 0 }, g));
       }
     });
-    o.lw = txt(g, MM.xs[0] + 12, (L.y + L.sy) / 2 + 8, 'write', { 'font-size': 22, fill: C.dark, opacity: 0 });
-    o.lr = txt(g, (MM.xs[0] + MM.xs[1]) / 2 - 9, (L.y + L.sy) / 2 - 12, 'read', { 'text-anchor': 'middle', 'font-size': 22, fill: C.navy, opacity: 0 });
-    o.lc = txt(g, (MM.xs[1] + MM.xs[2]) / 2, L.sy + MM.bh / 2 + 28, 'carry', { 'text-anchor': 'middle', 'font-size': 22, fill: C.blueS, opacity: 0 });
-    var f = txt(g, x1, L.sy + MM.bh / 2 + 28, '', { 'text-anchor': 'end', 'font-size': 25, class: 'math', fill: C.ink3 });
-    f.innerHTML = formula;
+    o.lw = txt(g, MM.xs[0] + 14, (L.y + L.sy) / 2 + 9, 'write', { 'font-size': 22, fill: C.dark, opacity: 0 });
+    o.lr = txt(g, (MM.xs[0] + MM.xs[1]) / 2 + 2, (L.y + L.sy) / 2 - 18, 'read', { 'text-anchor': 'middle', 'font-size': 22, fill: C.navy, opacity: 0 });
+    o.lt = txt(g, (x0 + x1) / 2, L.sy + MM.bh / 2 + 30, 'transport', { 'text-anchor': 'middle', 'font-size': 22, fill: C.blueS, opacity: 0 });
     MM[key] = o;
   }
-  lane('tok', 'Linear attention', 'memory over tokens', 'x', 'v', 'S',
-       'S<tspan font-size="0.6em" dy="0.35em">t</tspan><tspan dy="-0.35em"> = S</tspan><tspan font-size="0.6em" dy="0.35em">t&#8722;1</tspan><tspan dy="-0.35em"> + v</tspan><tspan font-size="0.6em" dy="0.35em">t</tspan><tspan dy="-0.35em">k</tspan><tspan font-size="0.6em" dy="0.35em">t</tspan><tspan font-size="0.6em" dy="-0.85em">&#8868;</tspan>',
-       function () { return [C.grayF, C.grey]; });
-  lane('dep', 'Residual stream', 'memory over depth', 'f', '&#948;', 'h',
-       'h<tspan font-size="0.6em" dy="0.35em">l</tspan><tspan dy="-0.35em"> = h</tspan><tspan font-size="0.6em" dy="0.35em">l&#8722;1</tspan><tspan dy="-0.35em"> + &#948;</tspan><tspan font-size="0.6em" dy="0.35em">l</tspan>',
-       function (i) { return i % 2 ? [C.peachF, C.peachS] : [C.blueF, C.blueS]; });
-  // v23: the correspondence, said as "Layers play the role of tokens, and the stream plays the role of the state"
-  // v23b: box clear of the S label (x ~525) and of the "Residual stream" heading (y ~613)
-  var mp = el('g', { id: 'mm-map', opacity: 0 }, s), mx = [150, 340], my = [430, 472, 512, 552];
-  el('rect', { x: 132, y: 400, width: 376, height: 172, rx: 14, fill: '#ffffff', stroke: C.line, 'stroke-width': 1.5 }, mp);
-  txt(mp, mx[0], my[0], 'linear attention', { 'font-size': 21, fill: C.muted, 'font-weight': 600 });
-  txt(mp, mx[1], my[0], 'residual stream', { 'font-size': 21, fill: C.muted, 'font-weight': 600 });
-  [['token', 'layer'], ['state S', 'stream h'], ['write v k\u1D40', 'update \u03B4']].forEach(function (r, i) {
-    txt(mp, mx[0], my[i + 1], r[0], { 'font-size': 26, fill: C.ink2 });
-    txt(mp, mx[1] - 34, my[i + 1], '\u2194', { 'font-size': 26, fill: C.navy, 'text-anchor': 'middle' });
-    txt(mp, mx[1], my[i + 1], r[1], { 'font-size': 26, fill: C.navy, 'font-weight': 600 });
+  lane('tok', 'Linear attention', 'memory over tokens', function (i) { return 'x_{' + i + '}'; }, function (i) { return 'v_{' + i + '}k_{' + i + '}^{\\top}'; },
+       'S', 'S_t = S_{t-1} + v_t k_t^{\\top}', 'o_t = S_t\\, q_t', function () { return [C.grayF, C.grey]; });
+  lane('dep', 'Residual stream', 'memory over depth', function (i) { return 'f_{' + i + '}'; }, function (i) { return '\\delta_{' + i + '}'; },
+       'h', 'h_l = h_{l-1} + \\delta_l', '\\delta_{l+1} = f_{l+1}(h_l)', function (i) { return i % 2 ? [C.peachF, C.peachS] : [C.blueF, C.blueS]; });
+  // the closing view: both reads unrolled, "=" aligned at XE, the weights boxed
+  var bg = el('g', { id: 'mm-bridge', opacity: 0 }, s), XE = 900, FS = 54, Y = [528, 704];
+  txt(bg, 960, 398, 'UNROLLED READS', { 'text-anchor': 'middle', 'font-size': 19, fill: C.navy, 'letter-spacing': '4.2', style: 'font-family: var(--mono); font-weight: 600' });
+  var lhs = [mjSVG('o_t', FS).w, mjSVG('h_l', FS).w], lx = XE - Math.max(lhs[0], lhs[1]) - 64;
+  [['Linear attention', 'over tokens'], ['Residual stream', 'over depth']].forEach(function (lb, r) {
+    txt(bg, lx, Y[r] - 4, lb[0], { 'text-anchor': 'end', 'font-size': 36, fill: C.ink, style: 'font-family: var(--display); font-weight: 500' });
+    txt(bg, lx, Y[r] + 28, lb[1], { 'text-anchor': 'end', 'font-size': 22, fill: C.muted });
   });
-  // the closing tag: one interface
-  var tg = el('g', { id: 'mm-tag', opacity: 0 }, s);
-  el('path', { d: 'M1640 296 Q1662 296 1662 320 L1662 520 Q1662 540 1682 540 Q1662 540 1662 560 L1662 768 Q1662 792 1640 792', fill: 'none', stroke: C.navy, 'stroke-width': 3 }, tg);
-  txt(tg, 1700, 526, 'one interface', { 'font-size': 30, fill: C.navy, style: 'font-family: var(--display); font-weight: 500; font-style: italic' });
-  txt(tg, 1700, 566, 'write · carry · read', { 'font-size': 24, fill: C.ink3 });
-})();
-function laneAt(o, t, a, b) {          // five steps between a and b: item lights, write, chip, then read into the next item
-  var per = (b - a) / 5;
+  var boxes = el('g', {}, bg);                    // drawn under the formulas
+  var fA = tex(bg, XE - lhs[0], Y[0], 'o_t = \\sum_{i \\le t}\\, \\cssId{mmwA}{\\left(q_t^{\\top} k_i\\right)}\\,\\, v_i', FS);
+  var fB = tex(bg, XE - lhs[1], Y[1], 'h_l = \\cssId{mmw0}{1}\\cdot h_0 + \\sum_{i \\le l}\\, \\cssId{mmw1}{1}\\cdot \\delta_i', FS);
+  MM.bridge = { g: bg, fA: fA, fB: fB, boxes: boxes, s: s };
+});
+MJX.push(function buildMemoryBoxes() {            // needs layout: box the weights of the placed formulas
+  var B = MM.bridge, s = B.s, bA = partBox(s, 'mmwA'), b0 = partBox(s, 'mmw0'), b1 = partBox(s, 'mmw1'), pad = 7;
+  function box(b, fill, stroke) { return el('rect', { x: b.x0 - pad, y: b.y0 - pad, width: b.x1 - b.x0 + 2 * pad, height: b.y1 - b.y0 + 2 * pad, rx: 10, fill: fill, stroke: stroke, 'stroke-width': 2, opacity: 0 }, B.boxes); }
+  B.kA = box(bA, '#e5edf7', C.navy);
+  B.kB = [box(b0, '#f7e6e5', C.rose), box(b1, '#f7e6e5', C.rose)];
+  B.nA = txt(B.g, bA.cx, bA.y1 + pad + 34, 'from the query and the keys', { 'text-anchor': 'middle', 'font-size': 23, fill: C.navy, opacity: 0 });
+  var yb = Math.max(b0.y1, b1.y1) + pad + 12, yl = yb + 20;
+  B.nB = el('g', { opacity: 0 }, B.g);
+  el('path', { d: 'M' + b0.cx + ' ' + yb + ' L' + b0.cx + ' ' + yl + ' L' + b1.cx + ' ' + yl + ' L' + b1.cx + ' ' + yb, fill: 'none', stroke: C.rose, 'stroke-width': 2, 'stroke-linejoin': 'round' }, B.nB);
+  txt(B.nB, (b0.cx + b1.cx) / 2, yl + 32, 'fixed at 1', { 'text-anchor': 'middle', 'font-size': 23, fill: C.rose });
+  B.wA = s.querySelector('[id="mmwA"]'); B.w0 = s.querySelector('[id="mmw0"]'); B.w1 = s.querySelector('[id="mmw1"]');
+});
+function laneAt(o, t, w0, w1, p0, p1, r0, r1) {  // writes over [w0, w1], the transport pulse over [p0, p1], reads over [r0, r1]
+  var pw = (w1 - w0) / 5, pr = (r1 - r0) / 4, pp = (p1 - p0) / 4;
   o.items.forEach(function (it, i) {
-    var p = (t - a) / per - i, on = p >= 0 && p < .55;
+    var a = (t - w0) / pw - i, rd = i > 0 ? (t - r0) / pr - (i - 1) : -1;
+    var on = (a >= 0 && a < .75) || (rd >= .45 && rd < 1.15);
     it.rect.setAttribute('stroke', on ? C.navy : it.base); it.rect.setAttribute('stroke-width', on ? 5 : 2.5);
-    o.w[i].setAttribute('opacity', easeOut(clamp((p - .1) / .25, 0, 1)));
-    o.chips[i].setAttribute('opacity', easeOut(clamp((p - .3) / .25, 0, 1)));
-    if (i < 4) { o.rd[i].setAttribute('opacity', easeOut(clamp((p - .6) / .25, 0, 1))); }
+    o.w[i].setAttribute('opacity', easeOut(clamp((a - .05) / .3, 0, 1)));
+    o.chips[i].setAttribute('opacity', easeOut(clamp((a - .3) / .3, 0, 1)));
+    if (i < 4) { o.rd[i].setAttribute('opacity', easeOut(clamp(((t - r0) / pr - i) / .55, 0, 1))); }
   });
-  var p0 = (t - a) / per;
-  o.lw.setAttribute('opacity', easeOut(clamp((p0 - .1) / .3, 0, 1)));
-  o.lr.setAttribute('opacity', easeOut(clamp((p0 - .6) / .3, 0, 1)));
-  o.lc.setAttribute('opacity', easeOut(clamp((p0 - 1.3) / .3, 0, 1)));
+  o.chev.forEach(function (c, i) {
+    var u = (t - p0) / pp - i, pulse = u > 0 && u < 1.6 ? Math.sin(Math.PI * u / 1.6) : 0;
+    c.setAttribute('stroke', pulse > .08 ? C.navy : C.blueS); c.setAttribute('stroke-width', (3 + 2 * pulse).toFixed(2));
+  });
+  o.lw.setAttribute('opacity', easeOut(prog(t, w0 + .1, w0 + .5)));
+  o.lt.setAttribute('opacity', easeOut(prog(t, p0, p0 + .4)));
+  o.lr.setAttribute('opacity', easeOut(prog(t, r0 + .1, r0 + .5)));
+  o.eqW.setAttribute('opacity', easeOut(prog(t, w0 + .3, w0 + .9)));
+  o.eqR.setAttribute('opacity', easeOut(prog(t, r0 + .3, r0 + .9)));
+}
+function pulse(t, c) { var u = (t - c + .1) / .9; return u > 0 && u < 1 ? Math.sin(Math.PI * u) : 0; }
+function opFlash(o, t, cw, ct, cr) {              // v24: the token lane's write, transport and read light up as the narration
+  var fw = pulse(t, cw), ft = pulse(t, ct), fr = pulse(t, cr);   // names them for depth ("the same write, transport and read")
+  o.w.forEach(function (l) {
+    l.setAttribute('stroke', fw > .05 ? C.navy : C.dark); l.setAttribute('marker-end', fw > .05 ? 'url(#mmN)' : 'url(#mmA)');
+    l.setAttribute('stroke-width', (3 + 1.5 * fw).toFixed(2));
+  });
+  if (ft > .05) { o.chev.forEach(function (c) { c.setAttribute('stroke', C.navy); c.setAttribute('stroke-width', (3 + 2 * ft).toFixed(2)); }); }
+  o.rd.forEach(function (l) { l.setAttribute('stroke-width', (3 + 1.5 * fr).toFixed(2)); });
+  [[o.lw, fw, C.dark], [o.lt, ft, C.blueS], [o.lr, fr, C.navy]].forEach(function (q) {
+    q[0].setAttribute('fill', q[1] > .05 ? C.navy : q[2]); q[0].setAttribute('font-weight', q[1] > .05 ? 700 : 400);
+  });
 }
 function renderMemory(t) {
   var r = SC.memory;
   appear($('mm-e'), t, r[0] + .1, .5); appear($('mm-h'), t, r[0] + .25, .6);
-  // v23: about 1.1 s per step; the correspondence table comes in with "role", the bracket after it
-  var ta = wt('memory', 'each', 2.6) - .25, tb = wt('memory', 'residual', 8.3) - .2, tc = wt('memory', 'block', tb + 3.0) - .25;
-  var tm = wt('memory', 'role', tc + 5.6) - .2, te = Math.min(tm - .2, tc + 6.0);
-  MM.tok.g.setAttribute('opacity', easeOut(prog(t, r[0] + .6, r[0] + 1.2)));
-  laneAt(MM.tok, t, ta, Math.min(tb - .4, ta + 6.0));
-  MM.dep.g.setAttribute('opacity', easeOut(prog(t, tb - .2, tb + .4)));
-  laneAt(MM.dep, t, tc, te);
-  $('mm-map').setAttribute('opacity', easeOut(prog(t, tm, tm + .6)));
-  $('mm-tag').setAttribute('opacity', easeOut(prog(t, tm + 1.6, tm + 2.2)));
+  // cue words of the v24 line (fallbacks: seconds into the scene at about 150 wpm)
+  var aw = wt('memory', 'writes', 2.7) - .25, ap = wt('memory', 'passed', 6.4) - .2, ar = wt('memory', 'read', 8.5) - .3;
+  var bi = wt('memory', 'apply', 10.9) - .3, bw = wt('memory', 'writes', 15.0, 2) - .25, br = wt('memory', 'read', 18.9, 3) - .3;
+  var u = wt('memory', 'unrolled', 21.5) - .3, w = wt('memory', 'weighted', 23.1), pl = wt('memory', 'plain', 25.5);
+  var out = 1 - easeOut(prog(t, u, u + .5));
+  MM.tok.g.setAttribute('opacity', easeOut(prog(t, r[0] + .5, r[0] + 1.0)) * out);
+  laneAt(MM.tok, t, aw, Math.min(aw + 3.0, ap - .1), ap, ap + 1.5, ar, Math.min(ar + 2.0, bi - .1));
+  opFlash(MM.tok, t, wt('memory', 'write', 12.0), wt('memory', 'transport', 12.7), wt('memory', 'read', 13.6, 2));
+  MM.dep.g.setAttribute('opacity', easeOut(prog(t, bi, bi + .6)) * out);
+  laneAt(MM.dep, t, bw, Math.min(bw + 2.6, br - 1.0), br - .95, br - .1, br, Math.min(br + 1.8, u - .1));
+  var B = MM.bridge, bin = easeOut(prog(t, u + .25, u + .85));
+  B.g.setAttribute('opacity', bin); B.g.setAttribute('transform', 'translate(0 ' + ((1 - bin) * 16).toFixed(2) + ')');
+  var ka = easeOut(prog(t, w - .1, w + .4)), kb = easeOut(prog(t, pl, pl + .5));
+  B.kA.setAttribute('opacity', ka); B.nA.setAttribute('opacity', ka);
+  B.kB.forEach(function (k) { k.setAttribute('opacity', kb); }); B.nB.setAttribute('opacity', easeOut(prog(t, pl + .25, pl + .75)));
+  B.wA.style.color = ka > .5 ? C.navy : C.ink; B.w0.style.color = kb > .5 ? C.rose : C.ink; B.w1.style.color = kb > .5 ? C.rose : C.ink;
 }
 
 /* ---------------------------------------------------------------- scene 2 (v21): the loop */
@@ -586,7 +644,8 @@ function renderMethod(t) {
     if (i === n - 1) { w *= easeOut(grow); }
     setBar(b, w, i < n);
     var gh = L.ghosts[i], showG = n === RU.n && tl.dec >= 1 && realloc > 0;
-    gh.setAttribute('opacity', showG ? realloc : 0);
+    // v24: a ghost only where attention took weight away, and visibly so (it peeked out beside bars that grew)
+    gh.setAttribute('opacity', showG && ((c0[i] || 0) - w) * RU.ch > 6 ? realloc : 0);
     gh.setAttribute('height', c0[i] ? c0[i] * RU.ch : 0); gh.setAttribute('y', RU.y0 + RU.ch - (c0[i] || 0) * RU.ch);
   });
   var atEnd = tl.dec >= 1;
@@ -1005,7 +1064,7 @@ function lvTitle(a, b) {
   el('line', { x1: LV.x0, x2: LV.x1, y1: LV.yb, y2: LV.yb, stroke: C.axis, 'stroke-width': 1.5 }, g);
   for (var k = 0; k <= 4; k++) { txt(g, lvX(k * 1024), LV.yb + 36, k ? k + 'k' : '0', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted }); }
   txt(g, (LV.x0 + LV.x1) / 2, LV.yb + 72, 'tokens read', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted });
-  txt(g, LV.x0 - 16, LV.ly - 56, 'running mean loss (nats, lower is better)', { 'font-size': 24, fill: C.ink3 });
+  txt(g, LV.x0 - 16, LV.ly - 52, 'running mean loss (nats, lower is better)', { 'font-size': 24, fill: C.ink3 });
   // legend with the two models' sizes
   var lg = el('g', {}, g);
   el('rect', { x: LV.x0 - 16, y: LV.ly - 28, width: 22, height: 6, rx: 3, fill: C.grey }, lg);
@@ -1077,6 +1136,15 @@ function renderLive(t) {
   LV.close.setAttribute('opacity', easeOut(prog(t, t1 + .5, t1 + 1.1)));
 }
 
+/* ---------------------------------------------------------------- v24: the knobs' and the method's symbols, typeset */
+MJX.push(function buildSymbols() {
+  texHTML($('kn-f'), 'h = a\\,h_0 + \\sum_i c_i\\,\\delta_i', 62);
+  texHTML($('kn-q1').querySelector('b'), 'a', 40);
+  texHTML($('kn-q2').querySelector('b'), 'B = \\sum_i c_i', 40);
+  texHTML($('kn-q3').querySelector('b'), 'c_i / B', 40);
+  ['a', 'B', 'c'].forEach(function (q, k) { texHTML($('me-' + (k + 1)).querySelector('.num'), q, 34); });
+});
+
 /* ---------------------------------------------------------------- burned-in captions */
 // window.CUES (render.py): [{start, end, last, words: [[text, t], ...]}], one per spoken phrase. Each word fades up when it
 // is spoken and stays white; the word being spoken is in the accent colour. The title carries its words on screen.
@@ -1113,7 +1181,9 @@ function renderAt(t) {
 }
 window.renderAt = renderAt;
 window.__ready = false;
-document.fonts.ready.then(function () { LATE.forEach(function (f) { f(); }); renderAt(0); window.__ready = true; });
+Promise.all([document.fonts.ready, MathJax.startup.promise]).then(function () {   // v24: the formulas need MathJax
+  MJX.forEach(function (f) { f(); }); LATE.forEach(function (f) { f(); }); renderAt(0); window.__ready = true;
+}).catch(function (e) { window.__error = String(e && e.stack || e); throw e; });
 </script>
 </body>
 </html>

@@ -17,7 +17,7 @@ BUILD = os.path.join(HERE, "build")
 SR = 24000
 SPEEDS = [round(1 + 0.04 * k, 2) for k in range(6)]           # 1.00 ... 1.20
 LEAD, TAIL = 0.05, 0.10                                        # silence kept before the first / after the last word
-PUNCT = re.compile(r"[,;:.?!]+[\"'”’)\]]*(?=\s|$)")         # a chunk ends here; '1.4B' and '1,000' do not split
+PUNCT = re.compile(r"[,;:.?!]+[\"'”’)\]]*(?=[ \t\n]|$)")   # v24: a no-break space after a comma keeps the phrase together         # a chunk ends here; '1.4B' and '1,000' do not split
 LINK = re.compile(r"\[([^\]]+)\]\(([^)]*)\)")
 
 def repo(p):
