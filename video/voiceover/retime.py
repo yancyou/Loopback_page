@@ -10,7 +10,7 @@ import argparse, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 LEAD, TAIL_GAP, PAUSE, END_HOLD = 0.5, 0.3, 0.8, 1.3
-MINLEN = {"title": 5.0, "memory": 14.5, "knobs": 14.5, "method": 12.0, "live": 10.6, "scale": 10.4, "nine": 9.4, "math": 9.6, "outro": 7.4}   # v22: insight scenes
+MINLEN = {"title": 5.0, "memory": 14.5, "knobs": 14.5, "method": 12.0, "train": 10.0, "scale": 10.4, "nine": 9.4, "depth": 11.0, "outro": 7.4}   # v25: train, depth
 
 def main():
     ap = argparse.ArgumentParser()
@@ -46,7 +46,7 @@ def main():
     p = os.path.join(HERE, "..", "promo.html")
     page = open(p, encoding="utf-8").read()
     body = ", ".join(f"{i}: [{sc[i][0]:g}, {sc[i][1]:g}]" for i in ids)
-    new = "var SC = { " + body.replace(", math:", ",\n           math:", 1) + " };"
+    new = "var SC = { " + body.replace(", depth:", ",\n           depth:", 1) + " };"
     page, n1 = re.subn(r"var SC = \{[^}]*\};", lambda m: new, page)
     page, n2 = re.subn(r"var DUR = [0-9.]+;", f"var DUR = {dur:g};", page)
     if n1 != 1 or n2 != 1:

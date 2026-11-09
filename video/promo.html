@@ -5,7 +5,7 @@
 <title>Loopback promo (render page)</title>
 <!-- Render page for the Loopback promo video. render.py loads it at 1920x1080, waits for window.__ready, then calls
      renderAt(t) for every frame and screenshots #stage. Nothing animates on its own: every frame is a pure function of t.
-     Every number on screen is from the paper (main table, Tables 3-4, the depth sweep, the extra-iteration and efficiency sections). -->
+     Every number on screen is from the paper (main table, Figure 4's training curves, the depth sweep). -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap">
 <style>
 /* the project page's light theme (style.css :root): paper ground, navy for Loopback, rose for the residual baselines,
@@ -110,7 +110,15 @@ svg text { font-family: var(--body); }
     <div id="t-note" class="fade"><sup>*</sup>Equal contribution &ensp;&middot;&ensp; <sup>&#9993;</sup>Corresponding author</div>
   </div>
 
-  <!-- 1b live read: two 3B-scale models read the same held-out text (live_data.js from live/live_3b.json, measured on one H100) -->
+  <!-- 5 (v25) training curves: the paper's Figure 4 at five scales (train_data.js from train/train_curves.json) -->
+  <div class="scene" id="s-train">
+    <div class="eyebrow fade" id="tr-e">Training curves &middot; 191M to 3B</div>
+    <div class="h fade" id="tr-h">Lower training loss at <b>every scale</b></div>
+    <div class="note fade" id="tr-n" style="top:200px">Same tokens and executed depth &middot; 100-step moving averages &middot; &Delta; = Loopback &minus; Standard over the last 100 steps</div>
+    <svg id="tr-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+  </div>
+
+  <!-- 1b live read (v21-v24; kept for reference, not in SCENES): two 3B-scale models read the same held-out text (live_data.js from live/live_3b.json, measured on one H100) -->
   <div class="scene" id="s-live">
     <div class="eyebrow fade" id="lv-e">Live read &middot; 4,096 held-out tokens &middot; 3B scale</div>
     <div class="h fade" id="lv-h">Two models read the <b>same new text</b></div>
@@ -168,7 +176,7 @@ svg text { font-family: var(--body); }
     <svg id="nn-svg" style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
   </div>
 
-  <!-- 7 math and code -->
+  <!-- 7 math and code (v20-v24; kept for reference, not in SCENES) -->
   <div class="scene" id="s-math">
     <div class="h fade" id="ma-h">Better math and code predictions at <b>1.4B and 3B</b></div>
     <div class="note fade" id="ma-n" style="top:212px">Reference-solution loss: teacher-forced nats per solution token, lower is better &middot; same tokens and depth</div>
@@ -195,7 +203,7 @@ svg text { font-family: var(--body); }
     <div class="note fade" id="ab-n2" style="top:800px">Three weight initializations at both scales: Loopback is below the standard Transformer and Plain Loop in all six settings, and lowest in five.</div>
   </div>
 
-  <!-- 10 depth at a fixed budget -->
+  <!-- 10 depth at a fixed budget (v25: back in SCENES, after the nine designs) -->
   <div class="scene" id="s-depth">
     <div class="h fade" id="de-h">Loopback's margin <b>grows with depth</b></div>
     <div class="note fade" id="de-n" style="top:212px">Same parameters and tokens at every depth &middot; looped models run two iterations and store 56&ndash;58% of the standard Transformer's parameters</div>
@@ -218,7 +226,7 @@ svg text { font-family: var(--body); }
     <div class="ores fade" id="o-ins" style="top:428px;font:italic 500 38px/1.2 var(--display);color:#0f4d92">A memory view of depth, and a residual rule built from it</div>
     <div class="ores fade" id="o-r1" style="top:516px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Lower loss with 40&ndash;75% of the parameters, 191M to 3B</div>
     <div class="ores fade" id="o-r2" style="top:596px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Lowest loss and highest 13-task average of nine designs at 191M, 374M and 778M</div>
-    <div class="ores fade" id="o-r3" style="top:676px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>More than double the word-problem accuracy at 3B: 2.6% &rarr; 6.4%</div>
+    <div class="ores fade" id="o-r3" style="top:676px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#0f4d92"/><path d="M10 17.5 L15 22.5 L24.5 12" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Margin over the standard Transformer grows with depth: 0.003 &rarr; 0.073 at 374M</div>
   </div>
 
   <div id="subs"></div>
@@ -226,13 +234,14 @@ svg text { font-family: var(--body); }
 </div>
 
 <script src="live_data.js"></script>
+<script src="train_data.js"></script>   <!-- v25: the paper's Figure 4 curves (train/export_train.py) -->
 <script>window.MathJax = { tex: { packages: { '[+]': ['html', 'color'] } }, svg: { fontCache: 'none' }, startup: { typeset: false } };</script>
 <script src="vendor/mathjax/tex-svg-full.js"></script>   <!-- v24: MathJax 3.2.2 (Apache-2.0), every formula on screen -->
 <script>
 'use strict';
 var DUR = 117.233;
-var SC = { title: [0, 7.13], memory: [7.13, 37.27], knobs: [37.27, 53.2], method: [53.2, 66.02], live: [66.02, 77.97], scale: [77.97, 89.19], nine: [89.19, 99.41],
-           math: [99.41, 109.83], outro: [109.83, 117.23] };
+var SC = { title: [0, 6.85], memory: [6.85, 37.58], knobs: [37.58, 53.23], method: [53.23, 65.77], train: [65.77, 76.3], scale: [76.3, 87.24], nine: [87.24, 97.18],
+           depth: [97.18, 109.83], outro: [109.83, 117.23] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -275,7 +284,7 @@ function legend(g, x, y, items) {               // [[label, colour, 'dot' | 'rin
     el('line', { x1: x, x2: x + 46, y1: y, y2: y, stroke: it[1], 'stroke-width': it[2] === 'dot' ? 4.5 : 4, 'stroke-linecap': 'round' }, g);
     if (it[2] === 'dot') { el('circle', { cx: x + 23, cy: y, r: 9, fill: it[1], stroke: C.bg, 'stroke-width': 3 }, g); }
     else if (it[2] === 'ring') { el('circle', { cx: x + 23, cy: y, r: 8, fill: C.bg, stroke: it[1], 'stroke-width': 3.5 }, g); }
-    else { el('rect', { x: x + 15, y: y - 8, width: 16, height: 16, fill: C.bg, stroke: it[1], 'stroke-width': 3.5 }, g); }
+    else if (it[2] !== 'line') { el('rect', { x: x + 15, y: y - 8, width: 16, height: 16, fill: C.bg, stroke: it[1], 'stroke-width': 3.5 }, g); }   // v25: 'line' = no marker
     var tt = txt(g, x + 60, y + 8, it[0], { 'font-size': 23, fill: C.ink2 });
     x += 60 + tt.getComputedTextLength() + 56;
   }); });
@@ -429,16 +438,19 @@ function opFlash(o, t, cw, ct, cr) {              // v24: the token lane's write
 function renderMemory(t) {
   var r = SC.memory;
   appear($('mm-e'), t, r[0] + .1, .5); appear($('mm-h'), t, r[0] + .25, .6);
-  // cue words of the v24 line (fallbacks: seconds into the scene at about 150 wpm)
+  // cue words of the v25 line (fallbacks: seconds into the scene at about 150 wpm). v25 (11-09, user: "这里停顿的语气很有问题"): the
+  // depth half no longer lists "write, transport and read" (the take paused 0.5-0.6 s after each word); it says what each does:
+  // "The residual stream does the same over depth. Each block writes its update into the stream. The stream carries it forward,
+  // and later blocks read from it." The token lane's three operations light up as the depth lane does each.
   var aw = wt('memory', 'writes', 2.7) - .25, ap = wt('memory', 'passed', 6.4) - .2, ar = wt('memory', 'read', 8.5) - .3;
-  var bi = wt('memory', 'apply', 10.9) - .3, bw = wt('memory', 'writes', 15.0, 2) - .25, br = wt('memory', 'read', 18.9, 3) - .3;
-  var u = wt('memory', 'unrolled', 21.5) - .3, w = wt('memory', 'weighted', 23.1), pl = wt('memory', 'plain', 25.5);
+  var bi = wt('memory', 'residual', 12.5) - .3, bw = wt('memory', 'writes', 16.5, 2) - .25, bc = wt('memory', 'carries', 20.0), br = wt('memory', 'read', 22.5, 2) - .3;
+  var u = wt('memory', 'unrolled', 24.5) - .3, w = wt('memory', 'weighted', 26.0), pl = wt('memory', 'plain', 29.5);
   var out = 1 - easeOut(prog(t, u, u + .5));
   MM.tok.g.setAttribute('opacity', easeOut(prog(t, r[0] + .5, r[0] + 1.0)) * out);
   laneAt(MM.tok, t, aw, Math.min(aw + 3.0, ap - .1), ap, ap + 1.5, ar, Math.min(ar + 2.0, bi - .1));
-  opFlash(MM.tok, t, wt('memory', 'write', 12.0), wt('memory', 'transport', 12.7), wt('memory', 'read', 13.6, 2));
+  opFlash(MM.tok, t, bw + .25, bc, br + .3);
   MM.dep.g.setAttribute('opacity', easeOut(prog(t, bi, bi + .6)) * out);
-  laneAt(MM.dep, t, bw, Math.min(bw + 2.6, br - 1.0), br - .95, br - .1, br, Math.min(br + 1.8, u - .1));
+  laneAt(MM.dep, t, bw, Math.min(bw + 2.4, bc - .15), bc - .1, Math.min(bc + 1.1, br - .1), br, Math.min(br + 1.8, u - .1));
   var B = MM.bridge, bin = easeOut(prog(t, u + .25, u + .85));
   B.g.setAttribute('opacity', bin); B.g.setAttribute('transform', 'translate(0 ' + ((1 - bin) * 16).toFixed(2) + ')');
   var ka = easeOut(prog(t, w - .1, w + .4)), kb = easeOut(prog(t, pl, pl + .5));
@@ -1014,14 +1026,18 @@ function renderDepth(t) {
   var r = SC.depth;
   appear($('de-h'), t, r[0] + .2, .6); appear($('de-n'), t, r[0] + .5, .6);
   $('de-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.2));
-  var tS = wt('depth', 'deeper', 2.4), tL = wt('depth', "loopback's", 5.4) - .1, tM = wt('depth', 'grows', 6.8);
+  // v25 line: "We also held the parameter count fixed and traded width for depth. As the model gets deeper and narrower, the standard
+  // transformer loses ground, while Loopback's margin grows at both scales." Standard draws with "traded width for depth",
+  // Loopback with "deeper and narrower", Standard's 64-layer loss shows with "loses ground", the margins with "grows".
+  var tS = wt('depth', 'traded', 2.4) - .1, tL = wt('depth', 'deeper', 4.6) - .1, tG = wt('depth', 'loses', 6.5), tM = wt('depth', 'grows', 8.8);
   DE.forEach(function (d, k) {
-    d.series.forEach(function (sr, j) {             // Standard with "deeper and narrower", then Loopback with "Loopback's margin"
-      var t0 = (j ? tL : tS) + k * .3, t1 = t0 + 1.6, u = ease(prog(t, t0, t1));
+    d.series.forEach(function (sr, j) {
+      var t0 = (j ? tL : tS) + k * .3, t1 = t0 + 1.7, u = ease(prog(t, t0, t1));
       var xc = lerp(sr.pts[0][0], sr.pts[sr.pts.length - 1][0], u);
       sr.path.setAttribute('d', u > 0 ? partialPath(sr.pts, xc) : '');
       sr.marks.forEach(function (m, i) { m.setAttribute('opacity', u > 0 ? clamp((xc - sr.pts[i][0] + 14) / 14, 0, 1) : 0); });
-      sr.val.setAttribute('opacity', easeOut(prog(t, t1 - .1, t1 + .4)));
+      var tv = j ? t1 - .1 : Math.max(t1 - .1, tG - .15 + k * .2);
+      sr.val.setAttribute('opacity', easeOut(prog(t, tv, tv + .45)));
     });
     d.mg.setAttribute('opacity', easeOut(prog(t, tM + k * .3, tM + .5 + k * .3)));
   });
@@ -1043,6 +1059,84 @@ function renderOutro(t) {
 function renderTitle(t) {
   appear($('t-title'), t, .4, .8, 36); appear($('t-sub'), t, 1.1, .7);
   appear($('t-auth'), t, 1.7, .7); appear($('t-aff'), t, 2.1, .7); appear($('t-note'), t, 2.5, .7);
+}
+
+/* ---------------------------------------------------------------- scene 5 (v25): training curves, the paper's Figure 4 (TRAIN from train_data.js) */
+// v25 (11-09, user: "这里能不能换成我们的训练曲线？"): replaces the live read. As in the paper: 100-step moving averages against tokens seen,
+// each panel's loss range the paper's (bottom 0.03 below the lowest point, top = the higher curve at 8% of training), the last
+// quarter of training in an inset, and Delta = Loopback minus Standard over the last 100 steps. The curves draw from "training".
+var TRP = { x0: 186, step: 344, w: 262, top: 392, bot: 770 };
+var TRX = { '191M': [0, 1, 2, 3], '374M': [0, 2, 4, 6], '778M': [0, 4, 8, 12], '1.4B': [0, 8, 16, 24], '3B': [0, 20, 40, 60] };
+function niceTicks(lo, hi, n) {                    // about n ticks in [lo, hi] at 1, 2, 2.5 or 5 x 10^k; d = decimals to print
+  var raw = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), st = 10 * p;
+  [1, 2, 2.5, 5].some(function (m) { if (m * p >= raw) { st = m * p; return true; } return false; });
+  var v = [], x = Math.ceil(lo / st - 1e-9) * st;
+  for (; x <= hi + 1e-9; x += st) { v.push(+x.toFixed(6)); }
+  return { v: v, d: Math.abs(st * 10 - Math.round(st * 10)) > 1e-6 || st < .1 - 1e-9 ? 2 : 1 };
+}
+var TR = [];
+(function buildTrain() {
+  var s = $('tr-svg'), g = el('g', { id: 'tr-g' }, s), defs = el('defs', {}, s), H = TRP.bot - TRP.top;
+  legend(g, 712, 312, [['Standard Transformer', C.grey, 'line'], ['Loopback', C.navy, 'line']]);
+  TRAIN.forEach(function (d, k) {
+    var x0 = TRP.x0 + k * TRP.step, w = TRP.w, xmax = d.x_end * 1.01, pg = el('g', {}, g);
+    var X = function (x) { return x0 + x / xmax * w; }, Y = function (v) { return TRP.bot - (v - d.lo) / (d.hi - d.lo) * H; };
+    el('rect', { x: x0, y: TRP.top, width: w + 6, height: H }, el('clipPath', { id: 'trc' + k }, defs));
+    txt(pg, x0 + w / 2, TRP.top - 26, d.scale, { 'text-anchor': 'middle', 'font-size': 30, 'font-weight': 700, fill: C.ink });
+    var tk = niceTicks(d.lo, d.hi, 4);
+    tk.v.forEach(function (v) {
+      var y = Y(v);
+      el('line', { x1: x0, x2: x0 + w, y1: y, y2: y, stroke: C.grid, 'stroke-width': 1.5 }, pg);
+      txt(pg, x0 - 10, y + 7, v.toFixed(tk.d), { 'text-anchor': 'end', 'font-size': 19, fill: C.muted, class: 'mono' });
+    });
+    el('line', { x1: x0, x2: x0 + w, y1: TRP.bot, y2: TRP.bot, stroke: C.axis, 'stroke-width': 2 }, pg);
+    el('line', { x1: x0, x2: x0, y1: TRP.top, y2: TRP.bot, stroke: C.axis, 'stroke-width': 2 }, pg);
+    TRX[d.scale].forEach(function (x) {
+      el('line', { x1: X(x), x2: X(x), y1: TRP.bot, y2: TRP.bot + 7, stroke: C.axis, 'stroke-width': 2 }, pg);
+      txt(pg, X(x), TRP.bot + 34, String(x), { 'text-anchor': 'middle', 'font-size': 21, fill: C.ink3, class: 'mono' });
+    });
+    var cg = el('g', { 'clip-path': 'url(#trc' + k + ')' }, pg), n = d.tokens_b.length;
+    var paths = [['std', C.grey, 3], ['lb', C.navy, 3.6]].map(function (q) {
+      var pts = [];
+      for (var i = 0; i < n; i += (i + 2 < n ? 2 : 1)) { pts.push([+X(d.tokens_b[i]).toFixed(2), +Y(d[q[0]][i]).toFixed(2)]); }
+      return { pts: pts, el: el('path', { d: '', fill: 'none', stroke: q[1], 'stroke-width': q[2], 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, cg) };
+    });
+    // inset: the last quarter of training, on its own loss range (the paper's inset_axes [0.45, 0.52, 0.52, 0.42])
+    var ix0 = x0 + .45 * w, ix1 = x0 + .97 * w, iy0 = TRP.top + .07 * H, iy1 = TRP.top + .47 * H, ig = el('g', { opacity: 0 }, pg);
+    var a = 0; while (d.tokens_b[a] < .75 * d.x_end) { a++; }
+    var win = d.std.slice(a).concat(d.lb.slice(a)), wlo = Math.min.apply(null, win), whi = Math.max.apply(null, win), pad = .1 * (whi - wlo);
+    var IX = function (x) { return ix0 + (x - d.tokens_b[a]) / (d.x_end - d.tokens_b[a]) * (ix1 - ix0); };
+    var IY = function (v) { return iy1 - (v - (wlo - pad)) / (whi - wlo + 2 * pad) * (iy1 - iy0); };
+    el('rect', { x: ix0 - 10, y: iy0 - 30, width: ix1 - ix0 + 18, height: iy1 - iy0 + 38, rx: 8, fill: C.bg }, ig);
+    txt(ig, ix0, iy0 - 10, 'last quarter', { 'font-size': 16, fill: C.muted });
+    el('line', { x1: ix0, x2: ix1, y1: iy1, y2: iy1, stroke: C.axis, 'stroke-width': 1.5 }, ig);
+    el('line', { x1: ix0, x2: ix0, y1: iy0, y2: iy1, stroke: C.axis, 'stroke-width': 1.5 }, ig);
+    [['std', C.grey, 2.2], ['lb', C.navy, 2.6]].forEach(function (q) {
+      var dd = '';
+      for (var i = a; i < n; i++) { dd += (i === a ? 'M' : ' L') + IX(d.tokens_b[i]).toFixed(2) + ' ' + IY(d[q[0]][i]).toFixed(2); }
+      el('path', { d: dd, fill: 'none', stroke: q[1], 'stroke-width': q[2], 'stroke-linejoin': 'round' }, ig);
+    });
+    var dl = txt(pg, x0 + .97 * w, TRP.top + .60 * H, 'Δ = ' + d.delta.toFixed(4).replace('-', '−'),
+      { 'text-anchor': 'end', 'font-size': 24, 'font-weight': 700, fill: C.navy, class: 'mono halo', opacity: 0 });
+    TR.push({ paths: paths, xa: X(0), xb: X(d.x_end), inset: ig, dl: dl });
+  });
+  var yl = txt(g, 0, 0, 'training loss', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted });
+  yl.setAttribute('transform', 'translate(96 ' + ((TRP.top + TRP.bot) / 2) + ') rotate(-90)');
+  txt(g, 960, TRP.bot + 82, 'tokens seen (billions)', { 'text-anchor': 'middle', 'font-size': 22, fill: C.muted });
+})();
+function renderTrain(t) {
+  var r = SC.train;
+  appear($('tr-e'), t, r[0] + .1, .5); appear($('tr-h'), t, r[0] + .25, .6); appear($('tr-n'), t, r[0] + .5, .6);
+  $('tr-g').style.opacity = easeOut(prog(t, r[0] + .55, r[0] + 1.05));
+  // "Here are our training curves at all five scales. Loopback's loss is lower from early in training all the way to the end."
+  var tc = Math.max(r[0] + .8, wt('train', 'training', 1.5) - .25), ts = wt('train', 'scales', 3.3), td = wt('train', 'lower', 5.2) - .15;
+  TR.forEach(function (p, k) {
+    var t0 = tc + k * .2, u = ease(prog(t, t0, t0 + 2.3)), xc = lerp(p.xa, p.xb, u);
+    p.paths.forEach(function (q) { q.el.setAttribute('d', u > 0 ? partialPath(q.pts, xc) : ''); });
+    var ti = Math.max(ts + .1, t0 + 2.1) + k * .1;
+    p.inset.setAttribute('opacity', easeOut(prog(t, ti, ti + .5)));
+    p.dl.setAttribute('opacity', easeOut(prog(t, td + k * .15, td + .5 + k * .15)));
+  });
 }
 
 /* ---------------------------------------------------------------- scene 1b: live read (LIVE from live_data.js) */
@@ -1166,8 +1260,8 @@ function renderSubs(t) {
 }
 
 /* ---------------------------------------------------------------- frame */
-var SCENES = [['title', renderTitle], ['memory', renderMemory], ['knobs', renderKnobs], ['method', renderMethod], ['live', renderLive],
-              ['scale', renderScale], ['nine', renderNine], ['math', renderMath], ['outro', renderOutro]];   // v22 (11-09): insight first (memory, knobs); hook, visits, ablation, depth and eff left out
+var SCENES = [['title', renderTitle], ['memory', renderMemory], ['knobs', renderKnobs], ['method', renderMethod], ['train', renderTrain],
+              ['scale', renderScale], ['nine', renderNine], ['depth', renderDepth], ['outro', renderOutro]];   // v25 (11-09): training curves replace the live read, the depth sweep replaces math and code; hook, live, visits, ablation, math and eff left out
 function renderAt(t) {
   SCENES.forEach(function (s) {
     var r = SC[s[0]], node = $('s-' + s[0]);

@@ -4,7 +4,7 @@
  "video": "video/voiceover/build/loopback_promo_silent.mp4",
  "out": "videos/loopback_promo.mp4",
  "music": {
-  "path": "video/music/build/bed_v24.wav",
+  "path": "video/music/build/bed_v25.wav",
   "gap_db": -6.0,
   "fade_in": 0.5,
   "fade_out": 1.2
@@ -13,58 +13,58 @@
   {
    "id": "title",
    "start": 0.5,
-   "end": 6.83,
+   "end": 6.55,
    "say": "Loopback Transformer. Towards a unified view of residual looped transformers.",
    "display": "Loopback Transformer: Towards a Unified View of Residual Looped Transformers."
   },
   {
    "id": "memory",
-   "start": 7.63,
-   "end": 36.97,
-   "say": "Linear attention is a memory over tokens: each token writes its key and value into a state, the state is passed along, and later tokens read from it. We apply the same write, transport and read to depth: each block writes its update into the residual stream, and later blocks read the stream. Unrolled, every read is a weighted sum of what was written; plain residual addition fixes every weight at one.",
-   "display": "Linear attention is a memory over tokens: each token writes its key and value into a state, the state is passed along, and later tokens read from it. We apply the same write, transport and read to depth: each block writes its update into the residual stream, and later blocks read the stream. Unrolled, every read is a weighted sum of what was written; plain residual addition fixes every weight at one."
+   "start": 7.35,
+   "end": 37.28,
+   "say": "Linear attention is a memory over tokens: each token writes its key and value into a state, the state is passed along, and later tokens read from it. The residual stream does the same over depth. Each block writes its update into the stream. The stream carries it forward, and later blocks read from it. Unrolled, every read is a weighted sum of what was written; plain residual addition fixes every weight at one.",
+   "display": "Linear attention is a memory over tokens: each token writes its key and value into a state, the state is passed along, and later tokens read from it. The residual stream does the same over depth. Each block writes its update into the stream. The stream carries it forward, and later blocks read from it. Unrolled, every read is a weighted sum of what was written; plain residual addition fixes every weight at one."
   },
   {
    "id": "knobs",
-   "start": 37.77,
-   "end": 52.9,
+   "start": 38.08,
+   "end": 52.93,
    "say": "In this view, every residual rule sets three things: the input's strength, the total weight of the updates, and how that weight is shared. When the same blocks repeat, plain addition lets the total grow with every pass.",
    "display": "In this view, every residual rule sets three things: the input's strength, the total weight of the updates, and how that weight is shared. When the same blocks repeat, plain addition lets the total grow with every pass."
   },
   {
    "id": "method",
-   "start": 53.7,
-   "end": 65.72,
+   "start": 53.73,
+   "end": 65.47,
    "say": "Loopback sets the three separately. The input keeps weight one on its own path, a decay bounds the total, and attention shares it across the stored updates.",
    "display": "Loopback sets the three separately. The input keeps weight one on its own path, a decay bounds the total, and attention shares it across the stored updates."
   },
   {
-   "id": "live",
-   "start": 66.52,
-   "end": 77.67,
-   "say": "Here a standard transformer and Loopback, both at three billion scale, read the same new text. Loopback is twenty-three percent smaller, and its loss still ends lower.",
-   "display": "Here a standard Transformer and Loopback, both at 3B scale, read the same new text. Loopback is 23% smaller, and its loss still ends lower."
+   "id": "train",
+   "start": 66.27,
+   "end": 76.0,
+   "say": "Here are our training curves at all five scales. Loopback's loss is lower from early in training all the way to the end.",
+   "display": "Here are our training curves at all five scales. Loopback's loss is lower from early in training all the way to the end."
   },
   {
    "id": "scale",
-   "start": 78.47,
-   "end": 88.89,
+   "start": 76.8,
+   "end": 86.94,
    "say": "From one hundred ninety-one million to three billion parameters, Loopback gets lower loss than the standard transformer with forty to seventy-five percent of its parameters.",
    "display": "From 191M to 3B parameters, Loopback gets lower loss than the standard Transformer with 40–75% of its parameters."
   },
   {
    "id": "nine",
-   "start": 89.69,
-   "end": 99.11,
+   "start": 87.74,
+   "end": 96.88,
    "say": "Against seven other looped designs, it has the lowest loss and the highest benchmark average at all three sizes we tested.",
    "display": "Against seven other looped designs, it has the lowest loss and the highest benchmark average at all three sizes we tested."
   },
   {
-   "id": "math",
-   "start": 99.91,
+   "id": "depth",
+   "start": 97.68,
    "end": 109.53,
-   "say": "And at three billion parameters, it more than doubles word-problem accuracy, from two point six to six point four percent.",
-   "display": "And at 3B parameters, it more than doubles word-problem accuracy, from 2.6% to 6.4%."
+   "say": "We also held the parameter count fixed and traded width for depth. As the model gets deeper and narrower, the standard transformer loses ground, while Loopback's margin grows at both scales.",
+   "display": "We also held the parameter count fixed and traded width for depth. As the model gets deeper and narrower, the standard Transformer loses ground, while Loopback's margin grows at both scales."
   },
   {
    "id": "outro",
