@@ -38,7 +38,7 @@ import argparse, json, os, sys
 from synth import BUILD, LEAD, SR, TAIL, align, duration, load, plain
 
 SPEEDS = [0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.04, 1.08, 1.12]
-TARGET_WPM, MARGIN = 140, 0.15
+TARGET_WPM, MARGIN = 150, 0.15   # v27 (11-10): a standard Kokoro voice read as it is, at the v21+ pace
 CB_EXAG, CB_CFG = 0.4, 0.3
 HY_EXAG, HY_CFG, HY_WPM, HY_MIN_TEMPO = 0.3, 0.3, 148, 0.9   # hybrid: no conversion follows, so slow a take by at most 10%
 HY_OUT_WPM, HY_MAX_TEMPO, HY_KEEP_PACE = 165, 1.2, ()
@@ -258,9 +258,11 @@ def convert(s, ref, seeds=4, only=None, vc_off=False):
         vc = None
         if not vc_off:
             vc = ChatterboxVC.from_pretrained(dev); vc.set_target_voice(ref)
-        ve = VoiceEncoder(); ve.load_state_dict(load_file(hf_hub_download("ResembleAI/chatterbox", "ve.safetensors"))); ve.to(dev).eval()
-        emb = lambda w16: ve.embeds_from_wavs([w16], sample_rate=16000).mean(0)
-        ref_emb = emb(librosa.load(ref, sr=16000)[0])
+        emb = ref_emb = None
+        if ref is not None:   # v27: a standard voice (--no-vc without --ref) has no reference speaker to compare with
+            ve = VoiceEncoder(); ve.load_state_dict(load_file(hf_hub_download("ResembleAI/chatterbox", "ve.safetensors"))); ve.to(dev).eval()
+            emb = lambda w16: ve.embeds_from_wavs([w16], sample_rate=16000).mean(0)
+            ref_emb = emb(librosa.load(ref, sr=16000)[0])
         norm = EnglishTextNormalizer({})
         asr = WhisperModel("small.en", device="cpu", compute_type="int8", cpu_threads=min(16, os.cpu_count() or 1))
     segs, rows = [], []
@@ -298,8 +300,10 @@ def convert(s, ref, seeds=4, only=None, vc_off=False):
         if factor > 1.0:
             clip = tempo(clip, factor)
         words = transcribe(asr, clip)
-        e = emb(librosa.resample(clip, orig_sr=SR, target_sr=16000))
-        sim = float(np.dot(e, ref_emb) / (np.linalg.norm(e) * np.linalg.norm(ref_emb)))
+        sim = 0.0
+        if ref_emb is not None:
+            e = emb(librosa.resample(clip, orig_sr=SR, target_sr=16000))
+            sim = float(np.dot(e, ref_emb) / (np.linalg.norm(e) * np.linalg.norm(ref_emb)))
         w = score(norm, g["say"], words)
         ck = align(g["say"], [x for x, _, _ in words])
         i = round(g["start"] * SR)
@@ -353,8 +357,8 @@ def main():
     elif a.step == "place":
         convert(s, None, 0, [])
     else:
-        if not a.ref:
-            sys.exit("convert needs --ref")
+        if not a.ref and not a.no_vc:
+            sys.exit("convert needs --ref (or --no-vc for a reading placed as it is)")
         convert(s, a.ref, a.seeds, a.only, a.no_vc)
 
 if __name__ == "__main__":

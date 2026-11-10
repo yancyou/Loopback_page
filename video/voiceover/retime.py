@@ -9,7 +9,7 @@ the takes to their new starts.
 import argparse, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-LEAD, TAIL_GAP, PAUSE, END_HOLD = 0.5, 0.3, 0.8, 1.3
+LEAD, TAIL_GAP, PAUSE, END_HOLD = 0.5, 0.3, 0.7, 1.3   # v27 (11-10): 0.7 s between scenes lets the bed end on a 4-bar phrase without padding
 MINLEN = {"title": 5.0, "memory": 14.5, "knobs": 14.5, "method": 12.0, "train": 10.0, "scale": 10.4, "nine": 9.4, "depth": 11.0, "outro": 7.4}   # v25: train, depth
 
 def main():

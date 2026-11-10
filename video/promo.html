@@ -241,9 +241,9 @@ svg text { font-family: var(--body); }
 <script src="vendor/mathjax/tex-svg-full.js"></script>   <!-- v24: MathJax 3.2.2 (Apache-2.0), every formula on screen -->
 <script>
 'use strict';
-var DUR = 125.5;
-var SC = { title: [0, 6.46], memory: [6.46, 36.81], knobs: [36.81, 63.43], method: [63.43, 75.58], train: [75.58, 85.73], scale: [85.73, 96.28], nine: [96.28, 105.83],
-           depth: [105.83, 118.1], outro: [118.1, 125.5] };
+var DUR = 133.767;
+var SC = { title: [0, 6.01], memory: [6.01, 35.88], knobs: [35.88, 69.59], method: [69.59, 81.77], train: [81.77, 91.92], scale: [91.92, 103.34], nine: [103.34, 112.75],
+           depth: [112.75, 126.05], outro: [126.05, 133.77] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -608,7 +608,7 @@ function ruTimelineFast(dt) {                     // v22 knobs: as ruTimeline wi
 // knobs (v26): the three quantities light up with "strength", "total", "shared"; then one card per rule as the narration names it:
 // residual addition (every update weight one: the total grows with every pass), Hyper-Connections (one learned weight per
 // stream: a stream holds the input and some updates, so they are scaled together), Attention Residuals (one softmax over the
-// input and the updates: a + B = 1, the input competes with the updates).
+// input and the updates: a + B = 1, more weight on the updates leaves less for the input; v27: the label shows the sum).
 var KN = { q: [['strength', 2.7], ['total', 4.2], ['shared', 6.3]] };
 var HC = { streams: [[1, 3], [2], [1, 2, 4], [3, 4]], inp: 66, seg: 44, x0: 96, bw: 64, gap: 50, base: 268 };
 HC.chart = (function buildHC() {
@@ -636,9 +636,9 @@ function renderKnobs(t) {
   appear($('kn-n'), t, tq[2] + .7, .6);
   // "Residual addition gives every update a weight of one, so the total grows with every pass. Hyper-Connections give each stream
   // one weight, so the input and the updates in it move together. Attention Residuals weigh the input and the updates with one
-  // softmax, so they compete for a fixed total."
+  // softmax, so their weights add up to one: more weight on the updates leaves less for the input."
   var tA = wt('knobs', 'addition', 10.6) - .25, tH = wt('knobs', 'hyperconnections', 16.0) - .25, tR = wt('knobs', 'attention', 21.8) - .25;
-  var tG = wt('knobs', 'grows', 12.6), tS = wt('knobs', 'together', 19.6), tC = wt('knobs', 'compete', 26.0);
+  var tG = wt('knobs', 'grows', 12.6), tS = wt('knobs', 'together', 19.6), tC = wt('knobs', 'leaves', 27.0);
   appear($('ru-p0'), t, tA - .2, .6); appear($('ru-ph'), t, tH - .2, .6); appear($('ru-p1'), t, tR - .2, .6);
   var tl = ruTimelineFast(t - tA), u = tl.u, n = tl.n, grow = tl.grow, A = RU.charts[0];
   setBar(A.input, 1, true);
@@ -654,8 +654,8 @@ function renderKnobs(t) {
   var tl2 = ruTimelineFast(t - tR), u2 = tl2.u, n2 = tl2.n, S = RU.charts[1], ws = 1 / (n2 + 1);
   setBar(S.input, u2 === 0 ? 1 : ws, true);
   S.bars.forEach(function (b, i) { setBar(b, i < n2 - 1 ? ws : i === n2 - 1 ? ws * easeOut(tl2.grow) : 0, i < n2 && u2 > 0); });
-  $('ru-l1').innerHTML = 'one softmax: input 1/' + (u2 === 0 ? 1 : n2 + 1) + ' &middot; total ' + (u2 === 0 ? '0' : fmt2(n2 / (n2 + 1)))
-    + red('the input competes with the updates', easeOut(prog(t, tC - .1, tC + .4)));
+  $('ru-l1').innerHTML = 'one softmax: input 1/' + (u2 === 0 ? 1 : n2 + 1) + ' + total ' + (u2 === 0 ? '0' : fmt2(n2 / (n2 + 1))) + ' = 1'
+    + red('more on the updates, less for the input', easeOut(prog(t, tC - .1, tC + .4)));
 }
 function renderAnalysis(t) {
   var r = SC.analysis;
@@ -719,16 +719,27 @@ var SCL = [
   { s: '1.4B', share: '68.0%', p: 68.0, l0: 2.1283, l1: 2.1073, a0: 46.33, a1: 46.50 },
   { s: '3B', share: '75.0%', p: 75.0, l0: 2.0005, l1: 1.9849, a0: 48.56, a1: 49.45 }
 ];
-var SG = { cy0: 402, dy: 98, bh: 40, lab: 225, px0: 262, pw: 360, z2: 1180, k2: 9000, z3: 1330, k3: 200 }, SC_ROWS;
+// v27 (11-10, user: "你看你这柱状图做的协调吗？"): the three panels read the same way -- every bar grows to the right from its
+// panel's left baseline, every value label sits just past the bar's end in ink (never inside), headers are left-aligned on
+// the baselines, and the two metric panels share one maximum bar length (each panel scaled to its own largest change).
+var SG = { cy0: 402, dy: 98, bh: 40, lab: 200, px0: 237, pw: 360, z2: 690, z3: 1320, wmax: 300 }, SC_ROWS;
+SG.k2 = SG.wmax / Math.max.apply(null, SCL.map(function (d) { return d.l0 - d.l1; }));
+SG.k3 = SG.wmax / Math.max.apply(null, SCL.map(function (d) { return d.a1 - d.a0; }));
+function barPath(x, y, w, h) {   // square at the baseline, rounded at the data end
+  if (w <= 0.5) { return 'M0 0'; }
+  var r = Math.min(6, w / 2, h / 2);
+  return 'M' + x + ' ' + y + 'H' + (x + w - r).toFixed(2) + 'A' + r + ' ' + r + ' 0 0 1 ' + (x + w).toFixed(2) + ' ' + (y + r)
+    + 'V' + (y + h - r) + 'A' + r + ' ' + r + ' 0 0 1 ' + (x + w - r).toFixed(2) + ' ' + (y + h) + 'H' + x + 'Z';
+}
 (function buildScale() {
   var s = $('sc-svg'), g = el('g', { id: 'sc-g' }, s);
-  txt(g, SG.px0 + SG.pw / 2, 300, 'Parameters', { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.ink });
-  var lg = txt(g, SG.px0 + SG.pw / 2, 333, '', { 'text-anchor': 'middle', 'font-size': 20, fill: C.muted });
-  tsp(lg, 'Loopback', { fill: C.navy, 'font-weight': 700 }); tsp(lg, ' as a share of '); tsp(lg, 'Standard', { fill: C.ink3, 'font-weight': 700 }); tsp(lg, ' (full bar)');
-  txt(g, SG.z2 - 175, 300, 'Validation loss ↓', { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.ink });
-  txt(g, SG.z2 - 175, 333, 'Standard → Loopback', { 'text-anchor': 'middle', 'font-size': 20, fill: C.muted });
-  txt(g, SG.z3 + 190, 300, '13-task average ↑', { 'text-anchor': 'middle', 'font-size': 26, 'font-weight': 700, fill: C.ink });
-  txt(g, SG.z3 + 190, 333, 'Standard → Loopback (%)', { 'text-anchor': 'middle', 'font-size': 20, fill: C.muted });
+  txt(g, SG.px0, 300, 'Parameters', { 'text-anchor': 'start', 'font-size': 26, 'font-weight': 700, fill: C.ink });
+  var lg = txt(g, SG.px0, 333, '', { 'text-anchor': 'start', 'font-size': 20, fill: C.muted });
+  tsp(lg, 'Loopback', { fill: C.navy, 'font-weight': 700 }); tsp(lg, ' as a share of '); tsp(lg, 'Standard', { fill: C.ink3, 'font-weight': 700 });
+  txt(g, SG.z2, 300, 'Validation loss ↓', { 'text-anchor': 'start', 'font-size': 26, 'font-weight': 700, fill: C.ink });
+  txt(g, SG.z2, 333, 'Standard → Loopback · bar shows the drop', { 'text-anchor': 'start', 'font-size': 20, fill: C.muted });
+  txt(g, SG.z3, 300, '13-task average ↑', { 'text-anchor': 'start', 'font-size': 26, 'font-weight': 700, fill: C.ink });
+  txt(g, SG.z3, 333, 'Standard → Loopback (%) · bar shows the gain', { 'text-anchor': 'start', 'font-size': 20, fill: C.muted });
   el('line', { x1: SG.z2, x2: SG.z2, y1: 356, y2: 850, stroke: C.axis, 'stroke-width': 2 }, g);
   el('line', { x1: SG.z3, x2: SG.z3, y1: 356, y2: 850, stroke: C.axis, 'stroke-width': 2 }, g);
   SC_ROWS = SCL.map(function (d, i) {
@@ -737,13 +748,12 @@ var SG = { cy0: 402, dy: 98, bh: 40, lab: 225, px0: 262, pw: 360, z2: 1180, k2: 
     o.track = el('rect', { x: SG.px0, y: cy - SG.bh / 2, width: 0, height: SG.bh, rx: 6, fill: C.track }, g);
     o.fill = el('rect', { x: SG.px0, y: cy - SG.bh / 2, width: 0, height: SG.bh, rx: 6, fill: C.navy }, g);
     o.share = txt(g, 0, cy + 9, d.share, { 'text-anchor': 'end', 'font-size': 25, 'font-weight': 700, fill: '#ffffff', opacity: 0 });
-    o.b2 = el('rect', { x: SG.z2, y: cy - SG.bh / 2, width: 0, height: SG.bh, rx: 6, fill: C.navy }, g);
-    o.in2 = (d.l0 - d.l1) * SG.k2 > 236;
+    o.b2 = el('path', { d: 'M0 0', fill: C.navy }, g);
     o.t2 = txt(g, 0, cy + 8, d.l0.toFixed(4) + ' → ' + d.l1.toFixed(4), { 'font-size': 23, 'font-weight': 600, class: 'mono', opacity: 0,
-      'text-anchor': o.in2 ? 'start' : 'end', fill: o.in2 ? '#ffffff' : C.ink });
-    o.b3 = el('rect', { x: SG.z3, y: cy - SG.bh / 2, width: 0, height: SG.bh, rx: 6, fill: C.navy }, g);
-    o.in3 = (d.a1 - d.a0) * SG.k3 > 204;
-    o.t3 = txt(g, 0, cy + 8, d.a0.toFixed(2) + ' → ' + d.a1.toFixed(2), { 'font-size': 23, 'font-weight': 600, class: 'mono', opacity: 0, fill: o.in3 ? '#ffffff' : C.ink });
+      'text-anchor': 'start', fill: C.ink });
+    o.b3 = el('path', { d: 'M0 0', fill: C.navy }, g);
+    o.t3 = txt(g, 0, cy + 8, d.a0.toFixed(2) + ' → ' + d.a1.toFixed(2), { 'font-size': 23, 'font-weight': 600, class: 'mono', opacity: 0,
+      'text-anchor': 'start', fill: C.ink });
     return o;
   });
 })();
@@ -753,18 +763,18 @@ function renderScale(t) {
   $('sc-g').style.opacity = easeOut(prog(t, r[0] + .6, r[0] + 1.1));
   var tL = wt('scale', 'lower', 4.4) - .2, tA = wt('scale', 'thirteen-task', 6.3) - .2;
   SC_ROWS.forEach(function (o, i) {
-    var d = o.d;
+    var d = o.d, y = o.cy - SG.bh / 2;
     o.lab.setAttribute('opacity', easeOut(prog(t, r[0] + .8 + i * .2, r[0] + 1.2 + i * .2)));
     o.track.setAttribute('width', SG.pw * ease(prog(t, r[0] + .9 + i * .2, r[0] + 1.5 + i * .2)));
     var wf = SG.pw * d.p / 100 * ease(prog(t, r[0] + 1.6 + i * .22, r[0] + 2.5 + i * .22));
     o.fill.setAttribute('width', wf);
     o.share.setAttribute('x', SG.px0 + wf - 12); o.share.setAttribute('opacity', prog(t, r[0] + 2.3 + i * .22, r[0] + 2.7 + i * .22));
     var w2 = (d.l0 - d.l1) * SG.k2 * ease(prog(t, tL + i * .25, tL + .9 + i * .25));
-    o.b2.setAttribute('x', SG.z2 - w2); o.b2.setAttribute('width', w2);
-    o.t2.setAttribute('x', o.in2 ? SG.z2 - w2 + 14 : SG.z2 - w2 - 12); o.t2.setAttribute('opacity', prog(t, tL + .7 + i * .25, tL + 1.1 + i * .25));
+    o.b2.setAttribute('d', barPath(SG.z2, y, w2, SG.bh));
+    o.t2.setAttribute('x', SG.z2 + w2 + 14); o.t2.setAttribute('opacity', prog(t, tL + .7 + i * .25, tL + 1.1 + i * .25));
     var w3 = (d.a1 - d.a0) * SG.k3 * ease(prog(t, tA + i * .25, tA + .9 + i * .25));
-    o.b3.setAttribute('width', w3);
-    o.t3.setAttribute('x', o.in3 ? SG.z3 + 14 : SG.z3 + w3 + 12); o.t3.setAttribute('opacity', prog(t, tA + .7 + i * .25, tA + 1.1 + i * .25));
+    o.b3.setAttribute('d', barPath(SG.z3, y, w3, SG.bh));
+    o.t3.setAttribute('x', SG.z3 + w3 + 14); o.t3.setAttribute('opacity', prog(t, tA + .7 + i * .25, tA + 1.1 + i * .25));
   });
 }
 
