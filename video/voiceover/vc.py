@@ -74,7 +74,7 @@ def kept_takes(s, only):
         out[g["id"]] = (p, np.ascontiguousarray(old[a:a + nz[-1] + 1]))
     return out
 
-def source(s, voice, only=None):
+def source(s, voice, only=None, speeds=None):
     import warnings
     warnings.filterwarnings("ignore")
     import numpy as np, soundfile as sf, torch
@@ -85,7 +85,7 @@ def source(s, voice, only=None):
     print(f"{'id':<9}{'window':>13}{'speed':>7}{'dur':>7}{'wpm':>6}")
     for g in picked(s, only):
         win, nwords, best = g["end"] - g["start"] - MARGIN, len(plain(g["say"]).split()), None
-        for sp in SPEEDS:
+        for sp in (speeds or SPEEDS):
             torch.manual_seed(0)
             audio, words = [], []
             for r in pipe(g["say"], voice=voice, speed=sp):
@@ -334,6 +334,7 @@ def main():
     ap.add_argument("--near-out", action="store_true", help="pick: prefer the pace nearest HY_OUT_WPM (least re-pacing)")
     ap.add_argument("--accent-sim", help="pick (v23): accent_sim.py output; the take closest in accent to the accepted clips wins")
     ap.add_argument("--voice", default="am_michael"); ap.add_argument("--ref")
+    ap.add_argument("--speed", type=float, help="source (kokoro, v28): read at this speed only; 1.0 is Kokoro's own pace (slowing it stretches vowels and pauses)")
     ap.add_argument("--engine", choices=["kokoro", "chatterbox", "hybrid"], default="kokoro"); ap.add_argument("--takes", type=int, default=6)
     ap.add_argument("--seeds", type=int, default=4, help="convert: decoder seeds tried per segment")
     ap.add_argument("--first-seed", type=int, default=0, help="source (chatterbox/hybrid): first seed of the --takes range (v22)")
@@ -347,7 +348,7 @@ def main():
         if a.engine == "hybrid" and not a.ref:
             sys.exit("--engine hybrid needs --ref")
         if a.engine == "kokoro":
-            source(s, a.voice, a.only)
+            source(s, a.voice, a.only, [a.speed] if a.speed else None)
         else:
             source_chatterbox(s, a.takes, a.only, pins, a.ref if a.engine == "hybrid" else None, first=a.first_seed)
     elif a.step == "pick":

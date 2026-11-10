@@ -4,7 +4,7 @@
  "video": "video/voiceover/build/loopback_promo_silent.mp4",
  "out": "videos/loopback_promo.mp4",
  "music": {
-  "path": "video/music/build/bed_v27.wav",
+  "path": "video/music/build/bed_v28.wav",
   "gap_db": -6.0,
   "fade_in": 0.5,
   "fade_out": 1.2
@@ -13,62 +13,62 @@
   {
    "id": "title",
    "start": 0.5,
-   "end": 5.71,
+   "end": 6.43,
    "say": "Loopback Transformer. Towards a unified view of residual looped transformers.",
    "display": "Loopback Transformer: Towards a Unified View of Residual Looped Transformers."
   },
   {
    "id": "memory",
-   "start": 6.51,
-   "end": 35.58,
-   "say": "Linear attention is a memory over tokens: each token writes its key and value into a state that is passed along, and later tokens read from it. The residual stream does the same over depth. Each block writes its update into the stream. The stream carries it forward, and later blocks read from it. Unrolled, every read is a weighted sum of what was written; plain residual addition fixes every weight at one.",
-   "display": "Linear attention is a memory over tokens: each token writes its key and value into a state that is passed along, and later tokens read from it. The residual stream does the same over depth. Each block writes its update into the stream. The stream carries it forward, and later blocks read from it. Unrolled, every read is a weighted sum of what was written; plain residual addition fixes every weight at one."
+   "start": 7.23,
+   "end": 33.54,
+   "say": "Linear attention is a memory over tokens. Each token writes its key and value into a state that is passed along, and later tokens read from it. The residual stream does the same over depth. Each block writes its update into the stream, which carries it forward to the blocks that read from it later. Unrolled, every read is a weighted sum of what was written, and the standard residual fixes every weight at one.",
+   "display": "Linear attention is a memory over tokens. Each token writes its key and value into a state that is passed along, and later tokens read from it. The residual stream does the same over depth. Each block writes its update into the stream, which carries it forward to the blocks that read from it later. Unrolled, every read is a weighted sum of what was written, and the standard residual fixes every weight at one."
   },
   {
    "id": "knobs",
-   "start": 36.38,
-   "end": 69.29,
-   "say": "In this view, every residual rule sets three things: the strength of the input, the total weight of the updates, and how that weight is shared. Residual addition gives every update a weight of one, so the total grows with every pass. Hyper Connections give each stream one weight, so the input and the updates in it move together. Attention Residuals weigh the input and the updates with one softmax, so their weights add up to one: more weight on the updates leaves less for the input.",
-   "display": "In this view, every residual rule sets three things: the strength of the input, the total weight of the updates, and how that weight is shared. Residual addition gives every update a weight of one, so the total grows with every pass. Hyper-Connections give each stream one weight, so the input and the updates in it move together. Attention Residuals weigh the input and the updates with one softmax, so their weights add up to one: more weight on the updates leaves less for the input."
+   "start": 34.34,
+   "end": 66.42,
+   "say": "In this view, every residual rule sets the strength of the input, the total weight of the updates, and how that weight is shared. The standard residual gives every update a weight of one, so the total grows with every pass. Hyper Connections give each stream one weight. But a stream holds the input together with updates, so the input cannot be weighted on its own. Attention Residuals weigh the input and the updates with one softmax. Their weights add up to one, so more weight on the updates leaves less for the input.",
+   "display": "In this view, every residual rule sets the strength of the input, the total weight of the updates, and how that weight is shared. The standard residual gives every update a weight of one, so the total grows with every pass. Hyper-Connections give each stream one weight. But a stream holds the input together with updates, so the input cannot be weighted on its own. Attention Residuals weigh the input and the updates with one softmax. Their weights add up to one, so more weight on the updates leaves less for the input."
   },
   {
    "id": "method",
-   "start": 70.09,
-   "end": 81.47,
-   "say": "Loopback sets the three separately. The input keeps weight one on its own path. A decay bounds the total, and attention shares it across the stored updates.",
-   "display": "Loopback sets the three separately. The input keeps weight one on its own path. A decay bounds the total, and attention shares it across the stored updates."
+   "start": 67.22,
+   "end": 78.45,
+   "say": "Loopback sets the three separately. The input keeps a weight of one on its own path. A decay bounds the total, and attention shares it across the stored updates.",
+   "display": "Loopback sets the three separately. The input keeps a weight of one on its own path. A decay bounds the total, and attention shares it across the stored updates."
   },
   {
    "id": "train",
-   "start": 82.27,
-   "end": 91.62,
+   "start": 79.25,
+   "end": 88.47,
    "say": "Here are our training curves at all five scales. Loopback's loss is lower from early in training all the way to the end.",
    "display": "Here are our training curves at all five scales. Loopback's loss is lower from early in training all the way to the end."
   },
   {
    "id": "scale",
-   "start": 92.42,
-   "end": 103.04,
-   "say": "From one hundred ninety-one million to three billion parameters, Loopback gets lower loss than the standard transformer, with forty to seventy-five percent of its parameters.",
-   "display": "From 191M to 3B parameters, Loopback gets lower loss than the standard Transformer, with 40–75% of its parameters."
+   "start": 89.27,
+   "end": 101.82,
+   "say": "From one hundred ninety-one million to three billion parameters, Loopback reaches lower loss than the standard transformer while using only forty to seventy-five percent of its parameters.",
+   "display": "From 191M to 3B parameters, Loopback reaches lower loss than the standard Transformer while using only 40–75% of its parameters."
   },
   {
    "id": "nine",
-   "start": 103.84,
-   "end": 112.45,
+   "start": 102.62,
+   "end": 111.25,
    "say": "It has the lowest loss and the highest benchmark average of all nine designs, at all three sizes we tested.",
    "display": "It has the lowest loss and the highest benchmark average of all nine designs, at all three sizes we tested."
   },
   {
    "id": "depth",
-   "start": 113.25,
-   "end": 125.75,
+   "start": 112.05,
+   "end": 125.36,
    "say": "We also held the parameter count fixed and traded width for depth. As the model gets deeper and narrower, the standard transformer loses ground, while Loopback's margin grows at both scales.",
    "display": "We also held the parameter count fixed and traded width for depth. As the model gets deeper and narrower, the standard Transformer loses ground, while Loopback's margin grows at both scales."
   },
   {
    "id": "outro",
-   "start": 126.55,
+   "start": 126.16,
    "end": 133.47,
    "say": "That's Loopback. Fewer parameters, lower loss. The paper and code are on our project page.",
    "display": "That's Loopback. Fewer parameters, lower loss. The paper and code are on our project page."
