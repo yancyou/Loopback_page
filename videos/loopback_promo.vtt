@@ -1,193 +1,202 @@
 WEBVTT
 
 title-1
-00:00:00.500 --> 00:00:01.700
+00:00:00.500 --> 00:00:01.680
 Loopback Transformer:
 
 title-2
-00:00:01.700 --> 00:00:05.970
+00:00:01.680 --> 00:00:05.870
 Towards a Unified View of
 Residual Looped Transformers.
 
 memory-3
-00:00:07.230 --> 00:00:09.880
+00:00:06.880 --> 00:00:09.530
 Linear attention is a memory over tokens.
 
 memory-4
-00:00:10.430 --> 00:00:14.480
+00:00:10.140 --> 00:00:14.050
 Each token writes its key and value
 into a state that is passed along,
 
 memory-5
-00:00:14.570 --> 00:00:16.480
+00:00:14.180 --> 00:00:16.050
 and later tokens read from it.
 
 memory-6
-00:00:16.670 --> 00:00:19.300
+00:00:16.380 --> 00:00:18.850
 The residual stream does
 the same over depth.
 
 memory-7
-00:00:19.770 --> 00:00:22.320
+00:00:19.240 --> 00:00:21.770
 Each block writes its
 update into the stream,
 
 memory-8
-00:00:22.450 --> 00:00:25.720
+00:00:21.940 --> 00:00:25.030
 which carries it forward to the
 blocks that read from it later.
 
 memory-9
-00:00:26.010 --> 00:00:26.700
+00:00:25.440 --> 00:00:26.070
 Unrolled,
 
 memory-10
-00:00:26.910 --> 00:00:29.540
+00:00:26.320 --> 00:00:28.540
 every read is a weighted
 sum of what was written,
 
 memory-11
-00:00:29.630 --> 00:00:33.120
+00:00:28.540 --> 00:00:32.030
 and the standard residual
 fixes every weight at one.
 
 knobs-12
-00:00:34.340 --> 00:00:35.170
-In this view,
+00:00:33.140 --> 00:00:35.590
+Every residual rule fits one interface.
 
 knobs-13
-00:00:35.380 --> 00:00:38.250
-every residual rule sets
-the strength of the input,
+00:00:36.200 --> 00:00:37.650
+It carries a memory forward,
 
 knobs-14
-00:00:38.380 --> 00:00:39.910
-the total weight of the updates,
+00:00:37.940 --> 00:00:40.040
+writes each block's result into it,
 
 knobs-15
-00:00:39.960 --> 00:00:41.650
-and how that weight is shared.
+00:00:40.040 --> 00:00:41.970
+and reads the next input from it.
 
 knobs-16
-00:00:41.980 --> 00:00:45.110
-The standard residual gives
-every update a weight of one,
+00:00:42.280 --> 00:00:46.570
+The standard residual keeps one stream
+and adds every update with weight one.
 
 knobs-17
-00:00:45.160 --> 00:00:47.510
-so the total grows with every pass.
+00:00:47.360 --> 00:00:50.310
+Hyper-Connections keep several
+streams and learn how to mix,
 
 knobs-18
-00:00:48.280 --> 00:00:50.450
-Hyper-Connections give
-each stream one weight.
+00:00:50.340 --> 00:00:50.790
+write,
 
 knobs-19
-00:00:50.580 --> 00:00:53.550
-But a stream holds the
-input together with updates,
+00:00:50.840 --> 00:00:51.610
+and read them.
 
 knobs-20
-00:00:53.640 --> 00:00:56.330
-so the input cannot be
-weighted on its own.
+00:00:52.440 --> 00:00:54.850
+Attention Residuals
+store each update in its
 
 knobs-21
-00:00:57.060 --> 00:01:00.740
-Attention Residuals weigh the input
-and the updates with one softmax.
+00:00:54.850 --> 00:00:57.190
+own slot and read them with one softmax.
 
 knobs-22
-00:01:00.740 --> 00:01:02.870
-Their weights add up to one,
+00:00:57.660 --> 00:00:58.350
+Unrolled,
 
 knobs-23
-00:01:02.960 --> 00:01:05.950
-so more weight on the updates
-leaves less for the input.
+00:00:58.600 --> 00:01:00.830
+every rule sets the strength of the input,
 
-method-24
-00:01:07.220 --> 00:01:09.250
-Loopback sets the three separately.
+knobs-24
+00:01:01.040 --> 00:01:02.520
+the total weight of the updates,
 
-method-25
-00:01:09.760 --> 00:01:12.690
-The input keeps a weight
-of one on its own path.
+knobs-25
+00:01:02.520 --> 00:01:04.490
+and the share of each update.
 
 method-26
-00:01:13.160 --> 00:01:14.910
-A decay bounds the total,
+00:01:05.630 --> 00:01:07.600
+Loopback sets the three separately.
 
 method-27
-00:01:15.160 --> 00:01:17.830
+00:01:08.190 --> 00:01:11.040
+The input keeps a weight
+of one on its own path,
+
+method-28
+00:01:11.150 --> 00:01:14.660
+so the stack still returns its
+input when the updates vanish.
+
+method-29
+00:01:15.190 --> 00:01:16.760
+A decay bounds the total,
+
+method-30
+00:01:17.030 --> 00:01:19.860
 and attention shares it
 across the stored updates.
 
-train-28
-00:01:19.250 --> 00:01:21.980
+train-31
+00:01:21.040 --> 00:01:23.950
 Here are our training
 curves at all five scales.
 
-train-29
-00:01:22.550 --> 00:01:26.960
+train-32
+00:01:24.500 --> 00:01:28.590
 Loopback's loss is lower from early
 in training all the way to the end.
 
-scale-30
-00:01:29.270 --> 00:01:33.060
+scale-33
+00:01:31.050 --> 00:01:34.740
 From 191M to 3B parameters,
 
-scale-31
-00:01:33.430 --> 00:01:36.821
+scale-34
+00:01:35.190 --> 00:01:38.363
 Loopback reaches lower
 loss than the standard
 
-scale-32
-00:01:36.821 --> 00:01:41.040
+scale-35
+00:01:38.363 --> 00:01:42.320
 Transformer while using only
 40–75% of its parameters.
 
-nine-33
-00:01:42.620 --> 00:01:47.330
-It has the lowest loss and the highest
-benchmark average of all nine designs,
+nine-36
+00:01:43.690 --> 00:01:45.620
+At all three sizes we tested,
 
-nine-34
-00:01:47.540 --> 00:01:49.490
-at all three sizes we tested.
+nine-37
+00:01:45.810 --> 00:01:50.540
+it has the lowest loss and the highest
+benchmark average of all nine designs.
 
-depth-35
-00:01:52.050 --> 00:01:56.200
+depth-38
+00:01:53.100 --> 00:01:57.150
 We also held the parameter count
 fixed and traded width for depth.
 
-depth-36
-00:01:56.570 --> 00:01:58.940
+depth-39
+00:01:57.440 --> 00:01:59.690
 As the model gets deeper and narrower,
 
-depth-37
-00:01:59.210 --> 00:02:01.620
+depth-40
+00:02:00.000 --> 00:02:02.190
 the standard Transformer loses ground,
 
-depth-38
-00:02:01.830 --> 00:02:04.680
+depth-41
+00:02:02.340 --> 00:02:04.870
 while Loopback's margin
 grows at both scales.
 
-outro-39
-00:02:06.160 --> 00:02:07.190
+outro-42
+00:02:06.140 --> 00:02:07.190
 That's Loopback.
 
-outro-40
-00:02:07.540 --> 00:02:08.530
+outro-43
+00:02:07.560 --> 00:02:08.410
 Fewer parameters,
 
-outro-41
-00:02:08.660 --> 00:02:09.370
+outro-44
+00:02:08.680 --> 00:02:09.370
 lower loss.
 
-outro-42
-00:02:09.860 --> 00:02:12.250
+outro-45
+00:02:09.920 --> 00:02:12.270
 The paper and code are
 on our project page.

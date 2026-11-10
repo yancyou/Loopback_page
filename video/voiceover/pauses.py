@@ -22,20 +22,54 @@ def classify(tok):
         return "comma"
     return "none"
 
+class _W:                                             # a word with times, as faster-whisper's
+    def __init__(self, word, start, end):
+        self.word, self.start, self.end = word, start, end
+
+def ctc_words(y, sr, toks):
+    """Each script token's start and end from a CTC forced alignment (20 ms frames); tokens without letters are skipped."""
+    import torch, torchaudio
+    bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
+    model = bundle.get_model().eval()
+    lab = {c: i for i, c in enumerate(bundle.get_labels())}
+    y16 = librosa.resample(y, orig_sr=sr, target_sr=bundle.sample_rate)
+    with torch.inference_mode():
+        em, _ = model(torch.from_numpy(y16).unsqueeze(0))
+        em = torch.log_softmax(em, dim=-1)
+    keep = [(t, re.sub(r"[^A-Z']", "", t.upper().replace("-", ""))) for t in toks]
+    keep = [(t, w) for t, w in keep if w]
+    trans = "|".join(w for _, w in keep)
+    ali, sc = torchaudio.functional.forced_align(em, torch.tensor([[lab[c] for c in trans]], dtype=torch.int32), blank=0)
+    spans = torchaudio.functional.merge_tokens(ali[0], sc[0].exp())
+    sec = len(y16) / bundle.sample_rate / em.size(1)
+    out, cur = [], []
+    for sp in spans + [None]:
+        if sp is None or sp.token == lab["|"]:
+            if cur:
+                out.append((cur[0].start * sec, cur[-1].end * sec)); cur = []
+        else:
+            cur.append(sp)
+    return [_W(t, a0, a1) for (t, _), (a0, a1) in zip(keep, out)]
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("clip"); ap.add_argument("script"); ap.add_argument("sid")
     ap.add_argument("--report", action="store_true", help="measure only; leave the clip as it is")
     ap.add_argument("--sent", type=float, default=0.40); ap.add_argument("--clause", type=float, default=0.30)
     ap.add_argument("--comma", type=float, default=0.22); ap.add_argument("--none", type=float, default=0.14)
+    ap.add_argument("--ctc", action="store_true", help="word times from a CTC forced alignment of the script text (torchaudio WAV2VEC2_ASR_BASE_960H) instead of the recognizer's")
     a = ap.parse_args()
     caps = {"sentence": a.sent, "clause": a.clause, "comma": a.comma, "none": a.none}
-    say = next(g["say"] for g in json.load(open(a.script))["segments"] if g["id"] == a.sid)
+    from synth import plain
+    say = plain(next(g["say"] for g in json.load(open(a.script))["segments"] if g["id"] == a.sid))   # [word](/phonemes/) -> word
     y, sr = sf.read(a.clip, dtype="float32")
-    m = WhisperModel("small.en", device="cpu", compute_type="int8", cpu_threads=8)
-    segs, _ = m.transcribe(librosa.resample(y, orig_sr=sr, target_sr=16000), language="en", beam_size=5, word_timestamps=True,
-                           condition_on_previous_text=False)
-    W = [w for s in segs for w in s.words]
+    if a.ctc:
+        W = ctc_words(y, sr, say.split())
+    else:
+        m = WhisperModel("small.en", device="cpu", compute_type="int8", cpu_threads=8)
+        segs, _ = m.transcribe(librosa.resample(y, orig_sr=sr, target_sr=16000), language="en", beam_size=5, word_timestamps=True,
+                               condition_on_previous_text=False)
+        W = [w for s in segs for w in s.words]
     key = lambda w: re.sub(r"[^0-9a-z]", "", w.lower())
     toks = say.split()
     heard = {key(w.word) for w in W}
@@ -50,18 +84,22 @@ def main():
             pair[i0 + k] = j0 + k
     iv = librosa.effects.split(y, top_db=35, frame_length=1024, hop_length=256)
     gaps = [(int(p1), int(q0)) for (p0, p1), (q0, q1) in zip(iv[:-1], iv[1:])]
-    rank = {"sentence": 0, "clause": 1, "comma": 2, "none": 3}
+    # v29: a silence belongs to the boundary between the last word whose midpoint precedes the silence's centre and the next
+    # word (the recognizer stretches short words such as "and" or "at" over a pause, so the nearest punctuated boundary can be
+    # the wrong one: af_sarah paused after "and" in "updates, and how", which the v28 rule booked as the comma's pause)
+    widx = {pair[i]: i for i in pair}                 # recognizer word -> script token
     bnd = [(i, (W[pair[i]].end + W[pair[i + 1]].start) / 2 * sr, classify(toks[i]))
            for i in range(len(toks) - 1) if i in pair and i + 1 in pair]
-    own = {}                                   # boundary index -> its gap; each gap goes to one boundary only
+    own = {}
+    mids = [(w.start + w.end) / 2 * sr for w in W]
     for g in gaps:
-        near = [b for b in bnd if g[0] - 0.15 * sr <= b[1] <= g[1] + 0.15 * sr]
-        if not near:
-            continue
         c = (g[0] + g[1]) / 2
-        b = min(near, key=lambda b: (rank[b[2]], abs(b[1] - c)))   # a punctuated boundary first, then the nearest
-        if b[0] not in own or (own[b[0]][1] - own[b[0]][0]) < (g[1] - g[0]):
-            own[b[0]] = g
+        j = max((k for k, m_ in enumerate(mids) if m_ < c), default=None)
+        if j is None or j + 1 >= len(W) or j not in widx or (j + 1) not in widx or widx[j + 1] != widx[j] + 1:
+            continue
+        i = widx[j]
+        if i not in own or (own[i][1] - own[i][0]) < (g[1] - g[0]):
+            own[i] = g
     used = set(own.values())
     rows, cuts = [], []
     for i, _, cls in bnd:

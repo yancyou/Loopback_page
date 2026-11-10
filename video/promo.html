@@ -55,6 +55,7 @@ svg text { font-family: var(--body); }
 /* knobs (v22): the decomposition every residual rule sets */
 #kn-f { position: absolute; left: 0; right: 0; top: 214px; text-align: center; font: italic 500 60px/1 var(--display); color: var(--ink); letter-spacing: -.01em; }
 #kn-f sub { font-size: .55em; }
+#kn-g { position: absolute; left: 0; right: 0; top: 214px; text-align: center; font: italic 500 60px/1 var(--display); color: var(--ink); letter-spacing: -.01em; }
 .kq { position: absolute; top: 302px; width: 440px; text-align: center; font: 500 26px/1.3 var(--body); color: var(--ink3); }
 .kq b { display: block; font: italic 500 38px/1.1 var(--display); color: inherit; margin-bottom: 4px; }
 .kq b sub { font-size: .55em; }
@@ -141,12 +142,17 @@ svg text { font-family: var(--body); }
 
   <!-- 3 knobs (v22): every residual rule sets the input's strength, the total update weight and its allocation -->
   <div class="scene" id="s-knobs">
-    <div class="h fade" id="kn-h">Every residual rule sets <b>three things</b></div>
-    <div id="kn-f" class="fade"><i>h</i> = a&thinsp;<i>h</i><sub>0</sub> + &Sigma;<sub>i</sub> c<sub>i</sub>&thinsp;&delta;<sub>i</sub></div>
+    <!-- v29 (11-10, user: "这里应该是介绍这三个统一在common interface"): the paper's common memory interface first, then its unrolled form -->
+    <div class="h fade" id="kn-h">Every residual rule fits <b>one interface</b></div>
+    <div id="kn-f" class="fade">M &larr; M W + v b<sup>T</sup> &nbsp; h = M r</div>
+    <div id="kn-g" class="fade"><i>h</i> = a&thinsp;<i>h</i><sub>0</sub> + &Sigma;<sub>i</sub> c<sub>i</sub>&thinsp;&delta;<sub>i</sub></div>
+    <div class="kq fade" id="kn-w1" style="left:300px"><b>W</b>transport &middot; carry it forward</div>
+    <div class="kq fade" id="kn-w2" style="left:740px"><b>b</b>write &middot; add the block&rsquo;s value</div>
+    <div class="kq fade" id="kn-w3" style="left:1180px"><b>r</b>read &middot; form the next input</div>
     <div class="kq fade" id="kn-q1" style="left:300px"><b>a</b>input strength</div>
     <div class="kq fade" id="kn-q2" style="left:740px"><b>B = &Sigma;<sub>i</sub> c<sub>i</sub></b>total update weight</div>
     <div class="kq fade" id="kn-q3" style="left:1180px"><b>c<sub>i</sub> / B</b>allocation</div>
-    <div class="note fade" id="kn-n" style="top:414px">The standard residual, Hyper-Connections, Attention Residuals and linear-attention recurrences all unroll to this form.</div>
+    <div class="note fade" id="kn-n" style="top:414px">The standard residual, Hyper-Connections, Attention Residuals and linear attention differ only in transport, write and read.</div>
     <!-- v26 (11-09, user: "你这里的softmax什么意思？这里是不是得提到所有的residual 的共性？比如HC， Attention residual"): three rules, each card says how it sets the three -->
     <div class="panel k fade" id="ru-p0" style="left:120px"><h4>Standard residual</h4><svg width="432" height="264" viewBox="0 0 540 330" id="ru-c0"></svg><div class="lab" id="ru-l0"></div></div>
     <div class="panel k fade" id="ru-ph" style="left:700px"><h4>Hyper-Connections <span style="font-weight:400;font-style:italic;color:#79818e;font-size:.72em">(HC, mHC)</span></h4><svg width="432" height="264" viewBox="0 0 540 330" id="ru-ch"></svg><div class="lab" id="ru-lh"></div></div>
@@ -159,7 +165,7 @@ svg text { font-family: var(--body); }
     <div class="h fade" id="me-h" style="top:118px">Loopback sets the three <b>separately</b></div>
     <svg id="ru-c2" width="864" height="528" viewBox="0 0 540 330" style="position:absolute;left:150px;top:276px;opacity:0"></svg>
     <div id="me-lab" class="fade"></div>
-    <div class="mstep fade" id="me-1" style="top:330px"><span class="num"><i style="font:italic 500 34px/1 var(--display)">a</i></span><span class="tx">Input on its own path<small>input strength held at 1</small></span></div>
+    <div class="mstep fade" id="me-1" style="top:330px"><span class="num"><i style="font:italic 500 34px/1 var(--display)">a</i></span><span class="tx">Input on its own path<small>held at 1 &middot; no updates &rarr; output = input</small></span></div>
     <div class="mstep fade" id="me-2" style="top:480px"><span class="num"><i style="font:italic 500 34px/1 var(--display)">B</i></span><span class="tx">Decay bounds the total<small>every weight &times;&lambda; at each iteration end, &lambda; = 1/4</small></span></div>
     <div class="mstep fade" id="me-3" style="top:630px"><span class="num"><i style="font:italic 500 34px/1 var(--display)">c</i></span><span class="tx">Attention shares it<small>learned queries over the stored updates; same total</small></span></div>
   </div>
@@ -242,8 +248,8 @@ svg text { font-family: var(--body); }
 <script>
 'use strict';
 var DUR = 133.767;
-var SC = { title: [0, 6.73], memory: [6.73, 33.84], knobs: [33.84, 66.72], method: [66.72, 78.75], train: [78.75, 88.77], scale: [88.77, 102.12], nine: [102.12, 111.55],
-           depth: [111.55, 125.66], outro: [125.66, 133.77] };
+var SC = { title: [0, 6.38], memory: [6.38, 32.64], knobs: [32.64, 65.13], method: [65.13, 80.54], train: [80.54, 90.55], scale: [90.55, 103.19], nine: [103.19, 112.6],
+           depth: [112.6, 125.64], outro: [125.64, 133.77] };
 var NS = 'http://www.w3.org/2000/svg';
 var C = { bg: '#faf9f6', navy: '#0f4d92', teal: '#1e7a46', ink: '#121a26', ink2: '#2e3746', ink3: '#555e6c', muted: '#79818e',
           line: '#cfc9be', grid: '#ebe7df', faint: '#ebe7e0', axis: '#b9b2a6', track: '#e6e2da', ghost: '#a7adb6', slot: '#d6d1c7',
@@ -562,7 +568,7 @@ RU.charts = [0, 1, 2].map(function (p) {
   for (var i = 0; i < RU.n; i++) {
     var x = RU.x0 + 54 + i * (RU.bw + RU.gap);
     o.ghosts.push(el('rect', { x: x - 1, y: 0, width: RU.bw + 2, height: 0, rx: 4, fill: 'none', stroke: C.grey, 'stroke-width': 2, 'stroke-dasharray': '4 4', opacity: 0 }, s));
-    o.bars.push(el('rect', { x: x, y: RU.y0 + RU.ch, width: RU.bw, height: 0, rx: 4, fill: [C.grey, C.rose, C.navy][p] }, s));
+    o.bars.push(el('rect', { x: x, y: RU.y0 + RU.ch, width: RU.bw, height: 0, rx: 4, fill: [C.grey, C.grey, C.navy][p] }, s));   // v29: AttnRes grey like the other baselines
   }
   return o;
 });
@@ -605,11 +611,12 @@ function ruTimelineFast(dt) {                     // v22 knobs: as ruTimeline wi
     dt -= hold;
   }
 }
-// knobs (v26): the three quantities light up with "strength", "total", "shared"; then one card per rule as the narration names it:
-// residual addition (every update weight one: the total grows with every pass), Hyper-Connections (one learned weight per
-// stream: a stream holds the input and some updates, so they are scaled together), Attention Residuals (one softmax over the
-// input and the updates: a + B = 1, more weight on the updates leaves less for the input; v27: the label shows the sum).
-var KN = { q: [['strength', 2.7], ['total', 4.2], ['shared', 6.3]] };
+// knobs (v29, 11-10, user: "这里应该是介绍这三个统一在common interface" and "你的后面没有说清楚为什么要保留input"): the paper's common
+// memory interface (Section 3.1), M <- M W + v b^T and h = M r. Transport, write and read light up with "carries", "writes",
+// "reads"; one card per rule gives its choice of W, b, r as the narration names it; at "Unrolled" the interface gives way to
+// h = a h0 + sum_i c_i delta_i and the three quantities ("strength", "total", "shared"), and each card's second line states the
+// weights its rule implies -- facts only, no verdicts (why Loopback keeps the input at one is said in the next scene).
+var KN = { w: [['carries', 3.0], ['writes', 4.6], ['reads', 6.4]], q: [['strength', 26.0], ['total', 27.6], ['share', 29.4]] };
 var HC = { streams: [[1, 3], [2], [1, 2, 4], [3, 4]], inp: 66, seg: 44, x0: 96, bw: 64, gap: 50, base: 268 };
 HC.chart = (function buildHC() {
   var s = $('ru-ch'), o = { stacks: [] }, shade = ['#8f96a1', '#a9b0ba', '#7c8592', '#bcc2ca'];
@@ -627,35 +634,39 @@ HC.chart = (function buildHC() {
   return o;
 })();
 function red(text, a) { return '<br><span style="color:#b64342;opacity:' + a.toFixed(2) + '">' + text + '</span>'; }
+function gry(text, a) { return '<br><span style="color:#5d6672;opacity:' + a.toFixed(2) + '">' + text + '</span>'; }
+function fadeOut(e, k) { e.style.opacity = (parseFloat(e.style.opacity) || 0) * k; }
 function renderKnobs(t) {
-  var r = SC.knobs;
-  appear($('kn-h'), t, r[0] + .2, .6); appear($('kn-f'), t, r[0] + .6, .6);
-  var tq = KN.q.map(function (w) { return wt('knobs', w[0], w[1]); }), cur = -1;
-  tq.forEach(function (s, k) { if (t >= s - .1) { cur = k; } });
-  tq.forEach(function (s, k) { var e = $('kn-q' + (k + 1)); appear(e, t, s - .25, .5, 14); e.style.color = k === cur ? C.navy : C.ink3; });
-  appear($('kn-n'), t, tq[2] + .7, .6);
-  // "Residual addition gives every update a weight of one, so the total grows with every pass. Hyper-Connections give each stream
-  // one weight, so the input and the updates in it move together. Attention Residuals weigh the input and the updates with one
-  // softmax, so their weights add up to one: more weight on the updates leaves less for the input."
-  var tA = wt('knobs', 'standard', 10.6) - .25, tH = wt('knobs', 'hyperconnections', 16.0) - .25, tR = wt('knobs', 'attention', 21.8) - .25;
-  var tG = wt('knobs', 'grows', 12.6), tS = wt('knobs', 'together', 19.6), tC = wt('knobs', 'leaves', 27.0);
+  var r = SC.knobs, tU = wt('knobs', 'unrolled', 24.0) - .2, out = 1 - easeOut(prog(t, tU - .1, tU + .4));
+  appear($('kn-h'), t, r[0] + .2, .6);
+  appear($('kn-f'), t, r[0] + .6, .6); fadeOut($('kn-f'), out);
+  var tw = KN.w.map(function (w) { return wt('knobs', w[0], w[1]); }), cw = -1;
+  tw.forEach(function (s, k) { if (t >= s - .1) { cw = k; } });
+  tw.forEach(function (s, k) { var e = $('kn-w' + (k + 1)); appear(e, t, s - .25, .5, 14); fadeOut(e, out); e.style.color = k === cw ? C.navy : C.ink3; });
+  appear($('kn-n'), t, tw[2] + .7, .6); fadeOut($('kn-n'), out);
+  appear($('kn-g'), t, tU + .15, .6);
+  var tq = KN.q.map(function (w) { return wt('knobs', w[0], w[1]); }), cq = -1;
+  tq.forEach(function (s, k) { if (t >= s - .1) { cq = k; } });
+  tq.forEach(function (s, k) { var e = $('kn-q' + (k + 1)); appear(e, t, s - .25, .5, 14); e.style.color = k === cq ? C.navy : C.ink3; });
+  var tA = wt('knobs', 'standard', 10.6) - .25, tH = wt('knobs', 'hyperconnections', 15.0) - .25, tR = wt('knobs', 'attention', 19.6) - .25;
+  var a2 = easeOut(prog(t, tU + .3, tU + .8));
   appear($('ru-p0'), t, tA - .2, .6); appear($('ru-ph'), t, tH - .2, .6); appear($('ru-p1'), t, tR - .2, .6);
   var tl = ruTimelineFast(t - tA), u = tl.u, n = tl.n, grow = tl.grow, A = RU.charts[0];
   setBar(A.input, 1, true);
   A.bars.forEach(function (b, i) { setBar(b, i < n - 1 ? 1 : i === n - 1 ? easeOut(grow) : 0, i < n && u > 0); });
-  $('ru-l0').innerHTML = 'input 1 &middot; total ' + (u === 0 ? 0 : n) + red('grows with every pass', easeOut(prog(t, tG - .1, tG + .4)));
+  $('ru-l0').innerHTML = 'one stream &middot; W = b = r = 1' + gry('input 1 &middot; total ' + (u === 0 ? 0 : n), a2);
   var ub = easeOut(prog(t, tH, tH + .8));
   HC.chart.stacks.forEach(function (st, k) {
     var p = Math.max(.001, ub * (.64 + .3 * (.5 + .5 * Math.sin(2 * Math.PI * (t - tH) / 2.4 + k * 1.7))));
     st.g.setAttribute('transform', 'matrix(1 0 0 ' + p.toFixed(4) + ' 0 ' + (HC.base * (1 - p)).toFixed(2) + ')');
     st.wl.setAttribute('y', (HC.base - (HC.base - st.top) * p - 12).toFixed(1)); st.wl.setAttribute('opacity', ub);
   });
-  $('ru-lh').innerHTML = 'one learned weight per stream' + red('input tied to its stream\'s updates', easeOut(prog(t, tS - .1, tS + .4)));
+  $('ru-lh').innerHTML = 'several streams &middot; learned W, b, r' + gry('the read weighs whole streams', a2);
   var tl2 = ruTimelineFast(t - tR), u2 = tl2.u, n2 = tl2.n, S = RU.charts[1], ws = 1 / (n2 + 1);
   setBar(S.input, u2 === 0 ? 1 : ws, true);
   S.bars.forEach(function (b, i) { setBar(b, i < n2 - 1 ? ws : i === n2 - 1 ? ws * easeOut(tl2.grow) : 0, i < n2 && u2 > 0); });
-  $('ru-l1').innerHTML = 'one softmax: input 1/' + (u2 === 0 ? 1 : n2 + 1) + ' + total ' + (u2 === 0 ? '0' : fmt2(n2 / (n2 + 1))) + ' = 1'
-    + red('more on the updates, less for the input', easeOut(prog(t, tC - .1, tC + .4)));
+  $('ru-l1').innerHTML = 'one slot per update &middot; r = softmax'
+    + gry('input 1/' + (u2 === 0 ? 1 : n2 + 1) + ' + total ' + (u2 === 0 ? '0' : fmt2(n2 / (n2 + 1))) + ' = 1', a2);
 }
 function renderAnalysis(t) {
   var r = SC.analysis;
@@ -1305,7 +1316,9 @@ function renderLive(t) {
 
 /* ---------------------------------------------------------------- v24: the knobs' and the method's symbols, typeset */
 MJX.push(function buildSymbols() {
-  texHTML($('kn-f'), 'h = a\\,h_0 + \\sum_i c_i\\,\\delta_i', 62);
+  texHTML($('kn-f'), 'M \\leftarrow M\\,W + v\\,b^{\\top} \\qquad h = M\\,r', 62);
+  texHTML($('kn-g'), 'h = a\\,h_0 + \\sum_i c_i\\,\\delta_i', 62);
+  texHTML($('kn-w1').querySelector('b'), 'W', 40); texHTML($('kn-w2').querySelector('b'), 'b', 40); texHTML($('kn-w3').querySelector('b'), 'r', 40);
   texHTML($('kn-q1').querySelector('b'), 'a', 40);
   texHTML($('kn-q2').querySelector('b'), 'B = \\sum_i c_i', 40);
   texHTML($('kn-q3').querySelector('b'), 'c_i / B', 40);

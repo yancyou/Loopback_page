@@ -21,7 +21,8 @@ def main():
     lst, script, report, out = sys.argv[1:5]
     import soundfile as sf, librosa
     from faster_whisper import WhisperModel
-    say = {g["id"]: g["say"] for g in json.load(open(script))["segments"]}
+    from synth import plain
+    say = {g["id"]: plain(g["say"]) for g in json.load(open(script))["segments"]}   # [word](/phonemes/) -> word
     m = WhisperModel("small.en", device="cpu", compute_type="int8", cpu_threads=min(16, os.cpu_count() or 1))
     key = lambda w: re.sub(r"[^0-9a-z]", "", w.lower())
     res = {}
